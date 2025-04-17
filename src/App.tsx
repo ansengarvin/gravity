@@ -1,10 +1,3 @@
-
-
-
 export function Simulation() {
-  return (
-    <>
-      HELLO WORLD
-    </>
-  )
+    return <>HELLO WORLD</>;
 }
