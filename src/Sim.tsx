@@ -86,25 +86,23 @@ const vsSource = `
 
     varying highp vec3 vTransformedNormal;
     varying highp vec4 vPosition;
-    varying lowp vec4 vColor;
 
     void main(void) {
       gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
       vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal;
       vPosition = uModelViewMatrix * aVertexPosition;
-      vColor = aVertexColor;
     }
   `;
 
   const fsSource = `
   varying highp vec3 vTransformedNormal;
   varying highp vec4 vPosition;
-  varying lowp vec4 vColor;
 
   void main(void) {
     highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
     highp vec3 directionalLightColor = vec3(1, 1, 1);
     highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
+    highp vec4 vColor = vec4(94.0, 156.0, 255.0, 255.0) / 255.0;
 
     highp vec3 normal = normalize(vTransformedNormal);
     highp float directional = max(dot(normal, directionalVector), 0.0);

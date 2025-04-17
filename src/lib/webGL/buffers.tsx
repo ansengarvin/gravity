@@ -1,20 +1,17 @@
 export interface Buffers {
   position: WebGLBuffer
   indices: WebGLBuffer
-  color: WebGLBuffer
   normal: WebGLBuffer
 }
 
 export function initBuffers(gl: WebGLRenderingContext) {
   const positionBuffer = initPositionBuffer(gl);
   const indexBuffer = initIndexBuffer(gl);
-  const colorBuffer = initColorBuffer(gl);
   const normalBuffer = initNormalBuffer(gl);
 
   return {
     position: positionBuffer,
     indices: indexBuffer,
-    color: colorBuffer,
     normal: normalBuffer,
   };
 }
@@ -92,36 +89,6 @@ function initIndexBuffer(gl: WebGLRenderingContext): WebGLBuffer {
   );
 
   return indexBuffer;
-}
-
-/*
-  Color buffer for the cube
-*/
-function initColorBuffer(gl: WebGLRenderingContext): WebGLBuffer {
-  const faceColors = [
-    [1.0, 1.0, 1.0, 1.0], // Front face: white
-    [1.0, 0.0, 0.0, 1.0], // Back face: red
-    [0.0, 1.0, 0.0, 1.0], // Top face: green
-    [0.0, 0.0, 1.0, 1.0], // Bottom face: blue
-    [1.0, 1.0, 0.0, 1.0], // Right face: yellow
-    [1.0, 0.0, 1.0, 1.0], // Left face: purple
-  ];
-  
-  // Convert the array of colors into a table for all the vertices.
-  
-  let colors: number[] = [];
-  
-  for (let j = 0; j < faceColors.length; ++j) {
-    const c = faceColors[j];
-    // Repeat each color four times for the four vertices of the face
-    colors = colors.concat(c, c, c, c);
-  }
-
-  const colorBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
-
-  return colorBuffer;
 }
 
 /*
