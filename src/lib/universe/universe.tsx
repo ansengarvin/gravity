@@ -3,6 +3,7 @@ import { getRandomFloat } from "../../random/random";
 import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
+import React from "react";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -11,6 +12,15 @@ export interface UniverseSettings {
     timeStep: number;
     numBodies: number; // THe number of starting bodies in the universe
     size: number; // The size of the universe in astronomical units
+}
+
+export interface UniverseCamera {
+    zoom: number,
+    yaw: number,
+    pitch: number,
+    x: number,
+    y: number,
+    z: number
 }
 
 export class Universe {
@@ -30,7 +40,9 @@ export class Universe {
     public masses: Float32Array;
     public radii: Float32Array;
 
-    constructor(settings: UniverseSettings) {
+    private cameraRef: React.RefObject<UniverseCamera>;
+
+    constructor(settings: UniverseSettings, cameraRef: React.RefObject<UniverseCamera>) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -47,6 +59,8 @@ export class Universe {
 
         this.masses = new Float32Array(this.settings.numBodies);
         this.radii = new Float32Array(this.settings.numBodies);
+
+        this.cameraRef = cameraRef;
     }
 
     public radius_from_mass(mass: number): number {
@@ -264,7 +278,7 @@ export class Universe {
         mat4.translate(
             cameraMatrix, // destination matrix
             cameraMatrix, // matrix to translate
-            [0.0, 0.0, -20.0], // amount to translate
+            [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
         );
 
         for (let i = 0; i < this.settings.numBodies; i++) {

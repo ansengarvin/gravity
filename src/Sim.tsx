@@ -3,13 +3,89 @@ import { ProgramInfo } from "./lib/webGL/programInfo";
 import { initShaderProgram } from "./lib/webGL/shaders";
 import { initBuffers } from "./lib/webGL/buffers";
 import { getModel } from "./lib/gltf/model";
-import { Universe, UniverseSettings } from "./lib/universe/universe";
+import { Universe, UniverseCamera, UniverseSettings } from "./lib/universe/universe";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
+const cameraSensititivy = 0.1;
 
 export function Sim() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const settings: UniverseSettings = {
+        seed: "irrelevant",
+        timeStep: 1.0 / 12.0, // time step in years (1 month)
+        numBodies: 500,
+        size: 20, // The size of the universe in astronomical units
+    };
+
+    const cameraRef = useRef<UniverseCamera>({
+        zoom: -10,
+        pitch: 0.0,
+        yaw: 0.0,
+        x: 0.0,
+        y: 0.0,
+        z: 0.0
+    })
+
+    const isDragging = useRef(false);
+    const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
+
+    const universe = new Universe(settings, cameraRef);
+
+    const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+        cameraRef.current.zoom -= event.deltaY * 0.01;
+        cameraRef.current.zoom = Math.min(Math.max(cameraRef.current.zoom, -50), -5);
+        console.log(cameraRef.current.zoom)
+    }
+
+    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        isDragging.current = true;
+        const rect = canvasRef.current?.getBoundingClientRect();
+        if (rect) {
+            lastMousePosition.current = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top,
+            };
+        }
+    };
+
+    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDragging.current || !lastMousePosition.current) return;
+
+        const rect = canvasRef.current?.getBoundingClientRect();
+        if (rect) {
+            const currentMousePosition = {
+                x: event.clientX - rect.left,
+                y: event.clientY - rect.top,
+            };
+
+            const deltaX = currentMousePosition.x - lastMousePosition.current.x;
+            const deltaY = currentMousePosition.y - lastMousePosition.current.y;
+
+            cameraRef.current.yaw += deltaX * cameraSensititivy;
+            cameraRef.current.pitch += deltaY * cameraSensititivy;
+
+            // Clamp pitch between -90 and 90
+            if (cameraRef.current.pitch > Math.PI / 2) {
+                cameraRef.current.pitch = Math.PI / 2;
+            }
+            if (cameraRef.current.pitch < -Math.PI / 2) {
+                cameraRef.current.pitch = -Math.PI / 2;
+            }
+
+            console.log(`Mouse dragged by: (${deltaX}, ${deltaY})`);
+
+            // Update the last mouse position
+            lastMousePosition.current = currentMousePosition;
+
+            // Add logic to handle dragging, e.g., panning the universe
+        }
+    };
+
+    const handleMouseUp = () => {
+        isDragging.current = false;
+        lastMousePosition.current = null;
+    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -77,14 +153,6 @@ export function Sim() {
 
             const buffers = initBuffers(gl, sphere);
 
-            const settings: UniverseSettings = {
-                seed: "irrelevant",
-                timeStep: 1.0 / 12.0, // time step in years (1 month)
-                numBodies: 100,
-                size: 20, // The size of the universe in astronomical units
-            };
-
-            const universe = new Universe(settings);
             universe.initialize();
 
             console.log(universe.positionsX);
@@ -115,7 +183,15 @@ export function Sim() {
         initialize();
     }, []); // Runs once when the component mounts
 
-    return <canvas ref={canvasRef} width="1000" height="750"></canvas>;
+    return <canvas
+        ref={canvasRef}
+        width="1000"
+        height="750"
+        onWheel={handleMouseWheel}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+    ></canvas>;
 }
 
 const vsSource = `
