@@ -7,6 +7,7 @@ export function drawSceneCube(
     programInfo: ProgramInfo,
     buffers: Buffers,
     cubeRotation: number,
+    vertexCount: number
 ) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -30,10 +31,6 @@ export function drawSceneCube(
     const zNear = 0.1;
     const zFar = 100.0;
 
-
-    
-
-    
     /*
         Binding buffers
     */
@@ -113,7 +110,6 @@ export function drawSceneCube(
         );
 
         {
-            const vertexCount = 36;
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
             gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
@@ -128,7 +124,7 @@ function setPositionAttribute(
     buffers: Buffers,
     programInfo: ProgramInfo,
 ) {
-    const numComponents = 3; // pull out 2 values per iteration
+    const numComponents = 3; // pull out 3 values per iteration
     const type = gl.FLOAT; // the data in the buffer is 32bit floats
     const normalize = false; // don't normalize
     const stride = 0; // how many bytes to get from one set of values to the next

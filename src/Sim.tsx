@@ -3,6 +3,7 @@ import { ProgramInfo } from "./lib/webGL/programInfo";
 import { initShaderProgram } from "./lib/webGL/shaders";
 import { initBuffers } from "./lib/webGL/buffers";
 import { drawSceneCube } from "./lib/webGL/drawScene";
+import { getModel } from "./lib/gltf/model";
 
 export function Sim() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -20,72 +21,84 @@ export function Sim() {
             return;
         }
 
-        // Initialize a shader program; this is where all the lighting
-        // for the vertices and so forth is established.
-        const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+        const initialize = async () => {
+            /*
+            Get the UV sphere model
+            */
+            const sphere = await getModel('uvsphere.glb');
 
-        let cubeRotation = 0.0;
-        let deltaTime = 0;
+            // Initialize a shader program; this is where all the lighting
+            // for the vertices and so forth is established.
+            const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
 
-        if (!shaderProgram) {
-            console.error("Failed to initialize shader program");
-            return;
-        }
+            let cubeRotation = 0.0;
+            let deltaTime = 0;
 
-        // Collect all the info needed to use the shader program.
-        // Look up which attribute our shader program is using
-        // for aVertexPosition and look up uniform locations.
-        const programInfo: ProgramInfo = {
-            program: shaderProgram,
-            attribLocations: {
-                vertexPosition: gl.getAttribLocation(
-                    shaderProgram,
-                    "aVertexPosition",
-                ),
-                vertexColor: gl.getAttribLocation(
-                    shaderProgram,
-                    "aVertexColor",
-                ),
-                vertexNormal: gl.getAttribLocation(
-                    shaderProgram,
-                    "aVertexNormal",
-                ),
-            },
-            uniformLocations: {
-                projectionMatrix: gl.getUniformLocation(
-                    shaderProgram,
-                    "uProjectionMatrix",
-                ),
-                modelViewMatrix: gl.getUniformLocation(
-                    shaderProgram,
-                    "uModelViewMatrix",
-                ),
-                normalMatrix: gl.getUniformLocation(
-                    shaderProgram,
-                    "uNormalMatrix",
-                ),
-                uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
-            },
-        };
+            if (!shaderProgram) {
+                console.error("Failed to initialize shader program");
+                return;
+            }
 
-        const buffers = initBuffers(gl);
+            // Collect all the info needed to use the shader program.
+            // Look up which attribute our shader program is using
+            // for aVertexPosition and look up uniform locations.
+            const programInfo: ProgramInfo = {
+                program: shaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(
+                        shaderProgram,
+                        "aVertexPosition",
+                    ),
+                    vertexColor: gl.getAttribLocation(
+                        shaderProgram,
+                        "aVertexColor",
+                    ),
+                    vertexNormal: gl.getAttribLocation(
+                        shaderProgram,
+                        "aVertexNormal",
+                    ),
+                },
+                uniformLocations: {
+                    projectionMatrix: gl.getUniformLocation(
+                        shaderProgram,
+                        "uProjectionMatrix",
+                    ),
+                    modelViewMatrix: gl.getUniformLocation(
+                        shaderProgram,
+                        "uModelViewMatrix",
+                    ),
+                    normalMatrix: gl.getUniformLocation(
+                        shaderProgram,
+                        "uNormalMatrix",
+                    ),
+                    uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+                },
+            };
 
-        let then = 0;
+            const buffers = initBuffers(gl, sphere);
 
-        function render(now: number) {
-            now *= 0.001;
-            deltaTime = now - then;
-            then = now;
+            console.log(sphere.vertexCount)
+            console.log(sphere.vertices)
 
-            if (gl) {
-                drawSceneCube(gl, programInfo, buffers, cubeRotation);
-                cubeRotation += deltaTime;
+            let then = 0;
+
+            function render(now: number) {
+                now *= 0.001;
+                deltaTime = now - then;
+                then = now;
+
+                if (gl) {
+                    drawSceneCube(gl, programInfo, buffers, cubeRotation, sphere.vertexCount);
+                    cubeRotation += deltaTime;
+                }
+
+                requestAnimationFrame(render);
             }
 
             requestAnimationFrame(render);
         }
 
-        requestAnimationFrame(render);
+        initialize()
     }, []); // Runs once when the component mounts
 
     return <canvas ref={canvasRef} width="1000" height="750"></canvas>;
