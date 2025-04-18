@@ -3,7 +3,8 @@ import { ProgramInfo } from "../lib/webGL/programInfo";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
-import { MassRankingItem, Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
+import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
+import { LeaderboardBody } from "./Leaderboard";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -13,11 +14,11 @@ interface SimProps {
     height: string,
     width: string,
     setNumActive: React.Dispatch<React.SetStateAction<number>>
-    setLeaderboard: React.Dispatch<React.SetStateAction<Array<MassRankingItem>>>
+    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>
 }
 
 export function Sim(props: SimProps) {
-    const {height, width, setNumActive, setLeaderboard} = props;
+    const {height, width, setNumActive, setLeaderboardBodies} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -156,7 +157,7 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     universe.current.updateEuler(secondsPerTick);
                     setNumActive(universe.current.numActive);
-                    setLeaderboard(universe.current.getMassRankings())
+                    setLeaderboardBodies(universe.current.getMassRankings())
                     accumulatedTime -= secondsPerTick;
                 }
 

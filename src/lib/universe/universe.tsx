@@ -4,6 +4,7 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
+import { LeaderboardBody} from "../../components/Leaderboard";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -21,13 +22,6 @@ export interface UniverseCamera {
     x: number;
     y: number;
     z: number;
-}
-
-// I may just end up making a separate body object.
-export interface MassRankingItem {
-    index: number,
-    mass: number,
-    color: string,
 }
 
 export class Universe {
@@ -88,7 +82,7 @@ export class Universe {
         //return 1;
     }
 
-    public initialize() {
+    public initialize(): void {
         // Seed the random number generator with the provided seed
         const min_position = (-1.0 * this.settings.size) / 2;
         const max_position = this.settings.size / 2;
@@ -320,7 +314,7 @@ export class Universe {
         }
     }
 
-    public getMassRankings(): Array<MassRankingItem> {
+    public getMassRankings(): Array<LeaderboardBody> {
         const massRankings = new Array(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             massRankings[i] = {
