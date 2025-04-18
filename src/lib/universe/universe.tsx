@@ -23,6 +23,13 @@ export interface UniverseCamera {
     z: number;
 }
 
+// I may just end up making a separate body object.
+export interface MassRankingItem {
+    index: number,
+    mass: number,
+    color: string,
+}
+
 export class Universe {
     public settings: UniverseSettings;
 
@@ -311,5 +318,20 @@ export class Universe {
                 gl.drawElements(gl.TRIANGLES, indexCount, type, offset);
             }
         }
+    }
+
+    public getMassRankings(): Array<MassRankingItem> {
+        const massRankings = new Array(this.settings.numBodies);
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            massRankings[i] = {
+                index: i,
+                mass: this.masses[i],
+                color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
+            };
+        }
+
+        massRankings.sort((a, b) => b.mass - a.mass);
+
+        return massRankings;
     }
 }

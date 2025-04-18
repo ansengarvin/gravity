@@ -3,7 +3,7 @@ import { ProgramInfo } from "../lib/webGL/programInfo";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
-import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
+import { MassRankingItem, Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -11,11 +11,13 @@ const cameraSensititivy = 0.1;
 
 interface SimProps {
     height: string,
-    width: string
+    width: string,
+    setNumActive: React.Dispatch<React.SetStateAction<number>>
+    setLeaderboard: React.Dispatch<React.SetStateAction<Array<MassRankingItem>>>
 }
 
 export function Sim(props: SimProps) {
-    const {height, width} = props;
+    const {height, width, setNumActive, setLeaderboard} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -153,6 +155,8 @@ export function Sim(props: SimProps) {
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
                     universe.current.updateEuler(secondsPerTick);
+                    setNumActive(universe.current.numActive);
+                    setLeaderboard(universe.current.getMassRankings())
                     accumulatedTime -= secondsPerTick;
                 }
 
