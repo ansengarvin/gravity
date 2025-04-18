@@ -1,7 +1,4 @@
 import styled from "@emotion/styled"
-import { Camera } from "../lib/webGL/camera"
-import { useState } from "react"
-
 
 // I may just end up making a separate body object.
 export interface LeaderboardBody {
@@ -13,25 +10,22 @@ export interface LeaderboardBody {
 
 interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[]
-    cameraRef: React.RefObject<Camera>
+    bodyFollowed: number
+    updateBodyFollowed: (newBodiesFollowed: number) => void
 }
 
 export function Leaderboard(props: LeaderboardProps) {
-    const {leaderboardBodies, cameraRef} = props
-    const [focusedBody, setFocusedBody] = useState(-1)
+    const {leaderboardBodies, bodyFollowed, updateBodyFollowed} = props
 
     const cardClick = (idx: number, x: number, y: number, z: number) => {
         console.log(x, y, z)
-        setFocusedBody(idx)
-        if (cameraRef.current) {
-            cameraRef.current.setTarget(x, y , z);
-        }
+        updateBodyFollowed(idx)
     }
 
     return (
         <LeaderboardStyle>
             {leaderboardBodies.map((item, index) => (
-                <LeaderboardItemCard key={index} color={item.color} selected={focusedBody===item.index} onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}>
+                <LeaderboardItemCard key={index} color={item.color} selected={bodyFollowed===item.index} onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}>
                     Planet {item.index} <br/>
                     Mass: {item.mass} solar masses
                 </LeaderboardItemCard>     

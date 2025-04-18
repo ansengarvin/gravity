@@ -46,9 +46,11 @@ export class Universe {
     public colorsB: Float32Array;
     public numActive: number;
 
+    public bodyFollowedRef: React.RefObject<number>;
+    public updateBodyFollowed: ( newBodyFollowed: number) => void;
     private cameraRef: React.RefObject<Camera>;
 
-    constructor(settings: UniverseSettings, cameraRef: React.RefObject<Camera>) {
+    constructor(settings: UniverseSettings, cameraRef: React.RefObject<Camera>, bodyFollowedRef: React.RefObject<number>, updateBodyFollowed: (newBodyFollowed: number) => void) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -70,8 +72,10 @@ export class Universe {
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
 
-        this.cameraRef = cameraRef;
         this.numActive = this.settings.numBodies;
+        this.cameraRef = cameraRef;
+        this.bodyFollowedRef = bodyFollowedRef;
+        this.updateBodyFollowed = updateBodyFollowed;
 
         this.initialize();
     }
@@ -225,6 +229,11 @@ export class Universe {
                     this.numActive--;
                 }
             }
+        }
+
+        // Update the camera position to the current position of the followed body
+        if (this.bodyFollowedRef.current !== -1) {
+            this.cameraRef.current.setTarget(this.positionsX[this.bodyFollowedRef.current], this.positionsY[this.bodyFollowedRef.current], this.positionsZ[this.bodyFollowedRef.current]);
         }
     }
 

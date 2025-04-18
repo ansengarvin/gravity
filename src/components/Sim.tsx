@@ -16,11 +16,12 @@ interface SimProps {
     width: string;
     setNumActive: React.Dispatch<React.SetStateAction<number>>;
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-    cameraRef: React.RefObject<Camera>;
+    bodyFollowedRef: React.RefObject<number>;
+    updateBodyFollowed: (newBodiesFollowed: number) => void;
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, cameraRef } = props;
+    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -32,7 +33,8 @@ export function Sim(props: SimProps) {
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
-    const universe = useRef<Universe>(new Universe(settings, cameraRef));
+    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10));
+    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -148,7 +150,7 @@ export function Sim(props: SimProps) {
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
-                    //universe.current.updateEuler(secondsPerTick);
+                    universe.current.updateEuler(secondsPerTick);
                     setNumActive(universe.current.numActive);
                     setLeaderboardBodies(universe.current.getMassRankings());
                     accumulatedTime -= secondsPerTick;

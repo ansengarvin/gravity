@@ -26,18 +26,30 @@ const SimScreen = styled.div`
 export function App() {
     const [numActive, setNumActive] = useState(0);
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10));
+
+    /*
+        Leaderboard wants a state because it needs to be able to re-render every time the followed body is changed.
+        Sim wants a ref because the Universe class needs real-time access to the followed body as it's being changed by the user.
+        I set both a state and a ref to the same value, and then I can use the ref in the Sim class and the state in the Leaderboard.
+    */
+    const [bodyFollowed, setBodyFollowed]= useState<number>(-1)
+    const bodyFollowedRef = useRef<number>(bodyFollowed);
+    const updateBodyFollowed = (newBodyFollowed: number) => {
+        setBodyFollowed(newBodyFollowed);
+        bodyFollowedRef.current = newBodyFollowed;
+    }
     return (
         <Backdrop>
             <StatScreen>Number of Bodies: {numActive}</StatScreen>
-            <Leaderboard leaderboardBodies={leaderboardBodies} cameraRef={cameraRef} />
+            <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />
             <SimScreen>
                 <Sim
                     width="1000px"
                     height="750px"
                     setNumActive={setNumActive}
                     setLeaderboardBodies={setLeaderboardBodies}
-                    cameraRef={cameraRef}
+                    bodyFollowedRef={bodyFollowedRef}
+                    updateBodyFollowed={updateBodyFollowed}
                 />
             </SimScreen>
         </Backdrop>
