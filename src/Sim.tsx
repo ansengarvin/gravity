@@ -4,6 +4,10 @@ import { initShaderProgram } from "./lib/webGL/shaders";
 import { initBuffers } from "./lib/webGL/buffers";
 import { drawSceneCube } from "./lib/webGL/drawScene";
 import { getModel } from "./lib/gltf/model";
+import { Universe, UniverseSettings } from "./lib/universe/universe";
+
+const ticksPerSecond = 60;
+const secondsPerTick = 1 / ticksPerSecond;
 
 export function Sim() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -30,9 +34,6 @@ export function Sim() {
             // Initialize a shader program; this is where all the lighting
             // for the vertices and so forth is established.
             const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
-
-            let cubeRotation = 0.0;
-            let deltaTime = 0;
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");
@@ -77,16 +78,35 @@ export function Sim() {
 
             const buffers = initBuffers(gl, sphere);
 
-            let then = 0;
+            const settings: UniverseSettings = {
+                seed: "irrelevant",
+                timeStep: 1.0 / 12.0, // time step in years (1 month)
+                numBodies: 100,
+                size: 1000, // The size of the universe in astronomical units
+            }
 
+            const universe = new Universe(settings);
+            let then = 0;
+            let accumulatedTime = 0;
             function render(now: number) {
-                now *= 0.001;
-                deltaTime = now - then;
+                now *= 0.001; // convert to seconds
+                const deltaTime = now - then;
                 then = now;
+                accumulatedTime += deltaTime;
+
+                // Update the universe simulation
+                // while (accumulatedTime >= secondsPerTick) {
+                //     universe.updateEuler(secondsPerTick);
+                //     accumulatedTime -= secondsPerTick;
+                // }
 
                 if (gl) {
-                    drawSceneCube(gl, programInfo, buffers, cubeRotation, sphere.indexCount);
-                    cubeRotation += deltaTime;
+                    universe.draw(
+                        gl,
+                        programInfo,
+                        buffers,
+                        sphere.indexCount,
+                    )
                 }
 
                 requestAnimationFrame(render);
