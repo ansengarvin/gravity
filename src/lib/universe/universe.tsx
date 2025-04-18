@@ -323,6 +323,11 @@ export class Universe {
                 index: i,
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
+                pos: {
+                    x: this.positionsX[i],
+                    y: this.positionsY[i],
+                    z: this.positionsZ[i],
+                }
             };
         }
 

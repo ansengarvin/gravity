@@ -2,7 +2,7 @@ import { mat4, vec3 } from "gl-matrix";
 
 export class Camera {
     // X, Y, and Z represent the central point the camera orbits around
-    public target: {
+    private target: {
         x: number;
         y: number;
         z: number;
@@ -38,6 +38,12 @@ export class Camera {
         );
 
         return position;
+    }
+
+    public setTarget(x: number, y: number, z: number): void {
+        this.target.x = x;
+        this.target.y = y;
+        this.target.z = z;
     }
 
     public getViewMatrix(): mat4 {

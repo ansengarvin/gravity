@@ -1,4 +1,5 @@
 import styled from "@emotion/styled"
+import { Camera } from "../lib/webGL/camera"
 
 
 // I may just end up making a separate body object.
@@ -6,19 +7,28 @@ export interface LeaderboardBody {
     index: number,
     mass: number,
     color: string,
+    pos: {x: number, y: number, z: number}
 }
 
 interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[]
+    cameraRef: React.RefObject<Camera>
 }
 
 export function Leaderboard(props: LeaderboardProps) {
-    const {leaderboardBodies} = props
+    const {leaderboardBodies, cameraRef} = props
+
+    const cardClick = (x: number, y: number, z: number) => {
+        console.log(x, y, z)
+        if (cameraRef.current) {
+            cameraRef.current.setTarget(x, y , z);
+        }
+    }
 
     return (
         <LeaderboardStyle>
             {leaderboardBodies.map((item, index) => (
-                <LeaderboardItemCard key={index} color={item.color}>
+                <LeaderboardItemCard key={index} color={item.color} onClick={() => cardClick(item.pos.x, item.pos.y, item.pos.z)}>
                     Planet {item.index} <br/>
                     Mass: {item.mass} solar masses
                 </LeaderboardItemCard>

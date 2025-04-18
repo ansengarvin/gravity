@@ -3,7 +3,7 @@ import { ProgramInfo } from "../lib/webGL/programInfo";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
-import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
+import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { LeaderboardBody } from "./Leaderboard";
 import { Camera } from "../lib/webGL/camera";
 
@@ -16,10 +16,11 @@ interface SimProps {
     width: string,
     setNumActive: React.Dispatch<React.SetStateAction<number>>
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>
+    cameraRef: React.RefObject<Camera>
 }
 
 export function Sim(props: SimProps) {
-    const {height, width, setNumActive, setLeaderboardBodies} = props;
+    const {height, width, setNumActive, setLeaderboardBodies, cameraRef} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -28,7 +29,7 @@ export function Sim(props: SimProps) {
         size: 20, // The size of the universe in astronomical units
     };
 
-    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10))
+    
 
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
