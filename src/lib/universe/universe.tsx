@@ -53,6 +53,7 @@ export class Universe {
         // The radius to mass ratio is extremely unrealistic for this simulation.
         // If it weren't, we wouldn't be able to see most of the bodies.
         return Math.pow(mass, 1 / 3) * 0.1;
+        //return 1;
     }
 
     public initialize() {
@@ -79,13 +80,15 @@ export class Universe {
             this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
             this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
 
+            this.bodiesActive[i] = 1;
+
             this.masses[i] = getRandomFloat(min_mass, max_mass);
             this.radii[i] = this.radius_from_mass(this.masses[i]);
         }
     }
 
     public updateEuler(deltaTime: number) {
-        const dt = this.settings.timeStep * deltaTime;
+        const dt = deltaTime * this.settings.timeStep;
 
         // Zero out all accelerations
         // Each fill operation, evidently, is done in O(n) time.

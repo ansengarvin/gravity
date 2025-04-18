@@ -97,11 +97,11 @@ export function Sim() {
                 then = now;
                 accumulatedTime += deltaTime;
 
-                // Update the universe simulation
-                // while (accumulatedTime >= secondsPerTick) {
-                //     universe.updateEuler(secondsPerTick);
-                //     accumulatedTime -= secondsPerTick;
-                // }
+                //Update the universe simulation
+                while (accumulatedTime >= secondsPerTick) {
+                    universe.updateEuler(secondsPerTick);
+                    accumulatedTime -= secondsPerTick;
+                }
 
                 if (gl) {
                     universe.draw(
