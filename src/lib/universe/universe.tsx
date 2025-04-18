@@ -1,4 +1,4 @@
-import { mat4 } from "gl-matrix";
+import { mat4, vec4 } from "gl-matrix";
 import { getRandomFloat } from "../../random/random";
 import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
@@ -39,6 +39,9 @@ export class Universe {
     public accelerationsZ: Float32Array;
     public masses: Float32Array;
     public radii: Float32Array;
+    public colorsR: Float32Array;
+    public colorsG: Float32Array;
+    public colorsB: Float32Array;
 
     private cameraRef: React.RefObject<UniverseCamera>;
 
@@ -59,6 +62,10 @@ export class Universe {
 
         this.masses = new Float32Array(this.settings.numBodies);
         this.radii = new Float32Array(this.settings.numBodies);
+
+        this.colorsR = new Float32Array(this.settings.numBodies);
+        this.colorsG = new Float32Array(this.settings.numBodies);
+        this.colorsB = new Float32Array(this.settings.numBodies);
 
         this.cameraRef = cameraRef;
     }
@@ -98,6 +105,13 @@ export class Universe {
 
             this.masses[i] = getRandomFloat(min_mass, max_mass);
             this.radii[i] = this.radius_from_mass(this.masses[i]);
+        }
+
+        // Set colors
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            this.colorsR[i] = getRandomFloat(0.0, 0.75);
+            this.colorsG[i] = getRandomFloat(0.0, 0.75);
+            this.colorsB[i] = getRandomFloat(0.0, 0.75);
         }
     }
 
@@ -278,7 +292,12 @@ export class Universe {
             // Sets shader uniforms for model normals
             gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
             gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
-
+            gl.uniform4fv(programInfo.uniformLocations.uFragColor, [
+                this.colorsR[i],
+                this.colorsG[i],
+                this.colorsB[i],
+                1.0,
+            ]);
             {
                 const type = gl.UNSIGNED_SHORT;
                 const offset = 0;

@@ -129,7 +129,7 @@ export function Sim() {
                     projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                     modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
-                    uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
+                    uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor")
                 },
             };
 
@@ -198,19 +198,20 @@ const vsSource = `
   `;
 
 const fsSource = `
-  varying highp vec3 vTransformedNormal;
-  varying highp vec4 vPosition;
+    uniform highp vec4 uFragColor;
 
-  void main(void) {
-    highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-    highp vec3 directionalLightColor = vec3(1, 1, 1);
-    highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-    highp vec4 vColor = vec4(94.0, 156.0, 255.0, 255.0) / 255.0;
+    varying highp vec3 vTransformedNormal;
+    varying highp vec4 vPosition;
 
-    highp vec3 normal = normalize(vTransformedNormal);
-    highp float directional = max(dot(normal, directionalVector), 0.0);
+    void main(void) {
+        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+        highp vec3 directionalLightColor = vec3(1, 1, 1);
+        highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
-    highp vec3 lighting = ambientLight + (directionalLightColor * directional);
-    gl_FragColor = vec4(vColor.rgb * lighting, vColor.a);
-  }
+        highp vec3 normal = normalize(vTransformedNormal);
+        highp float directional = max(dot(normal, directionalVector), 0.0);
+
+        highp vec3 lighting = ambientLight + (directionalLightColor * directional);
+        gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
+    }
 `;

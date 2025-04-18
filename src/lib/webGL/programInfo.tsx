@@ -9,6 +9,6 @@ export interface ProgramInfo {
         projectionMatrix: WebGLUniformLocation | null;
         modelViewMatrix: WebGLUniformLocation | null;
         normalMatrix: WebGLUniformLocation | null;
-        uSampler: WebGLUniformLocation | null;
+        uFragColor: WebGLUniformLocation | null;
     };
 }
