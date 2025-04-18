@@ -40,7 +40,6 @@ function initPositionBuffer(gl: WebGLRenderingContext, positions: Float32Array):
 /*
   Index Buffer for a Cube
 */
-
 function initIndexBuffer(gl: WebGLRenderingContext, indices: Uint16Array): WebGLBuffer {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);

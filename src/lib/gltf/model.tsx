@@ -1,9 +1,9 @@
 import { WebIO } from "@gltf-transform/core"
 
 export interface Model {
-    vertexCount: number;
     vertices: Float32Array;
     indices: Uint16Array;
+    indexCount: number;
     normals: Float32Array;
 }
 
@@ -31,8 +31,7 @@ export async function getModel(model: string): Promise<Model> {
 
 
     return {
-        //vertexCount: positions ? 2880 : 0,
-        vertexCount: positions ? positions.length / 3  : 0,
+        indexCount: indices ? indices.length : 0,
         vertices: positions ? new Float32Array(positions) : new Float32Array(),
         indices: indices ? new Uint16Array(indices) : new Uint16Array(),
         normals: normals ? new Float32Array(normals) : new Float32Array(),

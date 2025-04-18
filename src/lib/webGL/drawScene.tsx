@@ -7,7 +7,7 @@ export function drawSceneCube(
     programInfo: ProgramInfo,
     buffers: Buffers,
     cubeRotation: number,
-    vertexCount: number
+    indexCount: number
 ) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -112,7 +112,7 @@ export function drawSceneCube(
         {
             const type = gl.UNSIGNED_SHORT;
             const offset = 0;
-            gl.drawElements(gl.TRIANGLES, vertexCount, type, offset);
+            gl.drawElements(gl.TRIANGLES, indexCount, type, offset);
         }
     }
 }

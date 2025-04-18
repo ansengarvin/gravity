@@ -77,9 +77,6 @@ export function Sim() {
 
             const buffers = initBuffers(gl, sphere);
 
-            console.log(sphere.vertexCount)
-            console.log(sphere.vertices)
-
             let then = 0;
 
             function render(now: number) {
@@ -88,7 +85,7 @@ export function Sim() {
                 then = now;
 
                 if (gl) {
-                    drawSceneCube(gl, programInfo, buffers, cubeRotation, sphere.vertexCount);
+                    drawSceneCube(gl, programInfo, buffers, cubeRotation, sphere.indexCount);
                     cubeRotation += deltaTime;
                 }
 
