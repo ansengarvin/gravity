@@ -141,6 +141,43 @@ export class Universe {
             this.positionsY[i] += this.velocitiesY[i] * dt;
             this.positionsZ[i] += this.velocitiesZ[i] * dt;
         }
+
+        // Handle collisions
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue
+            }
+            for (let j = 0; j < this.settings.numBodies; j++) { 
+                if (i === j || !this.bodiesActive[j]) {
+                    continue
+                }
+
+                // Calculate displacement
+                const displacementX = this.positionsX[j] - this.positionsX[i];
+                const displacementY = this.positionsY[j] - this.positionsY[i];
+                const displacementZ = this.positionsZ[j] - this.positionsZ[i];
+
+                // Calculates the magnitude of displacement
+                const displacementMagSq = displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
+                const displacementMag = Math.sqrt(displacementMagSq);
+
+                // Check for collision
+                if (displacementMag < this.radii[i] + this.radii[j]) {
+                    const most_massive = this.masses[i] > this.masses[j] ? i : j;
+                    const less_massive = this.masses[i] > this.masses[j] ? j : i;
+
+                    // Deactivate the less massive body
+                    this.bodiesActive[less_massive] = 0;
+
+                    // Merge the masses
+                    this.masses[most_massive] += this.masses[less_massive];
+                    this.radii[most_massive] = this.radius_from_mass(this.masses[most_massive]);
+                    this.velocitiesX[most_massive] = (this.velocitiesX[most_massive] * this.masses[most_massive] + this.velocitiesX[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
+                    this.velocitiesY[most_massive] = (this.velocitiesY[most_massive] * this.masses[most_massive] + this.velocitiesY[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
+                    this.velocitiesZ[most_massive] = (this.velocitiesZ[most_massive] * this.masses[most_massive] + this.velocitiesZ[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
+                }
+            }
+        }
     }
 
     public draw(
@@ -206,6 +243,9 @@ export class Universe {
         );
 
         for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
             const modelMatrix = mat4.create();
             mat4.translate(
                 modelMatrix,

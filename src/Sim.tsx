@@ -82,7 +82,7 @@ export function Sim() {
                 seed: "irrelevant",
                 timeStep: 1.0 / 12.0, // time step in years (1 month)
                 numBodies: 100,
-                size: 40, // The size of the universe in astronomical units
+                size: 20, // The size of the universe in astronomical units
             }
 
             const universe = new Universe(settings);
