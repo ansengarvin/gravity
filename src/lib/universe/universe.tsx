@@ -7,10 +7,10 @@ import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
 export interface UniverseSettings {
-    seed: string,
-    timeStep: number,
-    numBodies: number, // THe number of starting bodies in the universe
-    size: number, // The size of the universe in astronomical units
+    seed: string;
+    timeStep: number;
+    numBodies: number; // THe number of starting bodies in the universe
+    size: number; // The size of the universe in astronomical units
 }
 
 export class Universe {
@@ -58,7 +58,7 @@ export class Universe {
 
     public initialize() {
         // Seed the random number generator with the provided seed
-        const min_position = -1.0 * this.settings.size / 2;
+        const min_position = (-1.0 * this.settings.size) / 2;
         const max_position = this.settings.size / 2;
 
         // Velocities are in astronomical units per year
@@ -99,11 +99,11 @@ export class Universe {
         // Calculate acceleration
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
-                continue
+                continue;
             }
             for (let j = 0; j < this.settings.numBodies; j++) {
                 if (i === j || !this.bodiesActive[j]) {
-                    continue
+                    continue;
                 }
 
                 // Calculate displacement
@@ -112,7 +112,10 @@ export class Universe {
                 const displacementZ = this.positionsZ[j] - this.positionsZ[i];
 
                 // Calculates the magnitude of displacement
-                const displacementMagSq = displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
+                const displacementMagSq =
+                    displacementX * displacementX +
+                    displacementY * displacementY +
+                    displacementZ * displacementZ;
                 const displacementMag = Math.sqrt(displacementMagSq);
 
                 // Calculates the unit vector of the displacement
@@ -121,7 +124,7 @@ export class Universe {
                 const unitDisplacementZ = displacementZ / displacementMag;
 
                 // Calculates the accelerations
-                const acceleration = G * this.masses[j] / displacementMagSq;
+                const acceleration = (G * this.masses[j]) / displacementMagSq;
                 this.accelerationsX[i] += acceleration * unitDisplacementX;
                 this.accelerationsY[i] += acceleration * unitDisplacementY;
                 this.accelerationsZ[i] += acceleration * unitDisplacementZ;
@@ -131,7 +134,7 @@ export class Universe {
         // Calculate new velocities and positions
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
-                continue
+                continue;
             }
             this.velocitiesX[i] += this.accelerationsX[i] * dt;
             this.velocitiesY[i] += this.accelerationsY[i] * dt;
@@ -145,11 +148,11 @@ export class Universe {
         // Handle collisions
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
-                continue
+                continue;
             }
-            for (let j = 0; j < this.settings.numBodies; j++) { 
+            for (let j = 0; j < this.settings.numBodies; j++) {
                 if (i === j || !this.bodiesActive[j]) {
-                    continue
+                    continue;
                 }
 
                 // Calculate displacement
@@ -158,23 +161,45 @@ export class Universe {
                 const displacementZ = this.positionsZ[j] - this.positionsZ[i];
 
                 // Calculates the magnitude of displacement
-                const displacementMagSq = displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
+                const displacementMagSq =
+                    displacementX * displacementX +
+                    displacementY * displacementY +
+                    displacementZ * displacementZ;
                 const displacementMag = Math.sqrt(displacementMagSq);
 
                 // Check for collision
                 if (displacementMag < this.radii[i] + this.radii[j]) {
-                    const most_massive = this.masses[i] > this.masses[j] ? i : j;
-                    const less_massive = this.masses[i] > this.masses[j] ? j : i;
+                    const most_massive =
+                        this.masses[i] > this.masses[j] ? i : j;
+                    const less_massive =
+                        this.masses[i] > this.masses[j] ? j : i;
 
                     // Deactivate the less massive body
                     this.bodiesActive[less_massive] = 0;
 
                     // Merge the masses
                     this.masses[most_massive] += this.masses[less_massive];
-                    this.radii[most_massive] = this.radius_from_mass(this.masses[most_massive]);
-                    this.velocitiesX[most_massive] = (this.velocitiesX[most_massive] * this.masses[most_massive] + this.velocitiesX[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
-                    this.velocitiesY[most_massive] = (this.velocitiesY[most_massive] * this.masses[most_massive] + this.velocitiesY[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
-                    this.velocitiesZ[most_massive] = (this.velocitiesZ[most_massive] * this.masses[most_massive] + this.velocitiesZ[less_massive] * this.masses[less_massive]) / this.masses[most_massive];
+                    this.radii[most_massive] = this.radius_from_mass(
+                        this.masses[most_massive],
+                    );
+                    this.velocitiesX[most_massive] =
+                        (this.velocitiesX[most_massive] *
+                            this.masses[most_massive] +
+                            this.velocitiesX[less_massive] *
+                                this.masses[less_massive]) /
+                        this.masses[most_massive];
+                    this.velocitiesY[most_massive] =
+                        (this.velocitiesY[most_massive] *
+                            this.masses[most_massive] +
+                            this.velocitiesY[less_massive] *
+                                this.masses[less_massive]) /
+                        this.masses[most_massive];
+                    this.velocitiesZ[most_massive] =
+                        (this.velocitiesZ[most_massive] *
+                            this.masses[most_massive] +
+                            this.velocitiesZ[less_massive] *
+                                this.masses[less_massive]) /
+                        this.masses[most_massive];
                 }
             }
         }
@@ -184,30 +209,30 @@ export class Universe {
         gl: WebGLRenderingContext,
         programInfo: ProgramInfo,
         buffers: Buffers,
-        indexCount: number
+        indexCount: number,
     ) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
         gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-    
+
         // Clear the canvas before we start drawing on it.
-    
+
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    
+
         // Create a perspective matrix, a special matrix that is
         // used to simulate the distortion of perspective in a camera.
         // Our field of view is 45 degrees, with a width/height
         // ratio that matches the display size of the canvas
         // and we only want to see objects between 0.1 units
         // and 100 units away from the camera.
-    
+
         const fieldOfView = (45 * Math.PI) / 180; // in radians
         const canvas = gl.canvas as HTMLCanvasElement;
         const aspect = canvas.clientWidth / canvas.clientHeight;
         const zNear = 0.1;
         const zFar = 100.0;
-    
+
         /*
             Binding buffers
         */
@@ -217,23 +242,23 @@ export class Universe {
         setNormalAttribute(gl, buffers, programInfo);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
         gl.useProgram(programInfo.program);
-    
+
         /*
             Create Projection Matrix
         */
         const projectionMatrix = mat4.create();
-    
+
         // note: glMatrix always has the first argument
         // as the destination to receive the result.
         mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-    
+
         // Set the shader uniform for projection matrix
         gl.uniformMatrix4fv(
             programInfo.uniformLocations.projectionMatrix,
             false,
             projectionMatrix,
         );
-    
+
         // Create a view matrix for the camera
         const cameraMatrix = mat4.create();
         mat4.translate(
@@ -247,24 +272,20 @@ export class Universe {
                 continue;
             }
             const modelMatrix = mat4.create();
-            mat4.translate(
-                modelMatrix,
-                modelMatrix,
-                [this.positionsX[i], this.positionsY[i], this.positionsZ[i]],
-            )
-            mat4.scale(
-                modelMatrix,
-                modelMatrix,
-                [this.radii[i], this.radii[i], this.radii[i]],
-            )
+            mat4.translate(modelMatrix, modelMatrix, [
+                this.positionsX[i],
+                this.positionsY[i],
+                this.positionsZ[i],
+            ]);
+            mat4.scale(modelMatrix, modelMatrix, [
+                this.radii[i],
+                this.radii[i],
+                this.radii[i],
+            ]);
 
             // Create model view matrix
             const modelViewMatrix = mat4.create();
-            mat4.multiply(
-                modelViewMatrix,
-                cameraMatrix,
-                modelMatrix,
-            );
+            mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
 
             // Create normal matrix
             const normalMatrix = mat4.create();
@@ -282,7 +303,7 @@ export class Universe {
                 false,
                 normalMatrix,
             );
-    
+
             {
                 const type = gl.UNSIGNED_SHORT;
                 const offset = 0;
@@ -290,5 +311,4 @@ export class Universe {
             }
         }
     }
-    
 }

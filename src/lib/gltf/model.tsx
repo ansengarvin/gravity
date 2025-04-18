@@ -1,4 +1,4 @@
-import { WebIO } from "@gltf-transform/core"
+import { WebIO } from "@gltf-transform/core";
 
 export interface Model {
     vertices: Float32Array;
@@ -23,18 +23,16 @@ export async function getModel(model: string): Promise<Model> {
     const positions = primitive.getAttribute("POSITION")?.getArray();
     const normals = primitive.getAttribute("NORMAL")?.getArray();
     const indices = primitive.getIndices()?.getArray();
-    
+
     // Check vertex count is a multiple of 3
     if (positions && positions.length % 3 !== 0) {
         throw new Error("Vertex count is not a multiple of 3.");
     }
-
 
     return {
         indexCount: indices ? indices.length : 0,
         vertices: positions ? new Float32Array(positions) : new Float32Array(),
         indices: indices ? new Uint16Array(indices) : new Uint16Array(),
         normals: normals ? new Float32Array(normals) : new Float32Array(),
-    }
-
+    };
 }

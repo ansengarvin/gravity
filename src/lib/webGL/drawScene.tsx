@@ -8,7 +8,7 @@ export function drawSceneCube(
     programInfo: ProgramInfo,
     buffers: Buffers,
     cubeRotation: number,
-    indexCount: number
+    indexCount: number,
 ) {
     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
     gl.clearDepth(1.0); // Clear everything
@@ -66,7 +66,6 @@ export function drawSceneCube(
         [0.0, 0.0, -20.0], // amount to translate
     );
 
-    
     /*
         Creating model view matrices and drawing cubes
     */
@@ -76,14 +75,14 @@ export function drawSceneCube(
         mat4.translate(
             modelMatrix, // destination matrix
             modelMatrix, // matrix to translate
-            [-0.0, i*3, 0.0],
-        )
+            [-0.0, i * 3, 0.0],
+        );
         mat4.rotate(
             modelMatrix, // destination matrix)
             modelMatrix, // matrix to rotate
             cubeRotation, // amount to rotate in radians
             [0, 1, 0], // axis to rotate around
-        )
+        );
 
         // Combines the model and view matrices
         const modelViewMatrix = mat4.create();

@@ -28,7 +28,7 @@ export function Sim() {
             /*
             Get the UV sphere model
             */
-            const sphere = await getModel('uvsphere.glb');
+            const sphere = await getModel("uvsphere.glb");
 
             // Initialize a shader program; this is where all the lighting
             // for the vertices and so forth is established.
@@ -82,12 +82,12 @@ export function Sim() {
                 timeStep: 1.0 / 12.0, // time step in years (1 month)
                 numBodies: 100,
                 size: 20, // The size of the universe in astronomical units
-            }
+            };
 
             const universe = new Universe(settings);
             universe.initialize();
 
-            console.log(universe.positionsX)
+            console.log(universe.positionsX);
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -103,21 +103,16 @@ export function Sim() {
                 }
 
                 if (gl) {
-                    universe.draw(
-                        gl,
-                        programInfo,
-                        buffers,
-                        sphere.indexCount,
-                    )
+                    universe.draw(gl, programInfo, buffers, sphere.indexCount);
                 }
 
                 requestAnimationFrame(render);
             }
 
             requestAnimationFrame(render);
-        }
+        };
 
-        initialize()
+        initialize();
     }, []); // Runs once when the component mounts
 
     return <canvas ref={canvasRef} width="1000" height="750"></canvas>;
