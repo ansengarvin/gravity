@@ -6,7 +6,7 @@ export class Camera {
         x: number;
         y: number;
         z: number;
-    }
+    };
     // Pitch and yaw represent the camera's rotation around the X and Y axes respectively
     public pitch: number;
     public yaw: number;
@@ -17,8 +17,8 @@ export class Camera {
         this.target = {
             x: x,
             y: y,
-            z: z
-        }
+            z: z,
+        };
         this.pitch = pitch;
         this.yaw = yaw;
         this.zoom = zoom;
@@ -30,12 +30,7 @@ export class Camera {
         const offsetY = this.zoom * Math.sin(this.pitch);
         const offsetZ = this.zoom * Math.cos(this.pitch) * Math.cos(this.yaw);
 
-        vec3.set(
-            position,
-            this.target.x + offsetX,
-            this.target.y + offsetY,
-            this.target.z + offsetZ
-        );
+        vec3.set(position, this.target.x + offsetX, this.target.y + offsetY, this.target.z + offsetZ);
 
         return position;
     }

@@ -12,15 +12,15 @@ const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 
 interface SimProps {
-    height: string,
-    width: string,
-    setNumActive: React.Dispatch<React.SetStateAction<number>>
-    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>
-    cameraRef: React.RefObject<Camera>
+    height: string;
+    width: string;
+    setNumActive: React.Dispatch<React.SetStateAction<number>>;
+    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
+    cameraRef: React.RefObject<Camera>;
 }
 
 export function Sim(props: SimProps) {
-    const {height, width, setNumActive, setLeaderboardBodies, cameraRef} = props;
+    const { height, width, setNumActive, setLeaderboardBodies, cameraRef } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -28,8 +28,6 @@ export function Sim(props: SimProps) {
         numBodies: 500,
         size: 20, // The size of the universe in astronomical units
     };
-
-    
 
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
@@ -133,7 +131,7 @@ export function Sim(props: SimProps) {
                     projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                     modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
-                    uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor")
+                    uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor"),
                 },
             };
 
@@ -152,7 +150,7 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     //universe.current.updateEuler(secondsPerTick);
                     setNumActive(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getMassRankings())
+                    setLeaderboardBodies(universe.current.getMassRankings());
                     accumulatedTime -= secondsPerTick;
                 }
 

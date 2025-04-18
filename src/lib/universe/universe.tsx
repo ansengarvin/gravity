@@ -4,7 +4,7 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
-import { LeaderboardBody} from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../components/Leaderboard";
 import { Camera } from "../webGL/camera";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
@@ -71,9 +71,9 @@ export class Universe {
         this.colorsB = new Float32Array(this.settings.numBodies);
 
         this.cameraRef = cameraRef;
-        this.numActive = this.settings.numBodies
+        this.numActive = this.settings.numBodies;
 
-        this.initialize()
+        this.initialize();
     }
 
     public radius_from_mass(mass: number): number {
@@ -280,7 +280,7 @@ export class Universe {
         //     cameraMatrix, // matrix to translate
         //     [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
         // );
-        const cameraMatrix = this.cameraRef.current.getViewMatrix()
+        const cameraMatrix = this.cameraRef.current.getViewMatrix();
 
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
@@ -327,7 +327,7 @@ export class Universe {
                     x: this.positionsX[i],
                     y: this.positionsY[i],
                     z: this.positionsZ[i],
-                }
+                },
             };
         }
 
