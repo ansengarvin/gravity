@@ -4,7 +4,8 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
-import { LeaderboardBody} from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../components/Leaderboard";
+import { Camera } from "../webGL/camera";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -45,9 +46,11 @@ export class Universe {
     public colorsB: Float32Array;
     public numActive: number;
 
-    private cameraRef: React.RefObject<UniverseCamera>;
+    public bodyFollowedRef: React.RefObject<number>;
+    public updateBodyFollowed: ( newBodyFollowed: number) => void;
+    private cameraRef: React.RefObject<Camera>;
 
-    constructor(settings: UniverseSettings, cameraRef: React.RefObject<UniverseCamera>) {
+    constructor(settings: UniverseSettings, cameraRef: React.RefObject<Camera>, bodyFollowedRef: React.RefObject<number>, updateBodyFollowed: (newBodyFollowed: number) => void) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -69,10 +72,12 @@ export class Universe {
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
 
+        this.numActive = this.settings.numBodies;
         this.cameraRef = cameraRef;
-        this.numActive = this.settings.numBodies
+        this.bodyFollowedRef = bodyFollowedRef;
+        this.updateBodyFollowed = updateBodyFollowed;
 
-        this.initialize()
+        this.initialize();
     }
 
     public radius_from_mass(mass: number): number {
@@ -225,6 +230,11 @@ export class Universe {
                 }
             }
         }
+
+        // Update the camera position to the current position of the followed body
+        if (this.bodyFollowedRef.current !== -1) {
+            this.cameraRef.current.setTarget(this.positionsX[this.bodyFollowedRef.current], this.positionsY[this.bodyFollowedRef.current], this.positionsZ[this.bodyFollowedRef.current]);
+        }
     }
 
     public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
@@ -273,12 +283,13 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        const cameraMatrix = mat4.create();
-        mat4.translate(
-            cameraMatrix, // destination matrix
-            cameraMatrix, // matrix to translate
-            [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
-        );
+        // const cameraMatrix = mat4.create();
+        // mat4.translate(
+        //     cameraMatrix, // destination matrix
+        //     cameraMatrix, // matrix to translate
+        //     [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
+        // );
+        const cameraMatrix = this.cameraRef.current.getViewMatrix();
 
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
@@ -317,10 +328,19 @@ export class Universe {
     public getMassRankings(): Array<LeaderboardBody> {
         const massRankings = new Array(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
+            // Skip inactive bodies
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
             massRankings[i] = {
                 index: i,
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
+                pos: {
+                    x: this.positionsX[i],
+                    y: this.positionsY[i],
+                    z: this.positionsZ[i],
+                },
             };
         }
 

@@ -3,22 +3,25 @@ import { ProgramInfo } from "../lib/webGL/programInfo";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
-import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
+import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { LeaderboardBody } from "./Leaderboard";
+import { Camera } from "../lib/webGL/camera";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
-const cameraSensititivy = 0.1;
+const cameraSensititivy = 0.01;
 
 interface SimProps {
-    height: string,
-    width: string,
-    setNumActive: React.Dispatch<React.SetStateAction<number>>
-    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>
+    height: string;
+    width: string;
+    setNumActive: React.Dispatch<React.SetStateAction<number>>;
+    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
+    bodyFollowedRef: React.RefObject<number>;
+    updateBodyFollowed: (newBodiesFollowed: number) => void;
 }
 
 export function Sim(props: SimProps) {
-    const {height, width, setNumActive, setLeaderboardBodies} = props;
+    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -27,19 +30,11 @@ export function Sim(props: SimProps) {
         size: 20, // The size of the universe in astronomical units
     };
 
-    const cameraRef = useRef<UniverseCamera>({
-        zoom: -10,
-        pitch: 0.0,
-        yaw: 0.0,
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    });
-
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
-    const universe = useRef<Universe>(new Universe(settings, cameraRef));
+    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10));
+    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -71,15 +66,15 @@ export function Sim(props: SimProps) {
             const deltaX = currentMousePosition.x - lastMousePosition.current.x;
             const deltaY = currentMousePosition.y - lastMousePosition.current.y;
 
-            cameraRef.current.yaw += deltaX * cameraSensititivy;
-            cameraRef.current.pitch += deltaY * cameraSensititivy;
+            cameraRef.current.yaw -= deltaX * cameraSensititivy;
+            cameraRef.current.pitch -= deltaY * cameraSensititivy;
 
             // Clamp pitch between -90 and 90
-            if (cameraRef.current.pitch > Math.PI / 2) {
-                cameraRef.current.pitch = Math.PI / 2;
+            if (cameraRef.current.pitch >= Math.PI / 2) {
+                cameraRef.current.pitch = (Math.PI / 2) - 0.001;
             }
             if (cameraRef.current.pitch < -Math.PI / 2) {
-                cameraRef.current.pitch = -Math.PI / 2;
+                cameraRef.current.pitch = -Math.PI / 2 + 0.001;
             }
 
             console.log(`Mouse dragged by: (${deltaX}, ${deltaY})`);
@@ -138,7 +133,7 @@ export function Sim(props: SimProps) {
                     projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
                     modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
-                    uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor")
+                    uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor"),
                 },
             };
 
@@ -157,7 +152,7 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     universe.current.updateEuler(secondsPerTick);
                     setNumActive(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getMassRankings())
+                    setLeaderboardBodies(universe.current.getMassRankings());
                     accumulatedTime -= secondsPerTick;
                 }
 
