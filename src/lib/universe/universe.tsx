@@ -5,6 +5,7 @@ import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
 import { LeaderboardBody} from "../../components/Leaderboard";
+import { Camera } from "../webGL/camera";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -45,9 +46,9 @@ export class Universe {
     public colorsB: Float32Array;
     public numActive: number;
 
-    private cameraRef: React.RefObject<UniverseCamera>;
+    private cameraRef: React.RefObject<Camera>;
 
-    constructor(settings: UniverseSettings, cameraRef: React.RefObject<UniverseCamera>) {
+    constructor(settings: UniverseSettings, cameraRef: React.RefObject<Camera>) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -273,12 +274,13 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        const cameraMatrix = mat4.create();
-        mat4.translate(
-            cameraMatrix, // destination matrix
-            cameraMatrix, // matrix to translate
-            [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
-        );
+        // const cameraMatrix = mat4.create();
+        // mat4.translate(
+        //     cameraMatrix, // destination matrix
+        //     cameraMatrix, // matrix to translate
+        //     [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
+        // );
+        const cameraMatrix = this.cameraRef.current.getViewMatrix()
 
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {

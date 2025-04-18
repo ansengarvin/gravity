@@ -5,10 +5,11 @@ import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
 import { LeaderboardBody } from "./Leaderboard";
+import { Camera } from "../lib/webGL/camera";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
-const cameraSensititivy = 0.1;
+const cameraSensititivy = 0.01;
 
 interface SimProps {
     height: string,
@@ -27,14 +28,7 @@ export function Sim(props: SimProps) {
         size: 20, // The size of the universe in astronomical units
     };
 
-    const cameraRef = useRef<UniverseCamera>({
-        zoom: -10,
-        pitch: 0.0,
-        yaw: 0.0,
-        x: 0.0,
-        y: 0.0,
-        z: 0.0,
-    });
+    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10))
 
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
@@ -71,8 +65,8 @@ export function Sim(props: SimProps) {
             const deltaX = currentMousePosition.x - lastMousePosition.current.x;
             const deltaY = currentMousePosition.y - lastMousePosition.current.y;
 
-            cameraRef.current.yaw += deltaX * cameraSensititivy;
-            cameraRef.current.pitch += deltaY * cameraSensititivy;
+            cameraRef.current.yaw -= deltaX * cameraSensititivy;
+            cameraRef.current.pitch -= deltaY * cameraSensititivy;
 
             // Clamp pitch between -90 and 90
             if (cameraRef.current.pitch > Math.PI / 2) {
@@ -155,7 +149,7 @@ export function Sim(props: SimProps) {
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
-                    universe.current.updateEuler(secondsPerTick);
+                    //universe.current.updateEuler(secondsPerTick);
                     setNumActive(universe.current.numActive);
                     setLeaderboardBodies(universe.current.getMassRankings())
                     accumulatedTime -= secondsPerTick;
