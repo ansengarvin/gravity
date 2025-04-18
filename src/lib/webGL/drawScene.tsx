@@ -51,7 +51,7 @@ export function drawSceneCube(
     // as the destination to receive the result.
     mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
-    // Set the shader uniform for projection matrix
+    // Set the shader uniform for projection matrix. This is shared by all models.
     gl.uniformMatrix4fv(
         programInfo.uniformLocations.projectionMatrix,
         false,
