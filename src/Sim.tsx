@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { ProgramInfo } from "./lib/webGL/programInfo";
 import { initShaderProgram } from "./lib/webGL/shaders";
 import { initBuffers } from "./lib/webGL/buffers";
-import { drawSceneCube } from "./lib/webGL/drawScene";
 import { getModel } from "./lib/gltf/model";
 import { Universe, UniverseSettings } from "./lib/universe/universe";
 
