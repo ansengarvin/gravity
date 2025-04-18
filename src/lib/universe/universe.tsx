@@ -328,6 +328,10 @@ export class Universe {
     public getMassRankings(): Array<LeaderboardBody> {
         const massRankings = new Array(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
+            // Skip inactive bodies
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
             massRankings[i] = {
                 index: i,
                 mass: this.masses[i],

@@ -70,11 +70,11 @@ export function Sim(props: SimProps) {
             cameraRef.current.pitch -= deltaY * cameraSensititivy;
 
             // Clamp pitch between -90 and 90
-            if (cameraRef.current.pitch > Math.PI / 2) {
-                cameraRef.current.pitch = Math.PI / 2;
+            if (cameraRef.current.pitch >= Math.PI / 2) {
+                cameraRef.current.pitch = (Math.PI / 2) - 0.001;
             }
             if (cameraRef.current.pitch < -Math.PI / 2) {
-                cameraRef.current.pitch = -Math.PI / 2;
+                cameraRef.current.pitch = -Math.PI / 2 + 0.001;
             }
 
             console.log(`Mouse dragged by: (${deltaX}, ${deltaY})`);

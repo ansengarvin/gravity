@@ -2,7 +2,6 @@ import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
-import { Camera } from "./lib/webGL/camera";
 
 const Backdrop = styled.div`
     display: grid;
