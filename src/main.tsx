@@ -4,6 +4,6 @@ import { Sim } from "./Sim.tsx";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <Sim/>
+        <Sim />
     </StrictMode>,
 );
