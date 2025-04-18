@@ -1,15 +1,21 @@
 import { useEffect, useRef } from "react";
-import { ProgramInfo } from "./lib/webGL/programInfo";
-import { initShaderProgram } from "./lib/webGL/shaders";
-import { initBuffers } from "./lib/webGL/buffers";
-import { getModel } from "./lib/gltf/model";
-import { Universe, UniverseCamera, UniverseSettings } from "./lib/universe/universe";
+import { ProgramInfo } from "../lib/webGL/programInfo";
+import { initShaderProgram } from "../lib/webGL/shaders";
+import { initBuffers } from "../lib/webGL/buffers";
+import { getModel } from "../lib/gltf/model";
+import { Universe, UniverseCamera, UniverseSettings } from "../lib/universe/universe";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.1;
 
-export function Sim() {
+interface SimProps {
+    height: string,
+    width: string
+}
+
+export function Sim(props: SimProps) {
+    const {height, width} = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -30,7 +36,7 @@ export function Sim() {
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
-    const universe = new Universe(settings, cameraRef);
+    const universe = useRef<Universe>(new Universe(settings, cameraRef));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -135,9 +141,7 @@ export function Sim() {
 
             const buffers = initBuffers(gl, sphere);
 
-            universe.initialize();
-
-            console.log(universe.positionsX);
+            console.log(universe.current.positionsX);
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -148,12 +152,12 @@ export function Sim() {
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
-                    universe.updateEuler(secondsPerTick);
+                    universe.current.updateEuler(secondsPerTick);
                     accumulatedTime -= secondsPerTick;
                 }
 
                 if (gl) {
-                    universe.draw(gl, programInfo, buffers, sphere.indexCount);
+                    universe.current.draw(gl, programInfo, buffers, sphere.indexCount);
                 }
 
                 requestAnimationFrame(render);
@@ -168,8 +172,8 @@ export function Sim() {
     return (
         <canvas
             ref={canvasRef}
-            width="1000"
-            height="750"
+            width={width}
+            height={height}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}

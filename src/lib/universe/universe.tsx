@@ -1,4 +1,4 @@
-import { mat4, vec4 } from "gl-matrix";
+import { mat4 } from "gl-matrix";
 import { getRandomFloat } from "../../random/random";
 import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
@@ -42,6 +42,7 @@ export class Universe {
     public colorsR: Float32Array;
     public colorsG: Float32Array;
     public colorsB: Float32Array;
+    public numActive: number;
 
     private cameraRef: React.RefObject<UniverseCamera>;
 
@@ -68,6 +69,9 @@ export class Universe {
         this.colorsB = new Float32Array(this.settings.numBodies);
 
         this.cameraRef = cameraRef;
+        this.numActive = this.settings.numBodies
+
+        this.initialize()
     }
 
     public radius_from_mass(mass: number): number {
@@ -214,6 +218,9 @@ export class Universe {
                         (this.velocitiesZ[most_massive] * this.masses[most_massive] +
                             this.velocitiesZ[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
+
+                    // Decrement numactive
+                    this.numActive--;
                 }
             }
         }
