@@ -1,11 +1,7 @@
 //
 // Initialize a shader program, so WebGL knows how to draw our data
 //
-export function initShaderProgram(
-    gl: WebGLRenderingContext,
-    vsSource: string,
-    fsSource: string,
-) {
+export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string) {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
@@ -26,11 +22,7 @@ export function initShaderProgram(
     // If creating the shader program failed, alert
 
     if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-        alert(
-            `Unable to initialize the shader program: ${gl.getProgramInfoLog(
-                shaderProgram,
-            )}`,
-        );
+        alert(`Unable to initialize the shader program: ${gl.getProgramInfoLog(shaderProgram)}`);
         return null;
     }
 
@@ -41,11 +33,7 @@ export function initShaderProgram(
 // creates a shader of the given type, uploads the source and
 // compiles it.
 //
-export function loadShader(
-    gl: WebGLRenderingContext,
-    type: GLenum,
-    source: string,
-) {
+export function loadShader(gl: WebGLRenderingContext, type: GLenum, source: string) {
     const shader = gl.createShader(type);
 
     // Verify shader is not null
@@ -62,9 +50,7 @@ export function loadShader(
     // See if it compiled successfully
 
     if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-        alert(
-            `An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`,
-        );
+        alert(`An error occurred compiling the shaders: ${gl.getShaderInfoLog(shader)}`);
         gl.deleteShader(shader);
         return null;
     }

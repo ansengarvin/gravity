@@ -15,12 +15,12 @@ export interface UniverseSettings {
 }
 
 export interface UniverseCamera {
-    zoom: number,
-    yaw: number,
-    pitch: number,
-    x: number,
-    y: number,
-    z: number
+    zoom: number;
+    yaw: number;
+    pitch: number;
+    x: number;
+    y: number;
+    z: number;
 }
 
 export class Universe {
@@ -127,9 +127,7 @@ export class Universe {
 
                 // Calculates the magnitude of displacement
                 const displacementMagSq =
-                    displacementX * displacementX +
-                    displacementY * displacementY +
-                    displacementZ * displacementZ;
+                    displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
                 const displacementMag = Math.sqrt(displacementMagSq);
 
                 // Calculates the unit vector of the displacement
@@ -176,55 +174,38 @@ export class Universe {
 
                 // Calculates the magnitude of displacement
                 const displacementMagSq =
-                    displacementX * displacementX +
-                    displacementY * displacementY +
-                    displacementZ * displacementZ;
+                    displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
                 const displacementMag = Math.sqrt(displacementMagSq);
 
                 // Check for collision
                 if (displacementMag < this.radii[i] + this.radii[j]) {
-                    const most_massive =
-                        this.masses[i] > this.masses[j] ? i : j;
-                    const less_massive =
-                        this.masses[i] > this.masses[j] ? j : i;
+                    const most_massive = this.masses[i] > this.masses[j] ? i : j;
+                    const less_massive = this.masses[i] > this.masses[j] ? j : i;
 
                     // Deactivate the less massive body
                     this.bodiesActive[less_massive] = 0;
 
                     // Merge the masses
                     this.masses[most_massive] += this.masses[less_massive];
-                    this.radii[most_massive] = this.radius_from_mass(
-                        this.masses[most_massive],
-                    );
+                    this.radii[most_massive] = this.radius_from_mass(this.masses[most_massive]);
                     this.velocitiesX[most_massive] =
-                        (this.velocitiesX[most_massive] *
-                            this.masses[most_massive] +
-                            this.velocitiesX[less_massive] *
-                                this.masses[less_massive]) /
+                        (this.velocitiesX[most_massive] * this.masses[most_massive] +
+                            this.velocitiesX[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
                     this.velocitiesY[most_massive] =
-                        (this.velocitiesY[most_massive] *
-                            this.masses[most_massive] +
-                            this.velocitiesY[less_massive] *
-                                this.masses[less_massive]) /
+                        (this.velocitiesY[most_massive] * this.masses[most_massive] +
+                            this.velocitiesY[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
                     this.velocitiesZ[most_massive] =
-                        (this.velocitiesZ[most_massive] *
-                            this.masses[most_massive] +
-                            this.velocitiesZ[less_massive] *
-                                this.masses[less_massive]) /
+                        (this.velocitiesZ[most_massive] * this.masses[most_massive] +
+                            this.velocitiesZ[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
                 }
             }
         }
     }
 
-    public draw(
-        gl: WebGLRenderingContext,
-        programInfo: ProgramInfo,
-        buffers: Buffers,
-        indexCount: number,
-    ) {
+    public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
         gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
         gl.clearDepth(1.0); // Clear everything
         gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -267,11 +248,7 @@ export class Universe {
         mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
         // Set the shader uniform for projection matrix
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.projectionMatrix,
-            false,
-            projectionMatrix,
-        );
+        gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
         const cameraMatrix = mat4.create();
@@ -286,16 +263,8 @@ export class Universe {
                 continue;
             }
             const modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, [
-                this.positionsX[i],
-                this.positionsY[i],
-                this.positionsZ[i],
-            ]);
-            mat4.scale(modelMatrix, modelMatrix, [
-                this.radii[i],
-                this.radii[i],
-                this.radii[i],
-            ]);
+            mat4.translate(modelMatrix, modelMatrix, [this.positionsX[i], this.positionsY[i], this.positionsZ[i]]);
+            mat4.scale(modelMatrix, modelMatrix, [this.radii[i], this.radii[i], this.radii[i]]);
 
             // Create model view matrix
             const modelViewMatrix = mat4.create();
@@ -307,16 +276,8 @@ export class Universe {
             mat4.transpose(normalMatrix, normalMatrix);
 
             // Sets shader uniforms for model normals
-            gl.uniformMatrix4fv(
-                programInfo.uniformLocations.modelViewMatrix,
-                false,
-                modelViewMatrix,
-            );
-            gl.uniformMatrix4fv(
-                programInfo.uniformLocations.normalMatrix,
-                false,
-                normalMatrix,
-            );
+            gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+            gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
 
             {
                 const type = gl.UNSIGNED_SHORT;

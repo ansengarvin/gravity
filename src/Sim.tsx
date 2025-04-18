@@ -24,8 +24,8 @@ export function Sim() {
         yaw: 0.0,
         x: 0.0,
         y: 0.0,
-        z: 0.0
-    })
+        z: 0.0,
+    });
 
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
@@ -35,8 +35,8 @@ export function Sim() {
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
         cameraRef.current.zoom = Math.min(Math.max(cameraRef.current.zoom, -50), -5);
-        console.log(cameraRef.current.zoom)
-    }
+        console.log(cameraRef.current.zoom);
+    };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
         isDragging.current = true;
@@ -121,32 +121,14 @@ export function Sim() {
             const programInfo: ProgramInfo = {
                 program: shaderProgram,
                 attribLocations: {
-                    vertexPosition: gl.getAttribLocation(
-                        shaderProgram,
-                        "aVertexPosition",
-                    ),
-                    vertexColor: gl.getAttribLocation(
-                        shaderProgram,
-                        "aVertexColor",
-                    ),
-                    vertexNormal: gl.getAttribLocation(
-                        shaderProgram,
-                        "aVertexNormal",
-                    ),
+                    vertexPosition: gl.getAttribLocation(shaderProgram, "aVertexPosition"),
+                    vertexColor: gl.getAttribLocation(shaderProgram, "aVertexColor"),
+                    vertexNormal: gl.getAttribLocation(shaderProgram, "aVertexNormal"),
                 },
                 uniformLocations: {
-                    projectionMatrix: gl.getUniformLocation(
-                        shaderProgram,
-                        "uProjectionMatrix",
-                    ),
-                    modelViewMatrix: gl.getUniformLocation(
-                        shaderProgram,
-                        "uModelViewMatrix",
-                    ),
-                    normalMatrix: gl.getUniformLocation(
-                        shaderProgram,
-                        "uNormalMatrix",
-                    ),
+                    projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+                    modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
+                    normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
                     uSampler: gl.getUniformLocation(shaderProgram, "uSampler"),
                 },
             };
@@ -183,15 +165,17 @@ export function Sim() {
         initialize();
     }, []); // Runs once when the component mounts
 
-    return <canvas
-        ref={canvasRef}
-        width="1000"
-        height="750"
-        onWheel={handleMouseWheel}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-    ></canvas>;
+    return (
+        <canvas
+            ref={canvasRef}
+            width="1000"
+            height="750"
+            onWheel={handleMouseWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+        ></canvas>
+    );
 }
 
 const vsSource = `

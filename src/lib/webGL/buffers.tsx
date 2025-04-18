@@ -18,10 +18,7 @@ export function initBuffers(gl: WebGLRenderingContext, model: Model) {
     };
 }
 
-function initPositionBuffer(
-    gl: WebGLRenderingContext,
-    positions: Float32Array,
-): WebGLBuffer {
+function initPositionBuffer(gl: WebGLRenderingContext, positions: Float32Array): WebGLBuffer {
     // Create a buffer for the square's positions.
     const positionBuffer = gl.createBuffer();
 
@@ -37,10 +34,7 @@ function initPositionBuffer(
     return positionBuffer;
 }
 
-function initIndexBuffer(
-    gl: WebGLRenderingContext,
-    indices: Uint16Array,
-): WebGLBuffer {
+function initIndexBuffer(gl: WebGLRenderingContext, indices: Uint16Array): WebGLBuffer {
     const indexBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
 
@@ -55,10 +49,7 @@ function initIndexBuffer(
     return indexBuffer;
 }
 
-function initNormalBuffer(
-    gl: WebGLRenderingContext,
-    normals: Float32Array,
-): WebGLBuffer {
+function initNormalBuffer(gl: WebGLRenderingContext, normals: Float32Array): WebGLBuffer {
     const normalBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
 

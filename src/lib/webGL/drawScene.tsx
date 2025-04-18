@@ -52,11 +52,7 @@ export function drawSceneCube(
     mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
 
     // Set the shader uniform for projection matrix. This is shared by all models.
-    gl.uniformMatrix4fv(
-        programInfo.uniformLocations.projectionMatrix,
-        false,
-        projectionMatrix,
-    );
+    gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
     // Create a view matrix for the camera
     const cameraMatrix = mat4.create();
@@ -98,16 +94,8 @@ export function drawSceneCube(
         mat4.transpose(normalMatrix, normalMatrix);
 
         // Sets shader uniforms for model normals
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.modelViewMatrix,
-            false,
-            modelViewMatrix,
-        );
-        gl.uniformMatrix4fv(
-            programInfo.uniformLocations.normalMatrix,
-            false,
-            normalMatrix,
-        );
+        gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+        gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
 
         {
             const type = gl.UNSIGNED_SHORT;
