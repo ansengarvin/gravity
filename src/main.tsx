@@ -6,7 +6,7 @@ import { css, Global } from "@emotion/react";
 const globalStyle = css`
     html,
     body {
-        height: 100%;
+        min-height: 100vh;
         width: 100%;
         margin: 0;
         padding: 0;

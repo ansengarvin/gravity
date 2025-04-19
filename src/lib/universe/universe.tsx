@@ -130,10 +130,33 @@ export class Universe {
 
         // Set colors
         for (let i = 0; i < this.settings.numBodies; i++) {
-            this.colorsR[i] = getRandomFloat(0.0, 0.5);
-            this.colorsG[i] = getRandomFloat(0.0, 0.5);
-            this.colorsB[i] = getRandomFloat(0.0, 0.5);
+            this.colorsR[i] = getRandomFloat(0.1, 0.85);
+            this.colorsG[i] = getRandomFloat(0.1, 0.85);
+            this.colorsB[i] = getRandomFloat(0.1, 0.85);
         }
+    }
+
+    private clear(): void {
+        this.bodiesActive.fill(0);
+        this.positionsX.fill(0);
+        this.positionsY.fill(0);
+        this.positionsZ.fill(0);
+        this.velocitiesX.fill(0);
+        this.velocitiesY.fill(0);
+        this.velocitiesZ.fill(0);
+        this.accelerationsX.fill(0);
+        this.accelerationsY.fill(0);
+        this.accelerationsZ.fill(0);
+        this.masses.fill(0);
+        this.radii.fill(0);
+        this.colorsR.fill(0);
+        this.colorsG.fill(0);
+        this.colorsB.fill(0);
+    }
+
+    public reset(): void {
+        this.clear();
+        this.initialize();
     }
 
     public updateEuler(deltaTime: number) {
@@ -241,15 +264,6 @@ export class Universe {
                 }
             }
         }
-
-        // Update the camera position to the current position of the followed body
-        if (this.bodyFollowedRef.current !== -1) {
-            this.cameraRef.current.setTarget(
-                this.positionsX[this.bodyFollowedRef.current],
-                this.positionsY[this.bodyFollowedRef.current],
-                this.positionsZ[this.bodyFollowedRef.current],
-            );
-        }
     }
 
     public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
@@ -298,12 +312,15 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        // const cameraMatrix = mat4.create();
-        // mat4.translate(
-        //     cameraMatrix, // destination matrix
-        //     cameraMatrix, // matrix to translate
-        //     [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
-        // );
+        
+        // Update the camera position to the current position of the followed body
+        if (this.bodyFollowedRef.current !== -1) {
+            this.cameraRef.current.setTarget(
+                this.positionsX[this.bodyFollowedRef.current],
+                this.positionsY[this.bodyFollowedRef.current],
+                this.positionsZ[this.bodyFollowedRef.current],
+            );
+        }
         const cameraMatrix = this.cameraRef.current.getViewMatrix();
 
         for (let i = 0; i < this.settings.numBodies; i++) {
