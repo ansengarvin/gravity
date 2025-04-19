@@ -21,7 +21,7 @@ interface SimProps {
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed} = props;
+    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -71,7 +71,7 @@ export function Sim(props: SimProps) {
 
             // Clamp pitch between -90 and 90
             if (cameraRef.current.pitch >= Math.PI / 2) {
-                cameraRef.current.pitch = (Math.PI / 2) - 0.001;
+                cameraRef.current.pitch = Math.PI / 2 - 0.001;
             }
             if (cameraRef.current.pitch < -Math.PI / 2) {
                 cameraRef.current.pitch = -Math.PI / 2 + 0.001;
