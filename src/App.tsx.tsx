@@ -125,7 +125,10 @@ export function App() {
                         :
                         <button onClick={() => {updatePaused(true)}}><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
                     }
-                    <button onClick={() => {resetSim.current=true}}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
+                    <button onClick={() => {
+                        resetSim.current=true
+                        updatePaused(true)
+                    }}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
                 </ButtonSection>
             </Backdrop>
         </>
