@@ -9,7 +9,7 @@ const Backdrop = styled.div`
     grid-template-areas:
         "top top top"
         "stats simulation controls"
-        "foot foot foot";
+        "foot buttons foot";
     grid-template-rows: min-content 1fr 25px;
     grid-template-columns: 250px 1fr 250px;
     height: 100%;
@@ -34,6 +34,11 @@ const SimScreen = styled.div`
     width: 100%;
     z-index: 0;
 `;
+
+const ButtonSection = styled.div`
+    grid-area: buttons;
+    background-color: green;
+`
 
 export function App() {
     const [numActive, setNumActive] = useState(0);
@@ -70,6 +75,7 @@ export function App() {
                     bodyFollowed={bodyFollowed}
                     updateBodyFollowed={updateBodyFollowed}
                 />
+
             </Backdrop>
         </>
     );

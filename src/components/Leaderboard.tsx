@@ -31,7 +31,7 @@ export function Leaderboard(props: LeaderboardProps) {
                     selected={bodyFollowed === item.index}
                     onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}
                 >
-                    Planet {item.index} <br />
+                    Body {item.index} <br />
                     Mass: {item.mass.toFixed(2)} M<sub>☉</sub>
                 </LeaderboardItemCard>
             ))}
