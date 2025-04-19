@@ -33,7 +33,7 @@ export function Sim(props: SimProps) {
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
-    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -10));
+    const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
     const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
@@ -172,8 +172,9 @@ export function Sim(props: SimProps) {
     return (
         <canvas
             ref={canvasRef}
-            width={width}
+            style={{ width: "100%", height: "100%" }}
             height={height}
+            width={width}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}

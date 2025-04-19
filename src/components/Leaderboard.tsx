@@ -27,7 +27,7 @@ export function Leaderboard(props: LeaderboardProps) {
             {leaderboardBodies.map((item, index) => (
                 <LeaderboardItemCard key={index} color={item.color} selected={bodyFollowed===item.index} onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}>
                     Planet {item.index} <br/>
-                    Mass: {item.mass} solar masses
+                    Mass: {item.mass.toFixed(2)} solar masses
                 </LeaderboardItemCard>     
             ))}
         </LeaderboardStyle>

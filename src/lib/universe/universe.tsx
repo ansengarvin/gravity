@@ -16,15 +16,6 @@ export interface UniverseSettings {
     size: number; // The size of the universe in astronomical units
 }
 
-export interface UniverseCamera {
-    zoom: number;
-    yaw: number;
-    pitch: number;
-    x: number;
-    y: number;
-    z: number;
-}
-
 export class Universe {
     public settings: UniverseSettings;
 
@@ -100,16 +91,27 @@ export class Universe {
         // Masses are in solar masses
         // For reference, the Sun's mass is 1 solar mass.
         const min_mass = 0.001; // 0.1 solar masses
-        const max_mass = 1.0; // 1 solar mass
+        const max_mass = 0.1; // 1 solar mass
 
         for (let i = 0; i < this.settings.numBodies; i++) {
-            this.positionsX[i] = getRandomFloat(min_position, max_position);
-            this.positionsY[i] = getRandomFloat(min_position, max_position);
-            this.positionsZ[i] = getRandomFloat(min_position, max_position);
+            // this.positionsX[i] = getRandomFloat(min_position, max_position);
+            // this.positionsY[i] = getRandomFloat(-1, 1);
+            // this.positionsZ[i] = getRandomFloat(min_position, max_position);
 
-            this.velocitiesX[i] = getRandomFloat(min_velocity, max_velocity);
-            this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
-            this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
+            const pos = this.getRandomDiskStartingPosition(min_position, max_position);
+            this.positionsX[i] = pos.x;
+            this.positionsY[i] = pos.y;
+            this.positionsZ[i] = pos.z;
+
+            // this.velocitiesX[i] = getRandomFloat(min_velocity, max_velocity);
+            // this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
+            // this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
+
+            const initialAngularVelocity = this.getInitialAngularVelocity(this.positionsX[i], this.positionsY[i], this.positionsZ[i]);
+            const multiplier = 10;
+            this.velocitiesX[i] = initialAngularVelocity.x * multiplier;
+            this.velocitiesY[i] = initialAngularVelocity.y * multiplier;
+            this.velocitiesZ[i] = initialAngularVelocity.z * multiplier;
 
             this.bodiesActive[i] = 1;
 
@@ -348,4 +350,48 @@ export class Universe {
 
         return massRankings;
     }
+
+    
+    private getInitialAngularVelocity(x: number, y: number, z: number): { x: number, y: number, z: number } {
+        // Planets in the center move slower than planets on the edge of the universe.
+        // The velocity is proportional to the distance from the center of the universe.
+        const distanceFromCenter = Math.sqrt(x * x + y * y + z * z);
+        const angularVelocityMagnitude = Math.sqrt(G / distanceFromCenter); // Gravitational acceleration
+        // The angular velocity is perpendicular to the radius vector.
+        // We can use the cross product to get the angular velocity vector.
+        const angularVelocityX = -z * angularVelocityMagnitude * 0.05;
+        const angularVelocityY = 0;
+        const angularVelocityZ = x * angularVelocityMagnitude * 0.05; // No vertical component for simplicity
+        return {
+            x: angularVelocityX,
+            y: angularVelocityY,
+            z: angularVelocityZ,
+        }
+    }
+
+    private getRandomSphericalStartingPosition(min: number, max: number): {x: number, y: number, z: number} {
+        const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
+        const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
+        const radius = getRandomFloat(min, max); // Random radius
+
+        return {
+            x: radius * Math.sin(phi) * Math.cos(theta),
+            y: radius * Math.sin(phi) * Math.sin(theta),
+            z: radius * Math.cos(phi),
+        }
+    }
+
+    private getRandomDiskStartingPosition(min: number, max: number): {x: number, y: number, z: number} {
+        const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
+        const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
+        const radius = getRandomFloat(min, max); // Random radius
+
+        return {
+            x: radius * Math.sin(phi) * Math.cos(theta),
+            y: getRandomFloat(-1, 1), // Random y position
+            z: radius * Math.cos(phi),
+        }
+    }
+
+
 }

@@ -10,7 +10,7 @@ const Backdrop = styled.div`
         "stats simulation controls"
         "foot foot foot";
     grid-template-rows: 25px 1fr 25px;
-    grid-template-columns: 1fr min-content 1fr;
+    grid-template-columns: 250px 1fr 250px;
     height: 100%;
 `;
 
@@ -20,6 +20,8 @@ const StatScreen = styled.div`
 
 const SimScreen = styled.div`
     grid-area: simulation;
+    height: 100%;
+    width: 100%;
 `;
 
 export function App() {
@@ -43,8 +45,8 @@ export function App() {
             <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />
             <SimScreen>
                 <Sim
-                    width="1000px"
-                    height="750px"
+                    width="1920px"
+                    height="1080px"
                     setNumActive={setNumActive}
                     setLeaderboardBodies={setLeaderboardBodies}
                     bodyFollowedRef={bodyFollowedRef}
