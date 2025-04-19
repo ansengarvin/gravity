@@ -108,8 +108,7 @@ export function App() {
             <Backdrop>
                 <Header />
                 <StatScreen>
-                    {resetSim && <div>Resetting simulation...</div>}
-                    {!resetSim && <br/>}
+                    <br/>
                     Number of Bodies: {numActive}
                 </StatScreen>
                 <Leaderboard
