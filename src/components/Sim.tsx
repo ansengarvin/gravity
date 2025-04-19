@@ -18,10 +18,11 @@ interface SimProps {
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
     bodyFollowedRef: React.RefObject<number>;
     updateBodyFollowed: (newBodiesFollowed: number) => void;
+    resetSim: React.RefObject<boolean>;
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed } = props;
+    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed, resetSim } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -147,6 +148,13 @@ export function Sim(props: SimProps) {
                 const deltaTime = now - then;
                 then = now;
                 accumulatedTime += deltaTime;
+
+                if (resetSim.current) {
+                    cameraRef.current = new Camera(0, 0, 0, 0, 0, -20);
+                    updateBodyFollowed(-1);
+                    universe.current.reset()
+                    resetSim.current = false;
+                }
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {

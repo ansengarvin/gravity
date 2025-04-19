@@ -136,6 +136,29 @@ export class Universe {
         }
     }
 
+    private clear(): void {
+        this.bodiesActive.fill(0);
+        this.positionsX.fill(0);
+        this.positionsY.fill(0);
+        this.positionsZ.fill(0);
+        this.velocitiesX.fill(0);
+        this.velocitiesY.fill(0);
+        this.velocitiesZ.fill(0);
+        this.accelerationsX.fill(0);
+        this.accelerationsY.fill(0);
+        this.accelerationsZ.fill(0);
+        this.masses.fill(0);
+        this.radii.fill(0);
+        this.colorsR.fill(0);
+        this.colorsG.fill(0);
+        this.colorsB.fill(0);
+    }
+
+    public reset(): void {
+        this.clear();
+        this.initialize();
+    }
+
     public updateEuler(deltaTime: number) {
         const dt = deltaTime * this.settings.timeStep;
 

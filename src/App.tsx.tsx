@@ -3,19 +3,21 @@ import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { Header } from "./components/header";
+import { PauseIcon } from "./assets/icons/PauseIcon";
+import { RestartIcon } from "./assets/icons/RestartIcon";
 
 const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top top top"
         "stats simulation controls"
-        "foot foot foot";
-    grid-template-rows: min-content 1fr 25px;
+        "footleft buttons footright";
+    grid-template-rows: min-content 1fr 200px;
     grid-template-columns: 250px 1fr 250px;
     height: 100%;
     width: 100%;
     z-index: 1;
-    position: relative;
+    position: absolute;
     pointer-events: none;
 
     & * {
@@ -37,7 +39,32 @@ const SimScreen = styled.div`
 
 const ButtonSection = styled.div`
     grid-area: buttons;
-    background-color: green;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+
+    button {
+        // Clear all effects
+        border: none;
+        background: none;
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        outline: none;
+        cursor: pointer;
+        
+        height: 50px;
+        width: 50px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        border-color: white;
+        background-color: none;
+    }
 `
 
 export function App() {
@@ -55,6 +82,7 @@ export function App() {
         setBodyFollowed(newBodyFollowed);
         bodyFollowedRef.current = newBodyFollowed;
     };
+    const resetSim = useRef<boolean>(false);
     return (
         <>
             <SimScreen>
@@ -65,17 +93,25 @@ export function App() {
                     setLeaderboardBodies={setLeaderboardBodies}
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
+                    resetSim={resetSim}
                 />
             </SimScreen>
             <Backdrop>
                 <Header />
-                <StatScreen>Number of Bodies: {numActive}</StatScreen>
+                <StatScreen>
+                    {resetSim && <div>Resetting simulation...</div>}
+                    {!resetSim && <br/>}
+                    Number of Bodies: {numActive}
+                </StatScreen>
                 <Leaderboard
                     leaderboardBodies={leaderboardBodies}
                     bodyFollowed={bodyFollowed}
                     updateBodyFollowed={updateBodyFollowed}
                 />
-
+                <ButtonSection>
+                    <button><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
+                    <button onClick={() => {resetSim.current=true}}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
+                </ButtonSection>
             </Backdrop>
         </>
     );
