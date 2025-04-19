@@ -5,12 +5,13 @@ import { tablet, phone } from "../lib/defines/screenWidths.tsx";
 
 const Headerbar = styled.div`
     grid-area: top;
-    height: 20px;
-    padding: 15px;
+    height: 50px;
     margin-bottom: 5px;
 
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-areas: "left center right";
+    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: 1fr;
 
     border-bottom: 0.25rem solid ${color_offwhite};
 
@@ -38,7 +39,6 @@ const Headerbar = styled.div`
         justify-content: center;
         height: 2rem;
         margin-left: 10px;
-
         @media (max-width: ${tablet}) {
             margin-left: 5px;
         }
@@ -48,18 +48,42 @@ const Headerbar = styled.div`
             font-size: 0.95rem;
         }
     }
+`;
+
+const Left = styled.div`
+    grid-area: left;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+`
+
+const Center = styled.div`
+    grid-area: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
     h1 {
-        margin-left: auto;
-        margin-right: auto;
+        // Remove all formatting
+        text-decoration: none;
+        color: inherit;
+        background: none;
+        border: none;
+        padding: 0;
+        margin: 0;
     }
-`;
+`
 
 export function Header() {
     return (
         <Headerbar>
-            <a href="https://ansengarvin.com/projects">See Other Projects</a>
-            <h1>N-Body Gravity Simulation</h1>
+            <Left>
+                <a href="https://ansengarvin.com/projects">See Other Projects</a>
+            </Left>
+            <Center>
+                <h1>Gravity</h1>
+            </Center>
+
         </Headerbar>
     );
 }
