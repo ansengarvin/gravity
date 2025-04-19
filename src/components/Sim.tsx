@@ -19,10 +19,11 @@ interface SimProps {
     bodyFollowedRef: React.RefObject<number>;
     updateBodyFollowed: (newBodiesFollowed: number) => void;
     resetSim: React.RefObject<boolean>;
+    pausedRef: React.RefObject<boolean>;
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed, resetSim } = props;
+    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed, resetSim, pausedRef } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -144,6 +145,7 @@ export function Sim(props: SimProps) {
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
+                
                 now *= 0.001; // convert to seconds
                 const deltaTime = now - then;
                 then = now;
@@ -158,7 +160,9 @@ export function Sim(props: SimProps) {
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
-                    universe.current.updateEuler(secondsPerTick);
+                    if (!pausedRef.current) {
+                        universe.current.updateEuler(secondsPerTick);
+                    } 
                     setNumActive(universe.current.numActive);
                     setLeaderboardBodies(universe.current.getMassRankings());
                     accumulatedTime -= secondsPerTick;

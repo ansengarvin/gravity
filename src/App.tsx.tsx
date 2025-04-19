@@ -5,6 +5,7 @@ import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { Header } from "./components/header";
 import { PauseIcon } from "./assets/icons/PauseIcon";
 import { RestartIcon } from "./assets/icons/RestartIcon";
+import { PlayIcon } from "./assets/icons/PlayIcon";
 
 const Backdrop = styled.div`
     display: grid;
@@ -83,6 +84,13 @@ export function App() {
         bodyFollowedRef.current = newBodyFollowed;
     };
     const resetSim = useRef<boolean>(false);
+
+    const [pausedState, setPausedState] = useState<boolean>(true);
+    const pausedRef = useRef<boolean>(true);
+    const updatePaused = (status: boolean) => {
+        setPausedState(status);
+        pausedRef.current = status;
+    }
     return (
         <>
             <SimScreen>
@@ -94,6 +102,7 @@ export function App() {
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
+                    pausedRef={pausedRef}
                 />
             </SimScreen>
             <Backdrop>
@@ -109,7 +118,13 @@ export function App() {
                     updateBodyFollowed={updateBodyFollowed}
                 />
                 <ButtonSection>
-                    <button><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
+                    {
+                        pausedState
+                        ?
+                        <button onClick={() => {updatePaused(false)}}><PlayIcon color={'white'} dim={'50px'} filled={true}/></button>
+                        :
+                        <button onClick={() => {updatePaused(true)}}><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
+                    }
                     <button onClick={() => {resetSim.current=true}}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
                 </ButtonSection>
             </Backdrop>
