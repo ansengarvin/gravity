@@ -9,7 +9,7 @@ const Backdrop = styled.div`
     grid-template-areas:
         "top top top"
         "stats simulation controls"
-        "foot buttons foot";
+        "foot foot foot";
     grid-template-rows: min-content 1fr 25px;
     grid-template-columns: 250px 1fr 250px;
     height: 100%;
