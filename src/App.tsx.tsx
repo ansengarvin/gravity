@@ -44,12 +44,12 @@ export function App() {
         Sim wants a ref because the Universe class needs real-time access to the followed body as it's being changed by the user.
         I set both a state and a ref to the same value, and then I can use the ref in the Sim class and the state in the Leaderboard.
     */
-    const [bodyFollowed, setBodyFollowed]= useState<number>(-1)
+    const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
     const bodyFollowedRef = useRef<number>(bodyFollowed);
     const updateBodyFollowed = (newBodyFollowed: number) => {
         setBodyFollowed(newBodyFollowed);
         bodyFollowedRef.current = newBodyFollowed;
-    }
+    };
     return (
         <>
             <SimScreen>
@@ -63,11 +63,14 @@ export function App() {
                 />
             </SimScreen>
             <Backdrop>
-                <Header/>
+                <Header />
                 <StatScreen>Number of Bodies: {numActive}</StatScreen>
-                <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />        
+                <Leaderboard
+                    leaderboardBodies={leaderboardBodies}
+                    bodyFollowed={bodyFollowed}
+                    updateBodyFollowed={updateBodyFollowed}
+                />
             </Backdrop>
         </>
-        
     );
 }

@@ -38,10 +38,15 @@ export class Universe {
     public numActive: number;
 
     public bodyFollowedRef: React.RefObject<number>;
-    public updateBodyFollowed: ( newBodyFollowed: number) => void;
+    public updateBodyFollowed: (newBodyFollowed: number) => void;
     private cameraRef: React.RefObject<Camera>;
 
-    constructor(settings: UniverseSettings, cameraRef: React.RefObject<Camera>, bodyFollowedRef: React.RefObject<number>, updateBodyFollowed: (newBodyFollowed: number) => void) {
+    constructor(
+        settings: UniverseSettings,
+        cameraRef: React.RefObject<Camera>,
+        bodyFollowedRef: React.RefObject<number>,
+        updateBodyFollowed: (newBodyFollowed: number) => void,
+    ) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -107,7 +112,11 @@ export class Universe {
             // this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
             // this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
 
-            const initialAngularVelocity = this.getInitialAngularVelocity(this.positionsX[i], this.positionsY[i], this.positionsZ[i]);
+            const initialAngularVelocity = this.getInitialAngularVelocity(
+                this.positionsX[i],
+                this.positionsY[i],
+                this.positionsZ[i],
+            );
             const multiplier = 10;
             this.velocitiesX[i] = initialAngularVelocity.x * multiplier;
             this.velocitiesY[i] = initialAngularVelocity.y * multiplier;
@@ -235,7 +244,11 @@ export class Universe {
 
         // Update the camera position to the current position of the followed body
         if (this.bodyFollowedRef.current !== -1) {
-            this.cameraRef.current.setTarget(this.positionsX[this.bodyFollowedRef.current], this.positionsY[this.bodyFollowedRef.current], this.positionsZ[this.bodyFollowedRef.current]);
+            this.cameraRef.current.setTarget(
+                this.positionsX[this.bodyFollowedRef.current],
+                this.positionsY[this.bodyFollowedRef.current],
+                this.positionsZ[this.bodyFollowedRef.current],
+            );
         }
     }
 
@@ -351,8 +364,7 @@ export class Universe {
         return massRankings;
     }
 
-    
-    private getInitialAngularVelocity(x: number, y: number, z: number): { x: number, y: number, z: number } {
+    private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
         // Planets in the center move slower than planets on the edge of the universe.
         // The velocity is proportional to the distance from the center of the universe.
         const distanceFromCenter = Math.sqrt(x * x + y * y + z * z);
@@ -366,10 +378,10 @@ export class Universe {
             x: angularVelocityX,
             y: angularVelocityY,
             z: angularVelocityZ,
-        }
+        };
     }
 
-    private getRandomSphericalStartingPosition(min: number, max: number): {x: number, y: number, z: number} {
+    private getRandomSphericalStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
         const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
         const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
         const radius = getRandomFloat(min, max); // Random radius
@@ -378,10 +390,10 @@ export class Universe {
             x: radius * Math.sin(phi) * Math.cos(theta),
             y: radius * Math.sin(phi) * Math.sin(theta),
             z: radius * Math.cos(phi),
-        }
+        };
     }
 
-    private getRandomDiskStartingPosition(min: number, max: number): {x: number, y: number, z: number} {
+    private getRandomDiskStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
         const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
         const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
         const radius = getRandomFloat(min, max); // Random radius
@@ -390,8 +402,6 @@ export class Universe {
             x: radius * Math.sin(phi) * Math.cos(theta),
             y: getRandomFloat(-1, 1), // Random y position
             z: radius * Math.cos(phi),
-        }
+        };
     }
-
-
 }
