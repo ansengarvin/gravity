@@ -240,9 +240,6 @@ export class Universe {
                     const most_massive = this.masses[i] > this.masses[j] ? i : j;
                     const less_massive = this.masses[i] > this.masses[j] ? j : i;
 
-                    // Deactivate the less massive body
-                    this.bodiesActive[less_massive] = 0;
-
                     // Merge the masses
                     this.masses[most_massive] += this.masses[less_massive];
                     this.radii[most_massive] = this.radius_from_mass(this.masses[most_massive]);
@@ -259,8 +256,18 @@ export class Universe {
                             this.velocitiesZ[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
 
-                    // Decrement numactive
+
+                    /*
+                        Deactivate the less massive body.
+                    */
                     this.numActive--;
+                    this.bodiesActive[less_massive] = 0;
+                    if (less_massive === i) {
+                        break; 
+                    }
+                    
+                    
+
                 }
             }
         }
