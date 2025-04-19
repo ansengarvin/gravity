@@ -90,8 +90,8 @@ export class Universe {
 
         // Velocities are in astronomical units per year
         // For reference, the Earth's total velocity is about 6.283 AU/year.
-        const min_velocity = 0.0;
-        const max_velocity = 3;
+        // const min_velocity = 0.0;
+        // const max_velocity = 3;
 
         // Masses are in solar masses
         // For reference, the Sun's mass is 1 solar mass.
@@ -381,17 +381,17 @@ export class Universe {
         };
     }
 
-    private getRandomSphericalStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
-        const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
-        const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
-        const radius = getRandomFloat(min, max); // Random radius
+    // private getRandomSphericalStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
+    //     const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
+    //     const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
+    //     const radius = getRandomFloat(min, max); // Random radius
 
-        return {
-            x: radius * Math.sin(phi) * Math.cos(theta),
-            y: radius * Math.sin(phi) * Math.sin(theta),
-            z: radius * Math.cos(phi),
-        };
-    }
+    //     return {
+    //         x: radius * Math.sin(phi) * Math.cos(theta),
+    //         y: radius * Math.sin(phi) * Math.sin(theta),
+    //         z: radius * Math.cos(phi),
+    //     };
+    // }
 
     private getRandomDiskStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
         const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
