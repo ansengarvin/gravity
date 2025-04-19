@@ -264,15 +264,6 @@ export class Universe {
                 }
             }
         }
-
-        // Update the camera position to the current position of the followed body
-        if (this.bodyFollowedRef.current !== -1) {
-            this.cameraRef.current.setTarget(
-                this.positionsX[this.bodyFollowedRef.current],
-                this.positionsY[this.bodyFollowedRef.current],
-                this.positionsZ[this.bodyFollowedRef.current],
-            );
-        }
     }
 
     public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
@@ -321,12 +312,15 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        // const cameraMatrix = mat4.create();
-        // mat4.translate(
-        //     cameraMatrix, // destination matrix
-        //     cameraMatrix, // matrix to translate
-        //     [0.0, 0.0, this.cameraRef.current.zoom], // amount to translate
-        // );
+        
+        // Update the camera position to the current position of the followed body
+        if (this.bodyFollowedRef.current !== -1) {
+            this.cameraRef.current.setTarget(
+                this.positionsX[this.bodyFollowedRef.current],
+                this.positionsY[this.bodyFollowedRef.current],
+                this.positionsZ[this.bodyFollowedRef.current],
+            );
+        }
         const cameraMatrix = this.cameraRef.current.getViewMatrix();
 
         for (let i = 0; i < this.settings.numBodies; i++) {
