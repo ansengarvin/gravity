@@ -12,6 +12,14 @@ const Backdrop = styled.div`
     grid-template-rows: 25px 1fr 25px;
     grid-template-columns: 250px 1fr 250px;
     height: 100%;
+    width: 100%;
+    z-index: 1;
+    position: relative;
+    pointer-events: none;
+
+    & * {
+        pointer-events: auto;
+    }
 `;
 
 const StatScreen = styled.div`
@@ -19,9 +27,10 @@ const StatScreen = styled.div`
 `;
 
 const SimScreen = styled.div`
-    grid-area: simulation;
+    position: absolute;
     height: 100%;
     width: 100%;
+    z-index: 0;
 `;
 
 export function App() {
@@ -40,9 +49,7 @@ export function App() {
         bodyFollowedRef.current = newBodyFollowed;
     }
     return (
-        <Backdrop>
-            <StatScreen>Number of Bodies: {numActive}</StatScreen>
-            <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />
+        <>
             <SimScreen>
                 <Sim
                     width="1920px"
@@ -53,6 +60,11 @@ export function App() {
                     updateBodyFollowed={updateBodyFollowed}
                 />
             </SimScreen>
-        </Backdrop>
+            <Backdrop>
+                <StatScreen>Number of Bodies: {numActive}</StatScreen>
+                <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />        
+            </Backdrop>
+        </>
+        
     );
 }
