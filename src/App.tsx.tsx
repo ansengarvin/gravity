@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
+import { Header } from "./components/header";
 
 const Backdrop = styled.div`
     display: grid;
@@ -9,7 +10,7 @@ const Backdrop = styled.div`
         "top top top"
         "stats simulation controls"
         "foot foot foot";
-    grid-template-rows: 25px 1fr 25px;
+    grid-template-rows: min-content 1fr 25px;
     grid-template-columns: 250px 1fr 250px;
     height: 100%;
     width: 100%;
@@ -24,6 +25,7 @@ const Backdrop = styled.div`
 
 const StatScreen = styled.div`
     grid-area: stats;
+    padding-left: 10px;
 `;
 
 const SimScreen = styled.div`
@@ -61,6 +63,7 @@ export function App() {
                 />
             </SimScreen>
             <Backdrop>
+                <Header/>
                 <StatScreen>Number of Bodies: {numActive}</StatScreen>
                 <Leaderboard leaderboardBodies={leaderboardBodies} bodyFollowed={bodyFollowed} updateBodyFollowed={updateBodyFollowed} />        
             </Backdrop>

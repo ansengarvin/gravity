@@ -14,6 +14,8 @@ const globalStyle = css`
         background-color: #17171a;
         color: white;
         overflow: hidden;
+
+        font-family: "Roboto", sans-serif;
     }
 `;
 
