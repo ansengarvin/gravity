@@ -84,6 +84,7 @@ export class Universe {
     }
 
     public initialize(): void {
+        this.numActive = this.settings.numBodies;
         // Seed the random number generator with the provided seed
         const min_position = (-1.0 * this.settings.size) / 2;
         const max_position = this.settings.size / 2;
