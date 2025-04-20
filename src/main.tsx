@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./App.tsx.tsx";
+import { App } from "./App.tsx";
 import { css, Global } from "@emotion/react";
 
 const globalStyle = css`
