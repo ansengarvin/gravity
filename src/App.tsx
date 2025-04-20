@@ -9,10 +9,10 @@ const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top top top"
-        "stats simulation controls"
-        "footleft buttons footright";
+        "simulation simulation simulation"
+        "stats buttons controls";
     grid-template-rows: min-content 1fr 200px;
-    grid-template-columns: 250px 1fr 250px;
+    grid-template-columns: 1fr 320px 1fr;
     height: 100%;
     width: 100%;
     z-index: 1;
@@ -31,36 +31,43 @@ const StatScreen = styled.div`
 
 const SimScreen = styled.div`
     position: absolute;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     z-index: 0;
 `;
 
 export function App() {
     const [numActive, setNumActive] = useState(0);
-    const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-
-    /*
-        Leaderboard wants a state because it needs to be able to re-render every time the followed body is changed.
-        Sim wants a ref because the Universe class needs real-time access to the followed body as it's being changed by the user.
-        I set both a state and a ref to the same value, and then I can use the ref in the Sim class and the state in the Leaderboard.
-    */
+    // Which orbital body is being followed by the camera
+    // Universe class needs the ref, everything else needs the state
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
     const bodyFollowedRef = useRef<number>(bodyFollowed);
     const updateBodyFollowed = (newBodyFollowed: number) => {
         setBodyFollowed(newBodyFollowed);
         bodyFollowedRef.current = newBodyFollowed;
     };
-    const resetSim = useRef<boolean>(false);
 
+    // Whether the app is paused or not
+    // State is needed so pause/play button can re-render for icons
+    // Ref is needed to be passed into render()
     const [pausedState, setPausedState] = useState<boolean>(true);
     const pausedRef = useRef<boolean>(true);
     const updatePaused = (status: boolean) => {
         setPausedState(status);
         pausedRef.current = status;
     }
+
+    // Toggle to reset the simulation
+    const resetSim = useRef<boolean>(false);
+
+    // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
+    const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
+    const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
+
+    const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
+
     return (
-        <>
+        <body>
             <SimScreen>
                 <Sim
                     width="1920px"
@@ -79,18 +86,29 @@ export function App() {
                     <br/>
                     Number of Bodies: {numActive}
                 </StatScreen>
-                <Leaderboard
-                    leaderboardBodies={leaderboardBodies}
-                    bodyFollowed={bodyFollowed}
-                    updateBodyFollowed={updateBodyFollowed}
-                />
+                {
+                    leaderboardShown
+                    ? 
+                    <Leaderboard
+                        leaderboardBodies={leaderboardBodies}
+                        bodyFollowed={bodyFollowed}
+                        updateBodyFollowed={updateBodyFollowed}
+                    />
+                    :
+                    null
+                }
+                
                 <ControlButtons
                     pausedState={pausedState}
                     updatePaused={updatePaused}
                     resetSim={resetSim}
+                    leaderboardShown={leaderboardShown}
+                    setLeaderboardShown={setLeaderboardShown}
+                    settingsMenuShown={settingsMenuShown}
+                    setSettingsMenuShown={setSettingsMenuShown}
                 />
             </Backdrop>
             
-        </>
+        </body>
     );
 }

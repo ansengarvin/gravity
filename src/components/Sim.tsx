@@ -6,6 +6,7 @@ import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { LeaderboardBody } from "./Leaderboard";
 import { Camera } from "../lib/webGL/camera";
+import styled from "@emotion/styled";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -182,18 +183,23 @@ export function Sim(props: SimProps) {
     }, []); // Runs once when the component mounts
 
     return (
-        <canvas
+        <SimCanvas
             ref={canvasRef}
-            style={{ width: "100%", height: "100%" }}
             height={height}
             width={width}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-        ></canvas>
+        />
     );
 }
+
+const SimCanvas = styled.canvas`
+    height: 100%;
+    width: 100%;
+    display: block;
+`
 
 const vsSource = `
     attribute vec4 aVertexPosition;

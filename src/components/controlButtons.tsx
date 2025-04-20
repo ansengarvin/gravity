@@ -10,13 +10,21 @@ interface ControlButtonProps {
     pausedState: boolean;
     updatePaused: (shouldPause: boolean) => void;
     resetSim: React.RefObject<boolean>;
+    leaderboardShown: boolean;
+    setLeaderboardShown: (shouldShow: boolean) => void;
+    settingsMenuShown: boolean;
+    setSettingsMenuShown: (shouldShow: boolean) => void;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const { pausedState, updatePaused, resetSim } = props;
+    const { pausedState, updatePaused, resetSim, leaderboardShown, setLeaderboardShown, settingsMenuShown, setSettingsMenuShown } = props;
     return (
         <ButtonSection>
-            <button><SettingsIcon color={'white'} dim={'50px'} filled={true}/></button>
+            <button onClick={() => {
+                setSettingsMenuShown(!settingsMenuShown)
+            }}>
+                <SettingsIcon color={'white'} dim={'50px'} filled={!settingsMenuShown}/>
+            </button>
             {
                 pausedState
                 ?
@@ -26,9 +34,10 @@ export function ControlButtons(props: ControlButtonProps) {
             }
             <button onClick={() => {
                 resetSim.current=true
-                updatePaused(true)
             }}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
-            <button><ViewListIcon color={'white'} dim={'50px'} filled={true}/></button>
+            <button onClick={() => {
+                setLeaderboardShown(!leaderboardShown)
+            }}><ViewListIcon color={'white'} dim={'50px'} filled={!leaderboardShown}/></button>
         </ButtonSection>
     )
 }

@@ -23,30 +23,45 @@ export function Leaderboard(props: LeaderboardProps) {
     };
 
     return (
-        <LeaderboardStyle>
-            {leaderboardBodies.map((item, index) => (
-                <LeaderboardItemCard
-                    key={index}
-                    color={item.color}
-                    selected={bodyFollowed === item.index}
-                    onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}
-                >
-                    Body {item.index} <br />
-                    Mass: {item.mass.toFixed(2)} M<sub>☉</sub>
-                </LeaderboardItemCard>
-            ))}
-        </LeaderboardStyle>
+        <LeaderboardContainer>
+            <LeaderboardStyle>
+                {leaderboardBodies.map((item, index) => (
+                    <LeaderboardItemCard
+                        key={index}
+                        color={item.color}
+                        selected={bodyFollowed === item.index}
+                        onClick={() => cardClick(item.index, item.pos.x, item.pos.y, item.pos.z)}
+                    >
+                        Body {item.index} <br />
+                        Mass: {item.mass.toFixed(2)} M<sub>☉</sub>
+                    </LeaderboardItemCard>
+                ))}
+            </LeaderboardStyle>
+        </LeaderboardContainer>   
     );
 }
 
-const LeaderboardStyle = styled.div`
+const LeaderboardContainer = styled.div`
     grid-area: controls;
-    height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: '100%';
+    width: 100%;
+    padding: 20px;
+`
+
+const LeaderboardStyle = styled.div`
+    height: 200px;
     width: 80%;
     overflow-y: scroll;
     background-color: #050505;
     margin-left: auto;
     margin-right: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    border: 4px solid white;
 `;
 
 function brightenColor(color: string, factor: number): string {
@@ -70,6 +85,8 @@ const LeaderboardItemCard = styled.div<{ color: string; selected: boolean }>`
     padding: 5px;
     border: 1px solid ${({ color }) => color};
     margin: 5px;
+    height: 50px;
+    width: 150px;
     color: black;
     background-color: ${({ color }) => color};
     cursor: pointer;
