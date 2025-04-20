@@ -2,8 +2,8 @@ import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
-import { Header } from "./components/header";
-import { ControlButtons } from "./components/controlButtons";
+import { Header } from "./components/Header";
+import { ControlButtons } from "./components/ControlButtons";
 
 const Backdrop = styled.div`
     display: grid;
