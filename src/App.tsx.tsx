@@ -3,9 +3,7 @@ import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { Header } from "./components/header";
-import { PauseIcon } from "./assets/icons/PauseIcon";
-import { RestartIcon } from "./assets/icons/RestartIcon";
-import { PlayIcon } from "./assets/icons/PlayIcon";
+import { ControlButtons } from "./components/controlButtons";
 
 const Backdrop = styled.div`
     display: grid;
@@ -37,36 +35,6 @@ const SimScreen = styled.div`
     width: 100%;
     z-index: 0;
 `;
-
-const ButtonSection = styled.div`
-    grid-area: buttons;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
-
-    button {
-        // Clear all effects
-        border: none;
-        background: none;
-        padding: 0;
-        margin: 0;
-        font: inherit;
-        outline: none;
-        cursor: pointer;
-        
-        height: 50px;
-        width: 50px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        border-color: white;
-        background-color: none;
-    }
-`
 
 export function App() {
     const [numActive, setNumActive] = useState(0);
@@ -116,20 +84,13 @@ export function App() {
                     bodyFollowed={bodyFollowed}
                     updateBodyFollowed={updateBodyFollowed}
                 />
-                <ButtonSection>
-                    {
-                        pausedState
-                        ?
-                        <button onClick={() => {updatePaused(false)}}><PlayIcon color={'white'} dim={'50px'} filled={true}/></button>
-                        :
-                        <button onClick={() => {updatePaused(true)}}><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
-                    }
-                    <button onClick={() => {
-                        resetSim.current=true
-                        updatePaused(true)
-                    }}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
-                </ButtonSection>
+                <ControlButtons
+                    pausedState={pausedState}
+                    updatePaused={updatePaused}
+                    resetSim={resetSim}
+                />
             </Backdrop>
+            
         </>
     );
 }
