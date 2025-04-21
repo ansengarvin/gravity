@@ -27,7 +27,6 @@ const cancelColor = "rgb(255, 131, 131)";
 
 export function LeaderboardHeader(props: LeaderboardHeaderProps) {
     const { sortBy, updateSortBy } = props;
-    console.log(sortBy)
     return (
         <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
             <HeaderCard width={ButtonWidth} current={false} bgcolor={'black'}>Go</HeaderCard>

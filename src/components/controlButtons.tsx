@@ -28,44 +28,44 @@ export function ControlButtons(props: ControlButtonProps) {
     } = props;
     return (
         <ButtonSection>
-            <button
+            <ControlButton
                 onClick={() => {
                     setSettingsMenuShown(!settingsMenuShown);
                 }}
             >
                 <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
-            </button>
+            </ControlButton>
             {pausedState ? (
-                <button
+                <ControlButton
                     onClick={() => {
                         updatePaused(false);
                     }}
                 >
                     <PlayIcon color={"white"} dim={"50px"} filled={true} />
-                </button>
+                </ControlButton>
             ) : (
-                <button
+                <ControlButton
                     onClick={() => {
                         updatePaused(true);
                     }}
                 >
                     <PauseIcon color={"white"} dim={"50px"} filled={true} />
-                </button>
+                </ControlButton>
             )}
-            <button
+            <ControlButton
                 onClick={() => {
                     resetSim.current = true;
                 }}
             >
                 <RestartIcon color={"white"} dim={"50px"} filled={true} />
-            </button>
-            <button
+            </ControlButton>
+            <ControlButton
                 onClick={() => {
                     setLeaderboardShown(!leaderboardShown);
                 }}
             >
                 <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
-            </button>
+            </ControlButton>
         </ButtonSection>
     );
 }
@@ -76,26 +76,26 @@ const ButtonSection = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 50px;
-
-    button {
-        // Clear all effects
-        border: none;
-        background: none;
-        padding: 0;
-        margin: 0;
-        font: inherit;
-        outline: none;
-        cursor: pointer;
-
-        height: 50px;
-        width: 50px;
-
-        display: flex;
-        justify-content: center;
-        align-items: center;
-
-        border-color: white;
-        background-color: none;
-    }
+    gap: 50px;  
 `;
+
+const ControlButton = styled.button`
+    // Clear all effects
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    outline: none;
+    cursor: pointer;
+
+    height: 50px;
+    width: 50px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-color: white;
+    background-color: none;
+`
