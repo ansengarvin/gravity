@@ -1,7 +1,8 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
-import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
+import { Leaderboard } from "./components/leaderboard/Leaderboard";
+import { LeaderboardBody } from "./components/leaderboard/LeaderboardBody";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 
@@ -10,7 +11,7 @@ const Backdrop = styled.div`
     grid-template-areas:
         "top top top"
         "simulation simulation simulation"
-        "stats buttons controls";
+        "stats buttons leaderboard";
     grid-template-rows: min-content 1fr 200px;
     grid-template-columns: 1fr 320px 1fr;
     height: 100%;

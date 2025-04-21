@@ -4,7 +4,7 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
-import { LeaderboardBody } from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../components/leaderboard/Leaderboard";
 import { Camera } from "../webGL/camera";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
