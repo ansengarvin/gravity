@@ -9,6 +9,10 @@ import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
+// Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
+import fragA from "../assets/shaders/flat.frag.glsl?raw"
+import vert from "../assets/shaders/basic.vert.glsl?raw"
+
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
@@ -120,11 +124,11 @@ export function Sim(props: SimProps) {
             /*
             Get the UV sphere model
             */
-            const sphere = await getModel("uvsphere.glb");
+            const sphere = await getModel("uvSphereSmooth.glb");
 
             // Initialize a shader program; this is where all the lighting
             // for the vertices and so forth is established.
-            const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+            const shaderProgram = initShaderProgram(gl, vert, fragA);
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");
@@ -206,42 +210,4 @@ const SimCanvas = styled.canvas`
     height: 100%;
     width: 100%;
     display: block;
-`;
-
-const vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec3 aVertexNormal;
-    attribute vec4 aVertexColor;
-
-    uniform mat4 uNormalMatrix;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-
-    varying highp vec3 vTransformedNormal;
-    varying highp vec4 vPosition;
-
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal;
-      vPosition = uModelViewMatrix * aVertexPosition;
-    }
-  `;
-
-const fsSource = `
-    uniform highp vec4 uFragColor;
-
-    varying highp vec3 vTransformedNormal;
-    varying highp vec4 vPosition;
-
-    void main(void) {
-        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-        highp vec3 directionalLightColor = vec3(1, 1, 1);
-        highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-
-        highp vec3 normal = normalize(vTransformedNormal);
-        highp float directional = max(dot(normal, directionalVector), 0.0);
-
-        highp vec3 lighting = ambientLight + (directionalLightColor * directional);
-        gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
-    }
 `;
