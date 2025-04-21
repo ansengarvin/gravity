@@ -36,6 +36,8 @@ export class Universe {
     public colorsG: Float32Array;
     public colorsB: Float32Array;
     public numActive: number;
+    public orbitalIndices: Float32Array;
+    public orbitalDistances: Float32Array;
 
     public bodyFollowedRef: React.RefObject<number>;
     public updateBodyFollowed: (newBodyFollowed: number) => void;
@@ -67,6 +69,9 @@ export class Universe {
         this.colorsR = new Float32Array(this.settings.numBodies);
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
+
+        this.orbitalIndices = new Float32Array(this.settings.numBodies);
+        this.orbitalDistances = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
         this.cameraRef = cameraRef;
@@ -135,6 +140,9 @@ export class Universe {
             this.colorsG[i] = getRandomFloat(0.1, 0.85);
             this.colorsB[i] = getRandomFloat(0.1, 0.85);
         }
+
+        this.orbitalIndices.fill(-1);
+        this.orbitalDistances.fill(-1);
     }
 
     private clear(): void {
@@ -153,6 +161,8 @@ export class Universe {
         this.colorsR.fill(0);
         this.colorsG.fill(0);
         this.colorsB.fill(0);
+        this.orbitalIndices.fill(-1);
+        this.orbitalDistances.fill(-1);
     }
 
     public reset(): void {
@@ -268,6 +278,39 @@ export class Universe {
                 }
             }
         }
+
+        
+        /*
+            Handle specific orbital energy
+        */
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            this.orbitalIndices[i] = -1;
+            this.orbitalDistances[i] = -1;
+            let lowestEnergy = 0;
+            for (let j = 0; j < this.settings.numBodies; j++) {
+                if (i === j || !this.bodiesActive[j]) {
+                    continue;
+                }
+
+                const energy = this.getSpecificOrbitalEnergy(i, j);
+                if (energy < lowestEnergy) {
+                    lowestEnergy = energy;
+                    this.orbitalIndices[i] = j;
+                }
+            }
+            if (this.orbitalIndices[i] !== -1) {
+                this.orbitalDistances[i] = Math.sqrt(
+                    (this.positionsX[i] - this.positionsX[this.orbitalIndices[i]]) ** 2 +
+                        (this.positionsY[i] - this.positionsY[this.orbitalIndices[i]]) ** 2 +
+                        (this.positionsZ[i] - this.positionsZ[this.orbitalIndices[i]]) ** 2,
+                );
+            }
+
+        }
+
     }
 
     public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
@@ -390,8 +433,8 @@ export class Universe {
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
                 dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
                 dTarget: this.distanceToFollowedBody(i),
-                orbiting: -1,
-                dOrbit: 0
+                orbiting: this.orbitalIndices[i],
+                dOrbit: this.orbitalDistances[i],
             };
         }
 
@@ -443,5 +486,24 @@ export class Universe {
             y: getRandomFloat(-1, 1), // Random y position
             z: radius * Math.cos(phi),
         };
+    }
+
+    private getSpecificOrbitalEnergy(bodyA: number, bodyB: number) {
+        // Relative velocities
+        const vX = this.velocitiesX[bodyA] - this.velocitiesX[bodyB];
+        const vY = this.velocitiesY[bodyA] - this.velocitiesY[bodyB];
+        const vZ = this.velocitiesZ[bodyA] - this.velocitiesZ[bodyB];
+        const v = Math.sqrt(vX * vX + vY * vY + vZ * vZ);
+
+        // Relative distance
+        const dX = this.positionsX[bodyA] - this.positionsX[bodyB];
+        const dY = this.positionsY[bodyA] - this.positionsY[bodyB];
+        const dZ = this.positionsZ[bodyA] - this.positionsZ[bodyB];
+        const r = Math.sqrt(dX * dX + dY * dY + dZ * dZ);
+
+        // Sum of standard gravitational patterns
+        const U = G * (this.masses[bodyA] + this.masses[bodyB]);
+
+        return (0.5*v*v)-(U/r);
     }
 }
