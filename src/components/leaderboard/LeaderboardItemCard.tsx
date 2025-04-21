@@ -5,6 +5,11 @@ import { TargetIcon } from "../../assets/icons/TargetIcon";
 import { useRef, useState } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
 
+interface LeaderboardHeaderProps {
+    sortBy: string;
+    updateSortBy: (sortBy: string) => void;
+}
+
 interface LeaderboardItemCardProps {
     item: LeaderboardBody;
     followed: boolean;
@@ -18,16 +23,28 @@ const DistanceWidth = "120px";
 const focusedColor = "rgb(255, 227, 46)";
 const cancelColor = "rgb(255, 131, 131)";
 
-export function LeaderboardHeader() {
+export function LeaderboardHeader(props: LeaderboardHeaderProps) {
+    const { sortBy, updateSortBy } = props;
+    console.log(sortBy)
     return (
         <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
-            <HeaderCard width={ButtonWidth}></HeaderCard>
-            <HeaderCard width={NameWidth}>Name</HeaderCard>
-            <HeaderCard width={MassWidth}>
+            <HeaderCard width={ButtonWidth} current={false}></HeaderCard>
+            <HeaderCard width={NameWidth} current={sortBy === 'name'} onClick={() => {updateSortBy('name')}}>Name</HeaderCard>
+            <HeaderCard width={MassWidth} current={sortBy === 'mass'} onClick={() => {updateSortBy('mass')}}>
                 Mass (M<sub>☉</sub>)
             </HeaderCard>
-            <HeaderCard width={DistanceWidth}>Dist. (Origin, AU)</HeaderCard>
-            <HeaderCard width={DistanceWidth}>Dist. (Target, AU)</HeaderCard>
+            <HeaderCard width={DistanceWidth} current={sortBy === 'dOrigin'} onClick={() => {updateSortBy('dOrigin')}}>
+                Dist. (Origin, AU)
+            </HeaderCard>
+            <HeaderCard width={DistanceWidth} current={sortBy === 'dTarget'} onClick={() => {updateSortBy('dTarget')}}>
+                Dist. (Target, AU)
+            </HeaderCard>
+            <HeaderCard width={DistanceWidth} current={sortBy === 'orbiting'} onClick={() => {updateSortBy('orbiting')}}>
+                Orbiting
+            </HeaderCard>
+            <HeaderCard width={DistanceWidth} current={sortBy === 'dOrbit'} onClick={() => {updateSortBy('dOrbit')}}>
+                Dist. (Orbit, AU)
+            </HeaderCard>
         </LeaderboardHeaderStyle>
     );
 }
@@ -71,10 +88,16 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
             </SelectButton>
             <InfoCard width={NameWidth}>B-{item.index.toFixed()}</InfoCard>
             <InfoCard width={MassWidth}>{item.mass.toFixed(2)}</InfoCard>
+            <InfoCard width={DistanceWidth}>{item.dOrigin.toFixed(2)}</InfoCard>
             <InfoCard width={DistanceWidth}>
-                {Math.sqrt(item.pos.x ** 2 + item.pos.y ** 2 + item.pos.z ** 2).toFixed(2)}
+                {
+                    item.dTarget == -1
+                    ?
+                    <>--</>
+                    :
+                    item.dTarget.toFixed(2)
+                }
             </InfoCard>
-            <InfoCard width={DistanceWidth}>--</InfoCard>
         </LeaderboardItemCardStyle>
     );
 }
@@ -124,16 +147,30 @@ const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
     background-color: black;
     border-bottom: 2px solid white;
     margin: 0;
+    user-select: none;
+    
 `;
 
-const HeaderCard = styled(InfoCard)`
+const HeaderCard = styled(InfoCard)<{current: boolean}>`
     background-color: black;
     color: white;
-    height: 25px;
 
+    border: ${(props) => (props.current ? 'dashed 1px white' : 'none')};
+    
+    height: 25px;
+    margin-top: 4px;
+    cursor: pointer;
     sub {
         vertical-align: sub;
         font-size: 0.75em;
+    }
+
+    :hover {
+        background-color: #3c3c3c;
+    }
+
+    :active {
+        background-color: #717171;
     }
 `;
 

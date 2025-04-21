@@ -4,5 +4,6 @@ export interface LeaderboardBody {
     color: string;
     dOrigin: number;
     dTarget: number;
-    pos: { x: number; y: number; z: number };
+    orbiting: number;
+    dOrbit: number;
 }

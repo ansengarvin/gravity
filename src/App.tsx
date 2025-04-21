@@ -58,13 +58,19 @@ export function App() {
         pausedRef.current = status;
     };
 
+    const [sortByState, setSortByState] = useState<string>('mass');
+    const sortByRef = useRef<string>('mass');
+    const updateSortBy = (sortBy: string) => {
+        setSortByState(sortBy);
+        sortByRef.current = sortBy;
+    };
+
     // Toggle to reset the simulation
     const resetSim = useRef<boolean>(false);
 
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
-
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
 
     return (
@@ -79,6 +85,7 @@ export function App() {
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
                     pausedRef={pausedRef}
+                    sortByRef={sortByRef}
                 />
             </SimScreen>
             <Backdrop>
@@ -92,6 +99,8 @@ export function App() {
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
                         updateBodyFollowed={updateBodyFollowed}
+                        sortBy={sortByState}
+                        updateSortBy={updateSortBy}
                     />
                 ) : null}
 

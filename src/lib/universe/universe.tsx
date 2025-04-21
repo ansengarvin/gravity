@@ -361,22 +361,37 @@ export class Universe {
         }
     }
 
+    public distanceToFollowedBody(idx: number): number {
+        /**
+         * Absolute distance to the followed body. Returns -1 if there is no followed body.
+         */
+        if (this.bodyFollowedRef.current == -1) {
+            return -1;
+        }
+
+        const dTargetX = this.positionsX[idx] - this.positionsX[this.bodyFollowedRef.current];
+        const dTargetY = this.positionsY[idx] - this.positionsY[this.bodyFollowedRef.current];
+        const dTargetZ = this.positionsZ[idx] - this.positionsZ[this.bodyFollowedRef.current];
+
+        return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
+    }
+
     public getMassRankings(): Array<LeaderboardBody> {
-        const massRankings = new Array(this.settings.numBodies);
+        const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
             if (!this.bodiesActive[i]) {
                 continue;
             }
+
             massRankings[i] = {
                 index: i,
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
-                pos: {
-                    x: this.positionsX[i],
-                    y: this.positionsY[i],
-                    z: this.positionsZ[i],
-                },
+                dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
+                dTarget: this.distanceToFollowedBody(i),
+                orbiting: -1,
+                dOrbit: 0
             };
         }
 

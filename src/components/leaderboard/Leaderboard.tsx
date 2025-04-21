@@ -8,14 +8,16 @@ interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[];
     bodyFollowed: number;
     updateBodyFollowed: (newBodyFollowed: number) => void;
+    sortBy: string;
+    updateSortBy: (sortBy: string) => void;
 }
 
 export function Leaderboard(props: LeaderboardProps) {
-    const { leaderboardBodies, bodyFollowed, updateBodyFollowed } = props;
+    const { leaderboardBodies, bodyFollowed, updateBodyFollowed, sortBy, updateSortBy } = props;
 
     return (
         <LeaderboardStyle>
-            <LeaderboardHeader />
+            <LeaderboardHeader sortBy = {sortBy} updateSortBy={updateSortBy}/>
             {leaderboardBodies.map((item, index) => (
                 <LeaderboardItemCard
                     key={index}

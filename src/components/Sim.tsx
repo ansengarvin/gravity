@@ -21,6 +21,7 @@ interface SimProps {
     updateBodyFollowed: (newBodiesFollowed: number) => void;
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
+    sortByRef: React.RefObject<string>;
 }
 
 export function Sim(props: SimProps) {
@@ -33,6 +34,7 @@ export function Sim(props: SimProps) {
         updateBodyFollowed,
         resetSim,
         pausedRef,
+        sortByRef,
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
