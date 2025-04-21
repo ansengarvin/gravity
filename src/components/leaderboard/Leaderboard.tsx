@@ -41,7 +41,7 @@ const LeaderboardStyle = styled.div`
     background-color: black;
     margin-left: auto;
     margin-right: auto;
-    border: 4px solid white;
+    border: 2px solid white;
 
     font-size: 0.8rem;
 `;

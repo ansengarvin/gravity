@@ -129,7 +129,7 @@ const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
     position: sticky;
     top: 0;
     background-color: black;
-    border-bottom: 4px solid white;
+    border-bottom: 2px solid white;
     margin: 0;
 `;
 
