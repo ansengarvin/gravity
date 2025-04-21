@@ -2,6 +2,7 @@ import styled from "@emotion/styled";
 import { brightenColor } from "../../lib/colors/brightenColor";
 import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
+import { useState } from "react";
 
 interface LeaderboardItemCardProps {
     item: LeaderboardBody;
@@ -13,6 +14,7 @@ const ButtonWidth = '50px';
 const NameWidth = '50px';
 const MassWidth = '100px';
 const DistanceWidth = '120px';
+const focusedColor = '#ffdd30';
 
 
 export function LeaderboardHeader() {
@@ -40,12 +42,12 @@ export function LeaderboardHeader() {
 export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
     const { item, followed, updateBodyFollowed} = props;
 
+    const [isHovered, setIsHovered] = useState(false)
+
     return (
         <LeaderboardItemCardStyle color={item.color} followed={followed}>
-            <SelectButton color={item.color} onClick={() => {
-                updateBodyFollowed(item.index);
-            }}>
-                <TargetIcon filled={true} color={item.color} dim={'35px'}/>
+            <SelectButton color={item.color} onMouseLeave={() => {setIsHovered(false)}} onMouseEnter={() => {setIsHovered(true)}} onClick={() => {updateBodyFollowed(item.index);}}>
+                <TargetIcon filled={true} color={focusedColor} dim={'35px'}/>
             </SelectButton>
             <InfoCard width={NameWidth}>
                 B-{item.index.toFixed()}
@@ -74,8 +76,8 @@ const LeaderboardItemCardStyle = styled.div<{color: string, followed: boolean}>`
     height: min-content;
 
 
-    border-top: ${props => props.followed ? '3px solid red' : 'none'};
-    border-bottom: ${props => props.followed ? '3px solid red' : 'none'};
+    border-top: ${props => props.followed ? '3px solid ' + focusedColor : 'none'};
+    border-bottom: ${props => props.followed ? '3px solid ' + focusedColor : 'none'};
 
     margin-bottom: 5px;
 
@@ -134,6 +136,7 @@ const SelectButton = styled.button<{color: string}>`
     // Remove all styling
     border: none;
     padding: none;
+    cursor: pointer;
 
     //background-color: black;
 `
