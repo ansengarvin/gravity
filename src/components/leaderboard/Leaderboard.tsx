@@ -1,0 +1,50 @@
+import styled from "@emotion/styled";
+import { LeaderboardHeader, LeaderboardItemCard } from "./LeaderboardItemCard.tsx";
+import { LeaderboardBody } from "./LeaderboardBody.tsx";
+import { sortQuery } from "../../lib/defines/sortQuery.tsx";
+
+// I may just end up making a separate body object.
+
+interface LeaderboardProps {
+    leaderboardBodies: LeaderboardBody[];
+    bodyFollowed: number;
+    updateBodyFollowed: (newBodyFollowed: number) => void;
+    sortBy: sortQuery;
+    updateSortBy: (sortBy: sortQuery) => void;
+}
+
+export function Leaderboard(props: LeaderboardProps) {
+    const { leaderboardBodies, bodyFollowed, updateBodyFollowed, sortBy, updateSortBy } = props;
+
+    return (
+        <LeaderboardStyle>
+            <LeaderboardHeader sortBy = {sortBy} updateSortBy={updateSortBy}/>
+            {leaderboardBodies.map((item, index) => (
+                <LeaderboardItemCard
+                    key={index}
+                    item={item}
+                    followed={bodyFollowed === item.index}
+                    updateBodyFollowed={updateBodyFollowed}
+                />
+            ))}
+        </LeaderboardStyle>
+    );
+}
+
+const LeaderboardStyle = styled.div`
+    grid-area: leaderboard;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+
+    height: 200px;
+    width: min-content;
+    overflow-y: scroll;
+    background-color: black;
+    margin-left: auto;
+    margin-right: auto;
+    border: 2px solid white;
+
+    font-size: 0.8rem;
+`;

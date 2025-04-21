@@ -4,8 +4,10 @@ import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
-import { LeaderboardBody } from "./Leaderboard";
+import { LeaderboardBody } from "./leaderboard/LeaderboardBody";
 import { Camera } from "../lib/webGL/camera";
+import styled from "@emotion/styled";
+import { sortQuery } from "../lib/defines/sortQuery";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -20,10 +22,21 @@ interface SimProps {
     updateBodyFollowed: (newBodiesFollowed: number) => void;
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
+    sortByRef: React.RefObject<sortQuery>;
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed, resetSim, pausedRef } = props;
+    const {
+        height,
+        width,
+        setNumActive,
+        setLeaderboardBodies,
+        bodyFollowedRef,
+        updateBodyFollowed,
+        resetSim,
+        pausedRef,
+        sortByRef
+    } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -36,7 +49,7 @@ export function Sim(props: SimProps) {
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed));
+    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed, sortByRef));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -145,7 +158,6 @@ export function Sim(props: SimProps) {
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
-                
                 now *= 0.001; // convert to seconds
                 const deltaTime = now - then;
                 then = now;
@@ -154,7 +166,7 @@ export function Sim(props: SimProps) {
                 if (resetSim.current) {
                     cameraRef.current = new Camera(0, 0, 0, 0, 0, -20);
                     updateBodyFollowed(-1);
-                    universe.current.reset()
+                    universe.current.reset();
                     resetSim.current = false;
                 }
 
@@ -162,9 +174,9 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
-                    } 
+                    }
                     setNumActive(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getMassRankings());
+                    setLeaderboardBodies(universe.current.getRankings());
                     accumulatedTime -= secondsPerTick;
                 }
 
@@ -182,18 +194,23 @@ export function Sim(props: SimProps) {
     }, []); // Runs once when the component mounts
 
     return (
-        <canvas
+        <SimCanvas
             ref={canvasRef}
-            style={{ width: "100%", height: "100%" }}
             height={height}
             width={width}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
-        ></canvas>
+        />
     );
 }
+
+const SimCanvas = styled.canvas`
+    height: 100%;
+    width: 100%;
+    display: block;
+`;
 
 const vsSource = `
     attribute vec4 aVertexPosition;

@@ -4,8 +4,9 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
-import { LeaderboardBody } from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
 import { Camera } from "../webGL/camera";
+import { sortQuery } from "../defines/sortQuery";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -36,16 +37,20 @@ export class Universe {
     public colorsG: Float32Array;
     public colorsB: Float32Array;
     public numActive: number;
+    public orbitalIndices: Float32Array;
+    public orbitalDistances: Float32Array;
 
     public bodyFollowedRef: React.RefObject<number>;
     public updateBodyFollowed: (newBodyFollowed: number) => void;
     private cameraRef: React.RefObject<Camera>;
+    private sortByRef: React.RefObject<sortQuery>;
 
     constructor(
         settings: UniverseSettings,
         cameraRef: React.RefObject<Camera>,
         bodyFollowedRef: React.RefObject<number>,
         updateBodyFollowed: (newBodyFollowed: number) => void,
+        sortByRef: React.RefObject<sortQuery>,
     ) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
@@ -68,10 +73,14 @@ export class Universe {
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
 
+        this.orbitalIndices = new Float32Array(this.settings.numBodies);
+        this.orbitalDistances = new Float32Array(this.settings.numBodies);
+
         this.numActive = this.settings.numBodies;
         this.cameraRef = cameraRef;
         this.bodyFollowedRef = bodyFollowedRef;
         this.updateBodyFollowed = updateBodyFollowed;
+        this.sortByRef = sortByRef;
 
         this.initialize();
     }
@@ -135,6 +144,9 @@ export class Universe {
             this.colorsG[i] = getRandomFloat(0.1, 0.85);
             this.colorsB[i] = getRandomFloat(0.1, 0.85);
         }
+
+        this.orbitalIndices.fill(-1);
+        this.orbitalDistances.fill(-1);
     }
 
     private clear(): void {
@@ -153,6 +165,8 @@ export class Universe {
         this.colorsR.fill(0);
         this.colorsG.fill(0);
         this.colorsB.fill(0);
+        this.orbitalIndices.fill(-1);
+        this.orbitalDistances.fill(-1);
     }
 
     public reset(): void {
@@ -257,21 +271,50 @@ export class Universe {
                             this.velocitiesZ[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
 
-
                     /*
                         Deactivate the less massive body.
                     */
                     this.numActive--;
                     this.bodiesActive[less_massive] = 0;
                     if (less_massive === i) {
-                        break; 
+                        break;
                     }
-                    
-                    
-
                 }
             }
         }
+
+        
+        /*
+            Handle specific orbital energy
+        */
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            this.orbitalIndices[i] = -1;
+            this.orbitalDistances[i] = -1;
+            let lowestEnergy = 0;
+            for (let j = 0; j < this.settings.numBodies; j++) {
+                if (i === j || !this.bodiesActive[j]) {
+                    continue;
+                }
+
+                const energy = this.getSpecificOrbitalEnergy(i, j);
+                if (energy < lowestEnergy) {
+                    lowestEnergy = energy;
+                    this.orbitalIndices[i] = j;
+                }
+            }
+            if (this.orbitalIndices[i] !== -1) {
+                this.orbitalDistances[i] = Math.sqrt(
+                    (this.positionsX[i] - this.positionsX[this.orbitalIndices[i]]) ** 2 +
+                        (this.positionsY[i] - this.positionsY[this.orbitalIndices[i]]) ** 2 +
+                        (this.positionsZ[i] - this.positionsZ[this.orbitalIndices[i]]) ** 2,
+                );
+            }
+
+        }
+
     }
 
     public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
@@ -320,7 +363,7 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        
+
         // Update the camera position to the current position of the followed body
         if (this.bodyFollowedRef.current !== -1) {
             this.cameraRef.current.setTarget(
@@ -365,26 +408,62 @@ export class Universe {
         }
     }
 
-    public getMassRankings(): Array<LeaderboardBody> {
-        const massRankings = new Array(this.settings.numBodies);
+    public distanceToFollowedBody(idx: number): number {
+        /**
+         * Absolute distance to the followed body. Returns -1 if there is no followed body.
+         */
+        if (this.bodyFollowedRef.current == -1) {
+            return -1;
+        }
+
+        const dTargetX = this.positionsX[idx] - this.positionsX[this.bodyFollowedRef.current];
+        const dTargetY = this.positionsY[idx] - this.positionsY[this.bodyFollowedRef.current];
+        const dTargetZ = this.positionsZ[idx] - this.positionsZ[this.bodyFollowedRef.current];
+
+        return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
+    }
+
+    public getRankings(): Array<LeaderboardBody> {
+        const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
             if (!this.bodiesActive[i]) {
                 continue;
             }
+
             massRankings[i] = {
                 index: i,
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
-                pos: {
-                    x: this.positionsX[i],
-                    y: this.positionsY[i],
-                    z: this.positionsZ[i],
-                },
+                dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
+                dTarget: this.distanceToFollowedBody(i),
+                orbiting: this.orbitalIndices[i],
+                dOrbit: this.orbitalDistances[i],
+                orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
             };
         }
 
-        massRankings.sort((a, b) => b.mass - a.mass);
+        massRankings.sort((a, b) => {
+            switch (this.sortByRef.current) {
+                case sortQuery.name:
+                    return a.index - b.index;
+                case sortQuery.mass:
+                    return b.mass - a.mass;
+                case sortQuery.dOrigin:
+                    return b.dOrigin - a.dOrigin;
+                case sortQuery.dTarget:
+                    return a.dTarget - b.dTarget;
+                case sortQuery.orbiting:
+                    if (a.orbiting === -1 && b.orbiting === -1) return 0;
+                    if (a.orbiting === -1) return 1;
+                    if (b.orbiting === -1) return -1;
+                    return a.orbiting - b.orbiting;
+                case sortQuery.dOrbit:
+                    return a.dOrbit - b.dOrbit;
+                default:
+                    return b.mass - a.mass;
+            }
+        });
 
         return massRankings;
     }
@@ -428,5 +507,24 @@ export class Universe {
             y: getRandomFloat(-1, 1), // Random y position
             z: radius * Math.cos(phi),
         };
+    }
+
+    private getSpecificOrbitalEnergy(bodyA: number, bodyB: number) {
+        // Relative velocities
+        const vX = this.velocitiesX[bodyA] - this.velocitiesX[bodyB];
+        const vY = this.velocitiesY[bodyA] - this.velocitiesY[bodyB];
+        const vZ = this.velocitiesZ[bodyA] - this.velocitiesZ[bodyB];
+        const v = Math.sqrt(vX * vX + vY * vY + vZ * vZ);
+
+        // Relative distance
+        const dX = this.positionsX[bodyA] - this.positionsX[bodyB];
+        const dY = this.positionsY[bodyA] - this.positionsY[bodyB];
+        const dZ = this.positionsZ[bodyA] - this.positionsZ[bodyB];
+        const r = Math.sqrt(dX * dX + dY * dY + dZ * dZ);
+
+        // Sum of standard gravitational patterns
+        const U = G * (this.masses[bodyA] + this.masses[bodyB]);
+
+        return (0.5*v*v)-(U/r);
     }
 }

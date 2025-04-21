@@ -1,21 +1,30 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { App } from "./App.tsx.tsx";
+import { App } from "./App.tsx";
 import { css, Global } from "@emotion/react";
 
 const globalStyle = css`
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
     html,
     body {
-        min-height: 100vh;
+        height: 100%;
         width: 100%;
         margin: 0;
         padding: 0;
 
         background-color: #17171a;
         color: white;
-        overflow: hidden;
+        //overflow: hidden;
 
         font-family: "Roboto", sans-serif;
+    }
+
+    canvas {
+        margin: 0;
     }
 `;
 

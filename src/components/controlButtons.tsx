@@ -1,4 +1,4 @@
-import styled from "@emotion/styled"
+import styled from "@emotion/styled";
 
 import { PauseIcon } from "../assets/icons/PauseIcon";
 import { RestartIcon } from "../assets/icons/RestartIcon";
@@ -10,27 +10,64 @@ interface ControlButtonProps {
     pausedState: boolean;
     updatePaused: (shouldPause: boolean) => void;
     resetSim: React.RefObject<boolean>;
+    leaderboardShown: boolean;
+    setLeaderboardShown: (shouldShow: boolean) => void;
+    settingsMenuShown: boolean;
+    setSettingsMenuShown: (shouldShow: boolean) => void;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const { pausedState, updatePaused, resetSim } = props;
+    const {
+        pausedState,
+        updatePaused,
+        resetSim,
+        leaderboardShown,
+        setLeaderboardShown,
+        settingsMenuShown,
+        setSettingsMenuShown,
+    } = props;
     return (
         <ButtonSection>
-            <button><SettingsIcon color={'white'} dim={'50px'} filled={true}/></button>
-            {
-                pausedState
-                ?
-                <button onClick={() => {updatePaused(false)}}><PlayIcon color={'white'} dim={'50px'} filled={true}/></button>
-                :
-                <button onClick={() => {updatePaused(true)}}><PauseIcon color={'white'} dim={'50px'} filled={true}/></button>
-            }
-            <button onClick={() => {
-                resetSim.current=true
-                updatePaused(true)
-            }}><RestartIcon color={'white'} dim={'50px'} filled={true}/></button>
-            <button><ViewListIcon color={'white'} dim={'50px'} filled={true}/></button>
+            <button
+                onClick={() => {
+                    setSettingsMenuShown(!settingsMenuShown);
+                }}
+            >
+                <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
+            </button>
+            {pausedState ? (
+                <button
+                    onClick={() => {
+                        updatePaused(false);
+                    }}
+                >
+                    <PlayIcon color={"white"} dim={"50px"} filled={true} />
+                </button>
+            ) : (
+                <button
+                    onClick={() => {
+                        updatePaused(true);
+                    }}
+                >
+                    <PauseIcon color={"white"} dim={"50px"} filled={true} />
+                </button>
+            )}
+            <button
+                onClick={() => {
+                    resetSim.current = true;
+                }}
+            >
+                <RestartIcon color={"white"} dim={"50px"} filled={true} />
+            </button>
+            <button
+                onClick={() => {
+                    setLeaderboardShown(!leaderboardShown);
+                }}
+            >
+                <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
+            </button>
         </ButtonSection>
-    )
+    );
 }
 
 const ButtonSection = styled.div`
@@ -50,7 +87,7 @@ const ButtonSection = styled.div`
         font: inherit;
         outline: none;
         cursor: pointer;
-        
+
         height: 50px;
         width: 50px;
 
@@ -61,4 +98,4 @@ const ButtonSection = styled.div`
         border-color: white;
         background-color: none;
     }
-`
+`;
