@@ -12,6 +12,8 @@ import { sortQuery } from "../lib/defines/sortQuery";
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
 import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
 import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
+import { mat4 } from "gl-matrix";
+import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -53,7 +55,7 @@ export function Sim(props: SimProps) {
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed, sortByRef));
+    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed, sortByRef));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -180,8 +182,101 @@ export function Sim(props: SimProps) {
                     accumulatedTime -= secondsPerTick;
                 }
 
-                if (gl) {
-                    universe.current.draw(gl, programInfo, buffers, sphere.indexCount);
+                /*
+                    Render scene from universe
+                */
+                if (!gl) {
+                    console.error("WebGL context not found");
+                    return;
+                }
+
+                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+                gl.clearDepth(1.0); // Clear everything
+                gl.enable(gl.DEPTH_TEST); // Enable depth testing
+                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+        
+                // Clear the canvas before we start drawing on it.
+        
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        
+                // Create a perspective matrix, a special matrix that is
+                // used to simulate the distortion of perspective in a camera.
+                // Our field of view is 45 degrees, with a width/height
+                // ratio that matches the display size of the canvas
+                // and we only want to see objects between 0.1 units
+                // and 100 units away from the camera.
+        
+                const fieldOfView = (45 * Math.PI) / 180; // in radians
+                const canvas = gl.canvas as HTMLCanvasElement;
+                const aspect = canvas.clientWidth / canvas.clientHeight;
+                const zNear = 0.1;
+                const zFar = 100.0;
+        
+                /*
+                    Binding buffers
+                */
+                // Tell WebGL how to pull out the positions from the position
+                // buffer into the vertexPosition attribute.
+                setPositionAttribute(gl, buffers, programInfo);
+                setNormalAttribute(gl, buffers, programInfo);
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                gl.useProgram(programInfo.program);
+        
+                /*
+                    Create Projection Matrix
+                */
+                const projectionMatrix = mat4.create();
+        
+                // note: glMatrix always has the first argument
+                // as the destination to receive the result.
+                mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+        
+                // Set the shader uniform for projection matrix
+                gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+        
+                // Create a view matrix for the camera
+        
+                // Update the camera position to the current position of the followed body
+                if (universe.current.bodyFollowedRef.current !== -1) {
+                    cameraRef.current.setTarget(
+                        universe.current.positionsX[universe.current.bodyFollowedRef.current],
+                        universe.current.positionsY[universe.current.bodyFollowedRef.current],
+                        universe.current.positionsZ[universe.current.bodyFollowedRef.current],
+                    );
+                }
+                const cameraMatrix = cameraRef.current.getViewMatrix();
+        
+                for (let i = 0; i < universe.current.settings.numBodies; i++) {
+                    if (!universe.current.bodiesActive[i]) {
+                        continue;
+                    }
+                    const modelMatrix = mat4.create();
+                    mat4.translate(modelMatrix, modelMatrix, [universe.current.positionsX[i], universe.current.positionsY[i], universe.current.positionsZ[i]]);
+                    mat4.scale(modelMatrix, modelMatrix, [universe.current.radii[i], universe.current.radii[i], universe.current.radii[i]]);
+        
+                    // Create model view matrix
+                    const modelViewMatrix = mat4.create();
+                    mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
+        
+                    // Create normal matrix
+                    const normalMatrix = mat4.create();
+                    mat4.invert(normalMatrix, modelViewMatrix);
+                    mat4.transpose(normalMatrix, normalMatrix);
+        
+                    // Sets shader uniforms for model normals
+                    gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+                    gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                    gl.uniform4fv(programInfo.uniformLocations.uFragColor, [
+                        universe.current.colorsR[i],
+                        universe.current.colorsG[i],
+                        universe.current.colorsB[i],
+                        1.0,
+                    ]);
+                    {
+                        const type = gl.UNSIGNED_SHORT;
+                        const offset = 0;
+                        gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
+                    }
                 }
 
                 requestAnimationFrame(render);

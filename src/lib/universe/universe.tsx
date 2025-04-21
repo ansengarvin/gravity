@@ -42,12 +42,10 @@ export class Universe {
 
     public bodyFollowedRef: React.RefObject<number>;
     public updateBodyFollowed: (newBodyFollowed: number) => void;
-    private cameraRef: React.RefObject<Camera>;
     private sortByRef: React.RefObject<sortQuery>;
 
     constructor(
         settings: UniverseSettings,
-        cameraRef: React.RefObject<Camera>,
         bodyFollowedRef: React.RefObject<number>,
         updateBodyFollowed: (newBodyFollowed: number) => void,
         sortByRef: React.RefObject<sortQuery>,
@@ -77,7 +75,6 @@ export class Universe {
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
-        this.cameraRef = cameraRef;
         this.bodyFollowedRef = bodyFollowedRef;
         this.updateBodyFollowed = updateBodyFollowed;
         this.sortByRef = sortByRef;
@@ -311,99 +308,6 @@ export class Universe {
                         (this.positionsY[i] - this.positionsY[this.orbitalIndices[i]]) ** 2 +
                         (this.positionsZ[i] - this.positionsZ[this.orbitalIndices[i]]) ** 2,
                 );
-            }
-
-        }
-
-    }
-
-    public draw(gl: WebGLRenderingContext, programInfo: ProgramInfo, buffers: Buffers, indexCount: number) {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-        gl.clearDepth(1.0); // Clear everything
-        gl.enable(gl.DEPTH_TEST); // Enable depth testing
-        gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-
-        // Clear the canvas before we start drawing on it.
-
-        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-        // Create a perspective matrix, a special matrix that is
-        // used to simulate the distortion of perspective in a camera.
-        // Our field of view is 45 degrees, with a width/height
-        // ratio that matches the display size of the canvas
-        // and we only want to see objects between 0.1 units
-        // and 100 units away from the camera.
-
-        const fieldOfView = (45 * Math.PI) / 180; // in radians
-        const canvas = gl.canvas as HTMLCanvasElement;
-        const aspect = canvas.clientWidth / canvas.clientHeight;
-        const zNear = 0.1;
-        const zFar = 100.0;
-
-        /*
-            Binding buffers
-        */
-        // Tell WebGL how to pull out the positions from the position
-        // buffer into the vertexPosition attribute.
-        setPositionAttribute(gl, buffers, programInfo);
-        setNormalAttribute(gl, buffers, programInfo);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-        gl.useProgram(programInfo.program);
-
-        /*
-            Create Projection Matrix
-        */
-        const projectionMatrix = mat4.create();
-
-        // note: glMatrix always has the first argument
-        // as the destination to receive the result.
-        mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
-        // Set the shader uniform for projection matrix
-        gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
-
-        // Create a view matrix for the camera
-
-        // Update the camera position to the current position of the followed body
-        if (this.bodyFollowedRef.current !== -1) {
-            this.cameraRef.current.setTarget(
-                this.positionsX[this.bodyFollowedRef.current],
-                this.positionsY[this.bodyFollowedRef.current],
-                this.positionsZ[this.bodyFollowedRef.current],
-            );
-        }
-        const cameraMatrix = this.cameraRef.current.getViewMatrix();
-
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            if (!this.bodiesActive[i]) {
-                continue;
-            }
-            const modelMatrix = mat4.create();
-            mat4.translate(modelMatrix, modelMatrix, [this.positionsX[i], this.positionsY[i], this.positionsZ[i]]);
-            mat4.scale(modelMatrix, modelMatrix, [this.radii[i], this.radii[i], this.radii[i]]);
-
-            // Create model view matrix
-            const modelViewMatrix = mat4.create();
-            mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
-
-            // Create normal matrix
-            const normalMatrix = mat4.create();
-            mat4.invert(normalMatrix, modelViewMatrix);
-            mat4.transpose(normalMatrix, normalMatrix);
-
-            // Sets shader uniforms for model normals
-            gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
-            gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
-            gl.uniform4fv(programInfo.uniformLocations.uFragColor, [
-                this.colorsR[i],
-                this.colorsG[i],
-                this.colorsB[i],
-                1.0,
-            ]);
-            {
-                const type = gl.UNSIGNED_SHORT;
-                const offset = 0;
-                gl.drawElements(gl.TRIANGLES, indexCount, type, offset);
             }
         }
     }
