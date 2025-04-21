@@ -14,6 +14,7 @@ import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
 import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
 import { mat4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
+import { useMouseControls } from "../hooks/useMouseControls";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -51,63 +52,10 @@ export function Sim(props: SimProps) {
         size: 20, // The size of the universe in astronomical units
     };
 
-    const isDragging = useRef(false);
-    const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
-
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
+    const {handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp} = useMouseControls(cameraRef, cameraSensititivy);
+
     const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed, sortByRef));
-
-    const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-        cameraRef.current.zoom -= event.deltaY * 0.01;
-        cameraRef.current.zoom = Math.min(Math.max(cameraRef.current.zoom, -50), -5);
-    };
-
-    const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        isDragging.current = true;
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (rect) {
-            lastMousePosition.current = {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top,
-            };
-        }
-    };
-
-    const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDragging.current || !lastMousePosition.current) return;
-
-        const rect = canvasRef.current?.getBoundingClientRect();
-        if (rect) {
-            const currentMousePosition = {
-                x: event.clientX - rect.left,
-                y: event.clientY - rect.top,
-            };
-
-            const deltaX = currentMousePosition.x - lastMousePosition.current.x;
-            const deltaY = currentMousePosition.y - lastMousePosition.current.y;
-
-            cameraRef.current.yaw -= deltaX * cameraSensititivy;
-            cameraRef.current.pitch -= deltaY * cameraSensititivy;
-
-            // Clamp pitch between -90 and 90
-            if (cameraRef.current.pitch >= Math.PI / 2) {
-                cameraRef.current.pitch = Math.PI / 2 - 0.001;
-            }
-            if (cameraRef.current.pitch < -Math.PI / 2) {
-                cameraRef.current.pitch = -Math.PI / 2 + 0.001;
-            }
-
-            // Update the last mouse position
-            lastMousePosition.current = currentMousePosition;
-
-            // Add logic to handle dragging, e.g., panning the universe
-        }
-    };
-
-    const handleMouseUp = () => {
-        isDragging.current = false;
-        lastMousePosition.current = null;
-    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -123,23 +71,15 @@ export function Sim(props: SimProps) {
         }
 
         const initialize = async () => {
-            /*
-            Get the UV sphere model
-            */
-            const sphere = await getModel("uvSphereSmooth.glb");
-
-            // Initialize a shader program; this is where all the lighting
-            // for the vertices and so forth is established.
+            /*****************************
+             * Initialize shader program
+             *****************************/
             const shaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");
                 return;
             }
-
-            // Collect all the info needed to use the shader program.
-            // Look up which attribute our shader program is using
-            // for aVertexPosition and look up uniform locations.
             const programInfo: ProgramInfo = {
                 program: shaderProgram,
                 attribLocations: {
@@ -155,8 +95,19 @@ export function Sim(props: SimProps) {
                 },
             };
 
+            /*****************************
+             * Load Model Buffers
+             *****************************/
+            const sphere = await getModel("uvSphereSmooth.glb");
             const buffers = initBuffers(gl, sphere);
+            if (!buffers) {
+                console.error("Failed to initialize buffers");
+                return;
+            }
 
+            /*
+
+            */
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
