@@ -20,6 +20,7 @@ const ButtonWidth = "40px";
 const NameWidth = "50px";
 const MassWidth = "100px";
 const DistanceWidth = "120px";
+const OrbitWidth = "120px";
 const focusedColor = "rgb(255, 227, 46)";
 const cancelColor = "rgb(255, 131, 131)";
 
@@ -39,7 +40,7 @@ export function LeaderboardHeader(props: LeaderboardHeaderProps) {
             <HeaderCard width={DistanceWidth} current={sortBy === 'dTarget'} onClick={() => {updateSortBy('dTarget')}}>
                 Dist. (Target, AU)
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === 'orbiting'} onClick={() => {updateSortBy('orbiting')}}>
+            <HeaderCard width={OrbitWidth} current={sortBy === 'orbiting'} onClick={() => {updateSortBy('orbiting')}}>
                 Orbiting
             </HeaderCard>
             <HeaderCard width={DistanceWidth} current={sortBy === 'dOrbit'} onClick={() => {updateSortBy('dOrbit')}}>
@@ -97,6 +98,20 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                     :
                     item.dTarget.toFixed(2)
                 }
+            </InfoCard>
+            <InfoCard width={OrbitWidth}>
+                {
+                    item.orbiting == -1 
+                    ? 
+                    <>--</> 
+                    : 
+                    <>
+                        B-{item.orbiting.toFixed()}
+                    </>
+                }
+            </InfoCard>
+            <InfoCard width={DistanceWidth}>
+                {item.dOrbit == -1 ? <>--</> : item.dOrbit.toFixed(2)}
             </InfoCard>
         </LeaderboardItemCardStyle>
     );
