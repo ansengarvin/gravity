@@ -10,64 +10,58 @@ interface LeaderboardItemCardProps {
     updateBodyFollowed: (newBodyFollowed: number) => void;
 }
 
-const ButtonWidth = '50px';
-const NameWidth = '50px';
-const MassWidth = '100px';
-const DistanceWidth = '120px';
-const focusedColor = '#ffdd30';
-
+const ButtonWidth = "50px";
+const NameWidth = "50px";
+const MassWidth = "100px";
+const DistanceWidth = "120px";
+const focusedColor = "#ffdd30";
 
 export function LeaderboardHeader() {
     return (
-        <LeaderboardHeaderStyle color={'black'} followed={false}>
-            <HeaderCard width={ButtonWidth}>
-               
-            </HeaderCard>
-            <HeaderCard width={NameWidth}>
-                Name
-            </HeaderCard>
+        <LeaderboardHeaderStyle color={"black"} followed={false}>
+            <HeaderCard width={ButtonWidth}></HeaderCard>
+            <HeaderCard width={NameWidth}>Name</HeaderCard>
             <HeaderCard width={MassWidth}>
                 Mass (M<sub>☉</sub>)
             </HeaderCard>
-            <HeaderCard width={DistanceWidth}>
-                Dist. (Origin, AU)
-            </HeaderCard>
-            <HeaderCard width={DistanceWidth}>
-                Dist. (Target, AU)
-            </HeaderCard>
+            <HeaderCard width={DistanceWidth}>Dist. (Origin, AU)</HeaderCard>
+            <HeaderCard width={DistanceWidth}>Dist. (Target, AU)</HeaderCard>
         </LeaderboardHeaderStyle>
-    )
+    );
 }
 
 export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
-    const { item, followed, updateBodyFollowed} = props;
+    const { item, followed, updateBodyFollowed } = props;
 
-    const [isHovered, setIsHovered] = useState(false)
+    const [isHovered, setIsHovered] = useState(false);
 
     return (
         <LeaderboardItemCardStyle color={item.color} followed={followed}>
-            <SelectButton color={item.color} onMouseLeave={() => {setIsHovered(false)}} onMouseEnter={() => {setIsHovered(true)}} onClick={() => {updateBodyFollowed(item.index);}}>
-                <TargetIcon filled={true} color={focusedColor} dim={'35px'}/>
+            <SelectButton
+                color={item.color}
+                onMouseLeave={() => {
+                    setIsHovered(false);
+                }}
+                onMouseEnter={() => {
+                    setIsHovered(true);
+                }}
+                onClick={() => {
+                    updateBodyFollowed(item.index);
+                }}
+            >
+                <TargetIcon filled={true} color={focusedColor} dim={"35px"} />
             </SelectButton>
-            <InfoCard width={NameWidth}>
-                B-{item.index.toFixed()}
-            </InfoCard>
-            <InfoCard width={MassWidth}>
-                {item.mass.toFixed(2)}
-            </InfoCard>
+            <InfoCard width={NameWidth}>B-{item.index.toFixed()}</InfoCard>
+            <InfoCard width={MassWidth}>{item.mass.toFixed(2)}</InfoCard>
             <InfoCard width={DistanceWidth}>
-                {
-                    Math.sqrt(item.pos.x**2 + item.pos.y**2 + item.pos.z**2).toFixed(2)
-                }
+                {Math.sqrt(item.pos.x ** 2 + item.pos.y ** 2 + item.pos.z ** 2).toFixed(2)}
             </InfoCard>
-            <InfoCard width={DistanceWidth}>
-                --
-            </InfoCard>
+            <InfoCard width={DistanceWidth}>--</InfoCard>
         </LeaderboardItemCardStyle>
-    )
+    );
 }
 
-const LeaderboardItemCardStyle = styled.div<{color: string, followed: boolean}>`
+const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean }>`
     display: flex;
     flex-direction: row;
     gap: 5px;
@@ -75,38 +69,36 @@ const LeaderboardItemCardStyle = styled.div<{color: string, followed: boolean}>`
     width: min-content;
     height: min-content;
 
-
-    border-top: ${props => props.followed ? '3px solid ' + focusedColor : 'none'};
-    border-bottom: ${props => props.followed ? '3px solid ' + focusedColor : 'none'};
+    border-top: ${(props) => (props.followed ? "3px solid " + focusedColor : "none")};
+    border-bottom: ${(props) => (props.followed ? "3px solid " + focusedColor : "none")};
 
     margin-bottom: 5px;
 
     & > * {
-        background-color: ${props => props.color};
-    };
+        background-color: ${(props) => props.color};
+    }
 
     button {
         background-color: black;
     }
     /* &:hover >* {
-        background-color: ${props => brightenColor(props.color, 1.3)};
+        background-color: ${(props) => brightenColor(props.color, 1.3)};
     }
     button: {
-        background-color: ${props => brightenColor(props.color, 1.7)};
+        background-color: ${(props) => brightenColor(props.color, 1.7)};
     } */
 `;
 
-const InfoCard = styled.div<{width: string}>`
+const InfoCard = styled.div<{ width: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
     height: 50px;
-    width: ${props => props.width};
+    width: ${(props) => props.width};
     padding-left: 5px;
     padding-right: 5px;
     color: black;
-
-`
+`;
 
 const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
     position: sticky;
@@ -114,7 +106,7 @@ const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
     background-color: black;
     border-bottom: 4px solid white;
     margin: 0;
-`
+`;
 
 const HeaderCard = styled(InfoCard)`
     background-color: black;
@@ -125,9 +117,9 @@ const HeaderCard = styled(InfoCard)`
         vertical-align: sub;
         font-size: 0.75em;
     }
-`
+`;
 
-const SelectButton = styled.button<{color: string}>`
+const SelectButton = styled.button<{ color: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -139,4 +131,4 @@ const SelectButton = styled.button<{color: string}>`
     cursor: pointer;
 
     //background-color: black;
-`
+`;

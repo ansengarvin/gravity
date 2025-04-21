@@ -8,9 +8,9 @@ export function PlayIcon(props: IconProps) {
     return (
         <GoogleSVG color={color} dim={dim}>
             {filled ? (
-                <path d="M320-200v-560l440 280-440 280Z"/>
+                <path d="M320-200v-560l440 280-440 280Z" />
             ) : (
-                <path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z"/>
+                <path d="M320-200v-560l440 280-440 280Zm80-280Zm0 134 210-134-210-134v268Z" />
             )}
         </GoogleSVG>
     );

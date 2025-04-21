@@ -4,7 +4,6 @@ import { LeaderboardBody } from "./LeaderboardBody.tsx";
 
 // I may just end up making a separate body object.
 
-
 interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[];
     bodyFollowed: number;
@@ -16,7 +15,7 @@ export function Leaderboard(props: LeaderboardProps) {
 
     return (
         <LeaderboardStyle>
-            <LeaderboardHeader/>
+            <LeaderboardHeader />
             {leaderboardBodies.map((item, index) => (
                 <LeaderboardItemCard
                     key={index}
@@ -25,7 +24,7 @@ export function Leaderboard(props: LeaderboardProps) {
                     updateBodyFollowed={updateBodyFollowed}
                 />
             ))}
-        </LeaderboardStyle> 
+        </LeaderboardStyle>
     );
 }
 

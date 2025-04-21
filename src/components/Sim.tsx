@@ -24,7 +24,16 @@ interface SimProps {
 }
 
 export function Sim(props: SimProps) {
-    const { height, width, setNumActive, setLeaderboardBodies, bodyFollowedRef, updateBodyFollowed, resetSim, pausedRef } = props;
+    const {
+        height,
+        width,
+        setNumActive,
+        setLeaderboardBodies,
+        bodyFollowedRef,
+        updateBodyFollowed,
+        resetSim,
+        pausedRef,
+    } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
         seed: "irrelevant",
@@ -146,7 +155,6 @@ export function Sim(props: SimProps) {
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
-                
                 now *= 0.001; // convert to seconds
                 const deltaTime = now - then;
                 then = now;
@@ -155,7 +163,7 @@ export function Sim(props: SimProps) {
                 if (resetSim.current) {
                     cameraRef.current = new Camera(0, 0, 0, 0, 0, -20);
                     updateBodyFollowed(-1);
-                    universe.current.reset()
+                    universe.current.reset();
                     resetSim.current = false;
                 }
 
@@ -163,7 +171,7 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
-                    } 
+                    }
                     setNumActive(universe.current.numActive);
                     setLeaderboardBodies(universe.current.getMassRankings());
                     accumulatedTime -= secondsPerTick;
@@ -199,7 +207,7 @@ const SimCanvas = styled.canvas`
     height: 100%;
     width: 100%;
     display: block;
-`
+`;
 
 const vsSource = `
     attribute vec4 aVertexPosition;

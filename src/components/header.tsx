@@ -55,7 +55,7 @@ const Left = styled.div`
     display: flex;
     justify-content: flex-start;
     align-items: center;
-`
+`;
 
 const Center = styled.div`
     grid-area: center;
@@ -72,7 +72,7 @@ const Center = styled.div`
         padding: 0;
         margin: 0;
     }
-`
+`;
 
 export function Header() {
     return (
@@ -83,7 +83,6 @@ export function Header() {
             <Center>
                 <h1>Gravity</h1>
             </Center>
-
         </Headerbar>
     );
 }

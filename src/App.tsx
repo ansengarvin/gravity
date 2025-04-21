@@ -56,7 +56,7 @@ export function App() {
     const updatePaused = (status: boolean) => {
         setPausedState(status);
         pausedRef.current = status;
-    }
+    };
 
     // Toggle to reset the simulation
     const resetSim = useRef<boolean>(false);
@@ -84,21 +84,17 @@ export function App() {
             <Backdrop>
                 <Header />
                 <StatScreen>
-                    <br/>
+                    <br />
                     Number of Bodies: {numActive}
                 </StatScreen>
-                {
-                    leaderboardShown
-                    ? 
+                {leaderboardShown ? (
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
                         updateBodyFollowed={updateBodyFollowed}
                     />
-                    :
-                    null
-                }
-                
+                ) : null}
+
                 <ControlButtons
                     pausedState={pausedState}
                     updatePaused={updatePaused}
@@ -109,7 +105,6 @@ export function App() {
                     setSettingsMenuShown={setSettingsMenuShown}
                 />
             </Backdrop>
-            
         </body>
     );
 }

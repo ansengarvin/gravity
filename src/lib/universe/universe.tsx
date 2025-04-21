@@ -257,18 +257,14 @@ export class Universe {
                             this.velocitiesZ[less_massive] * this.masses[less_massive]) /
                         this.masses[most_massive];
 
-
                     /*
                         Deactivate the less massive body.
                     */
                     this.numActive--;
                     this.bodiesActive[less_massive] = 0;
                     if (less_massive === i) {
-                        break; 
+                        break;
                     }
-                    
-                    
-
                 }
             }
         }
@@ -320,7 +316,7 @@ export class Universe {
         gl.uniformMatrix4fv(programInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
 
         // Create a view matrix for the camera
-        
+
         // Update the camera position to the current position of the followed body
         if (this.bodyFollowedRef.current !== -1) {
             this.cameraRef.current.setTarget(
