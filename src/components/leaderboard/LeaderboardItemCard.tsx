@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { brightenColor } from "../../lib/colors/brightenColor";
 import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
 
 interface LeaderboardItemCardProps {
@@ -34,7 +34,6 @@ export function LeaderboardHeader() {
 
 export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
     const { item, followed, updateBodyFollowed } = props;
-
     const [buttonIsHovered, setButtonIsHovered] = useState(false);
 
     return (
@@ -88,14 +87,7 @@ const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean; 
     width: min-content;
     height: min-content;
 
-    /* border-top: ${(props) =>
-        props.followed
-            ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor)
-            : "none"};
-    border-bottom: ${(props) =>
-        props.followed
-            ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor)
-            : "none"}; */
+    /* border-bottom: ${(props) => (props.followed ? 'solid 2px white' : 'none')}; */
 
     margin-bottom: 5px;
 
@@ -123,6 +115,7 @@ const InfoCard = styled.div<{ width: string }>`
     padding-left: 5px;
     padding-right: 5px;
     color: black;
+    margin-bottom: 4px;
 `;
 
 const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
@@ -149,6 +142,7 @@ const SelectButton = styled.button<{ color: string; followed: boolean }>`
     justify-content: center;
     align-items: center;
     width: 50px;
+    margin-bottom: 4px;
 
     // Remove all styling
     border: none;

@@ -4,7 +4,7 @@ import { Buffers } from "../webGL/buffers";
 import { ProgramInfo } from "../webGL/programInfo";
 import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
-import { LeaderboardBody } from "../../components/leaderboard/Leaderboard";
+import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
 import { Camera } from "../webGL/camera";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
@@ -380,7 +380,11 @@ export class Universe {
             };
         }
 
-        massRankings.sort((a, b) => b.mass - a.mass);
+        massRankings.sort((a, b) => {
+            // if (a.index == this.bodyFollowedRef.current) return -1;
+            // if (b.index == this.bodyFollowedRef.current) return 1;
+            return b.mass - a.mass
+        });
 
         return massRankings;
     }
