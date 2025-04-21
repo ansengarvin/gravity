@@ -18,9 +18,9 @@ interface LeaderboardItemCardProps {
 
 const ButtonWidth = "40px";
 const NameWidth = "50px";
-const MassWidth = "100px";
-const DistanceWidth = "120px";
-const OrbitWidth = "120px";
+const MassWidth = "80px";
+const DistanceWidth = "80px";
+const OrbitWidth = "60px";
 const focusedColor = "rgb(255, 227, 46)";
 const cancelColor = "rgb(255, 131, 131)";
 
@@ -32,19 +32,19 @@ export function LeaderboardHeader(props: LeaderboardHeaderProps) {
             <HeaderCard width={ButtonWidth} current={false}></HeaderCard>
             <HeaderCard width={NameWidth} current={sortBy === 'name'} onClick={() => {updateSortBy('name')}}>Name</HeaderCard>
             <HeaderCard width={MassWidth} current={sortBy === 'mass'} onClick={() => {updateSortBy('mass')}}>
-                Mass (M<sub>☉</sub>)
+                Mass
             </HeaderCard>
             <HeaderCard width={DistanceWidth} current={sortBy === 'dOrigin'} onClick={() => {updateSortBy('dOrigin')}}>
-                Dist. (Origin, AU)
+                dOrigin
             </HeaderCard>
             <HeaderCard width={DistanceWidth} current={sortBy === 'dTarget'} onClick={() => {updateSortBy('dTarget')}}>
-                Dist. (Target, AU)
+                dTarget
             </HeaderCard>
             <HeaderCard width={OrbitWidth} current={sortBy === 'orbiting'} onClick={() => {updateSortBy('orbiting')}}>
                 Orbiting
             </HeaderCard>
             <HeaderCard width={DistanceWidth} current={sortBy === 'dOrbit'} onClick={() => {updateSortBy('dOrbit')}}>
-                Dist. (Orbit, AU)
+                dOrbit
             </HeaderCard>
         </LeaderboardHeaderStyle>
     );
@@ -87,16 +87,22 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                     />
                 )}
             </SelectButton>
-            <InfoCard width={NameWidth}>B-{item.index.toFixed()}</InfoCard>
-            <InfoCard width={MassWidth}>{item.mass.toFixed(2)}</InfoCard>
-            <InfoCard width={DistanceWidth}>{item.dOrigin.toFixed(2)}</InfoCard>
+            <InfoCard width={NameWidth}>
+                B-{item.index.toFixed()}
+            </InfoCard>
+            <InfoCard width={MassWidth}>
+                {item.mass.toFixed(2)} M<sub>☉</sub>
+            </InfoCard>
+            <InfoCard width={DistanceWidth}>
+                {item.dOrigin.toFixed(2)} au
+            </InfoCard>
             <InfoCard width={DistanceWidth}>
                 {
                     item.dTarget == -1
                     ?
                     <>--</>
                     :
-                    item.dTarget.toFixed(2)
+                    <>{item.dTarget.toFixed(2)} au</>
                 }
             </InfoCard>
             <InfoCard width={OrbitWidth}>
@@ -111,7 +117,7 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                 }
             </InfoCard>
             <InfoCard width={DistanceWidth}>
-                {item.dOrbit == -1 ? <>--</> : item.dOrbit.toFixed(2)}
+                {item.dOrbit == -1 ? <>--</> : <>{item.dOrbit.toFixed(2)} au</>}
             </InfoCard>
         </LeaderboardItemCardStyle>
     );
