@@ -10,7 +10,7 @@ import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
-import fragA from "../assets/shaders/flat.frag.glsl?raw"
+import fragA from "../assets/shaders/lightGlobal.frag.glsl?raw"
 import vert from "../assets/shaders/basic.vert.glsl?raw"
 
 const ticksPerSecond = 60;
