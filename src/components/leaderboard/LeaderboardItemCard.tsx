@@ -3,6 +3,9 @@ import { brightenColor } from "../../lib/colors/brightenColor";
 import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
 import { useState } from "react";
+import { AltListIcon } from "../../assets/icons/AltListIcon";
+import { CancelIcon } from "../../assets/icons/CancelIcon";
+import { StopIcon } from "../../assets/icons/StopIcon";
 
 interface LeaderboardItemCardProps {
     item: LeaderboardBody;
@@ -14,11 +17,12 @@ const ButtonWidth = "50px";
 const NameWidth = "50px";
 const MassWidth = "100px";
 const DistanceWidth = "120px";
-const focusedColor = "#ffdd30";
+const focusedColor = "rgb(255, 227, 46)";
+const cancelColor = "rgb(169, 169, 169)"
 
 export function LeaderboardHeader() {
     return (
-        <LeaderboardHeaderStyle color={"black"} followed={false}>
+        <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
             <HeaderCard width={ButtonWidth}></HeaderCard>
             <HeaderCard width={NameWidth}>Name</HeaderCard>
             <HeaderCard width={MassWidth}>
@@ -33,23 +37,35 @@ export function LeaderboardHeader() {
 export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
     const { item, followed, updateBodyFollowed } = props;
 
-    const [isHovered, setIsHovered] = useState(false);
+    const [buttonIsHovered, setButtonIsHovered] = useState(false);
 
     return (
-        <LeaderboardItemCardStyle color={item.color} followed={followed}>
+        <LeaderboardItemCardStyle color={item.color} followed={followed} buttonIsHovered={buttonIsHovered}>
             <SelectButton
                 color={item.color}
                 onMouseLeave={() => {
-                    setIsHovered(false);
+                    setButtonIsHovered(false);
                 }}
                 onMouseEnter={() => {
-                    setIsHovered(true);
+                    setButtonIsHovered(true);
                 }}
                 onClick={() => {
-                    updateBodyFollowed(item.index);
+                    if (followed) {
+                        updateBodyFollowed(-1);
+                    } else {
+                        updateBodyFollowed(item.index);
+                    }
+                    
                 }}
             >
-                <TargetIcon filled={true} color={focusedColor} dim={"35px"} />
+                {
+                    followed
+                    ?
+                    <StopIcon filled={false} color={buttonIsHovered ? brightenColor(cancelColor, 1.2) : cancelColor} dim={"35px"} />
+                    :
+                    <TargetIcon filled={true} color={buttonIsHovered ? brightenColor(focusedColor, 3) : focusedColor} dim={"35px"} />
+                }
+                
             </SelectButton>
             <InfoCard width={NameWidth}>B-{item.index.toFixed()}</InfoCard>
             <InfoCard width={MassWidth}>{item.mass.toFixed(2)}</InfoCard>
@@ -61,7 +77,7 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
     );
 }
 
-const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean }>`
+const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean; buttonIsHovered: boolean }>`
     display: flex;
     flex-direction: row;
     gap: 5px;
@@ -69,8 +85,8 @@ const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean }
     width: min-content;
     height: min-content;
 
-    border-top: ${(props) => (props.followed ? "3px solid " + focusedColor : "none")};
-    border-bottom: ${(props) => (props.followed ? "3px solid " + focusedColor : "none")};
+    border-top: ${(props) => (props.followed ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor) : "none")};
+    border-bottom: ${(props) => (props.followed ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor) : "none")};
 
     margin-bottom: 5px;
 
