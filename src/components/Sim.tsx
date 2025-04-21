@@ -10,8 +10,8 @@ import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
-import fragA from "../assets/shaders/lightGlobal.frag.glsl?raw"
-import vert from "../assets/shaders/basic.vert.glsl?raw"
+import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
+import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -128,7 +128,7 @@ export function Sim(props: SimProps) {
 
             // Initialize a shader program; this is where all the lighting
             // for the vertices and so forth is established.
-            const shaderProgram = initShaderProgram(gl, vert, fragA);
+            const shaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");

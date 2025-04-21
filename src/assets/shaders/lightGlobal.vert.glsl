@@ -1,4 +1,4 @@
-// Basic vertex shader for model rendering
+// Vertex shader for global lighting which follows the camera
 
 attribute vec4 aVertexPosition;
 attribute vec3 aVertexNormal;
