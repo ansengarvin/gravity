@@ -1,11 +1,7 @@
-import { mat4 } from "gl-matrix";
+
 import { getRandomFloat } from "../../random/random";
-import { Buffers } from "../webGL/buffers";
-import { ProgramInfo } from "../webGL/programInfo";
-import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
 import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
-import { Camera } from "../webGL/camera";
 import { sortQuery } from "../defines/sortQuery";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
