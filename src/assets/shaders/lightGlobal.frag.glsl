@@ -3,7 +3,6 @@
 uniform highp vec4 uFragColor;
 
 varying highp vec3 vTransformedNormal;
-varying highp vec4 vPosition;
 
 void main(void) {
     highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
