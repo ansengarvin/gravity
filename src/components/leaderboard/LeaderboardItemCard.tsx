@@ -16,7 +16,7 @@ const NameWidth = "50px";
 const MassWidth = "100px";
 const DistanceWidth = "120px";
 const focusedColor = "rgb(255, 227, 46)";
-const cancelColor = "rgb(255, 131, 131)"
+const cancelColor = "rgb(255, 131, 131)";
 
 export function LeaderboardHeader() {
     return (
@@ -54,17 +54,21 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                     } else {
                         updateBodyFollowed(item.index);
                     }
-                    
                 }}
             >
-                {
-                    followed
-                    ?
-                    <StopIcon filled={false} color={buttonIsHovered ? brightenColor(cancelColor, 1.2) : cancelColor} dim={"35px"} />
-                    :
-                    <TargetIcon filled={true} color={buttonIsHovered ? brightenColor(focusedColor, 3) : focusedColor} dim={"35px"} />
-                }
-                
+                {followed ? (
+                    <StopIcon
+                        filled={false}
+                        color={buttonIsHovered ? brightenColor(cancelColor, 1.2) : cancelColor}
+                        dim={"35px"}
+                    />
+                ) : (
+                    <TargetIcon
+                        filled={true}
+                        color={buttonIsHovered ? brightenColor(focusedColor, 3) : focusedColor}
+                        dim={"35px"}
+                    />
+                )}
             </SelectButton>
             <InfoCard width={NameWidth}>B-{item.index.toFixed()}</InfoCard>
             <InfoCard width={MassWidth}>{item.mass.toFixed(2)}</InfoCard>
@@ -84,8 +88,14 @@ const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean; 
     width: min-content;
     height: min-content;
 
-    /* border-top: ${(props) => (props.followed ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor) : "none")};
-    border-bottom: ${(props) => (props.followed ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor) : "none")}; */
+    /* border-top: ${(props) =>
+        props.followed
+            ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor)
+            : "none"};
+    border-bottom: ${(props) =>
+        props.followed
+            ? "3px solid " + (props.buttonIsHovered ? brightenColor(cancelColor, 2) : focusedColor)
+            : "none"}; */
 
     margin-bottom: 5px;
 
@@ -134,7 +144,7 @@ const HeaderCard = styled(InfoCard)`
     }
 `;
 
-const SelectButton = styled.button<{ color: string, followed: boolean }>`
+const SelectButton = styled.button<{ color: string; followed: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
@@ -145,10 +155,10 @@ const SelectButton = styled.button<{ color: string, followed: boolean }>`
     padding: none;
     cursor: pointer;
 
-    border: ${(props) => (props.followed ? "2px solid " + (cancelColor) : "none")};
+    border: ${(props) => (props.followed ? "2px solid " + cancelColor : "none")};
 
     :hover {
-        border: 2px solid ${(props) => (props.followed ? brightenColor(cancelColor, 1.3) : focusedColor)}
+        border: 2px solid ${(props) => (props.followed ? brightenColor(cancelColor, 1.3) : focusedColor)};
     }
 
     //background-color: black;
