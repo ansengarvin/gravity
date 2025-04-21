@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { brightenColor } from "../../lib/colors/brightenColor";
 import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
 
 interface LeaderboardHeaderProps {
@@ -29,7 +29,7 @@ export function LeaderboardHeader(props: LeaderboardHeaderProps) {
     console.log(sortBy)
     return (
         <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
-            <HeaderCard width={ButtonWidth} current={false} bgcolor={'black'}></HeaderCard>
+            <HeaderCard width={ButtonWidth} current={false} bgcolor={'black'}>Go</HeaderCard>
             <HeaderCard width={NameWidth} current={sortBy === 'name'}  bgcolor={'black'} onClick={() => {updateSortBy('name')}}>Name</HeaderCard>
             <HeaderCard width={MassWidth} current={sortBy === 'mass'} bgcolor={'black'} onClick={() => {updateSortBy('mass')}}>
                 Mass
