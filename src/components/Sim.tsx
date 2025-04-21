@@ -54,7 +54,6 @@ export function Sim(props: SimProps) {
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
         cameraRef.current.zoom = Math.min(Math.max(cameraRef.current.zoom, -50), -5);
-        console.log(cameraRef.current.zoom);
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -91,8 +90,6 @@ export function Sim(props: SimProps) {
             if (cameraRef.current.pitch < -Math.PI / 2) {
                 cameraRef.current.pitch = -Math.PI / 2 + 0.001;
             }
-
-            console.log(`Mouse dragged by: (${deltaX}, ${deltaY})`);
 
             // Update the last mouse position
             lastMousePosition.current = currentMousePosition;
@@ -154,7 +151,6 @@ export function Sim(props: SimProps) {
 
             const buffers = initBuffers(gl, sphere);
 
-            console.log(universe.current.positionsX);
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -164,7 +160,7 @@ export function Sim(props: SimProps) {
                 accumulatedTime += deltaTime;
 
                 if (resetSim.current) {
-                    cameraRef.current = new Camera(0, 0, 0, 0, 0, -20);
+                    cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
                     updateBodyFollowed(-1);
                     universe.current.reset();
                     resetSim.current = false;
