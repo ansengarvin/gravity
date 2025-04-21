@@ -7,6 +7,7 @@ import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { LeaderboardBody } from "./leaderboard/LeaderboardBody";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
+import { sortQuery } from "../lib/defines/sortQuery";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -21,7 +22,7 @@ interface SimProps {
     updateBodyFollowed: (newBodiesFollowed: number) => void;
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
-    sortByRef: React.RefObject<string>;
+    sortByRef: React.RefObject<sortQuery>;
 }
 
 export function Sim(props: SimProps) {
@@ -34,7 +35,7 @@ export function Sim(props: SimProps) {
         updateBodyFollowed,
         resetSim,
         pausedRef,
-        sortByRef,
+        sortByRef
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
@@ -48,7 +49,7 @@ export function Sim(props: SimProps) {
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed));
+    const universe = useRef<Universe>(new Universe(settings, cameraRef, bodyFollowedRef, updateBodyFollowed, sortByRef));
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
@@ -175,7 +176,7 @@ export function Sim(props: SimProps) {
                         universe.current.updateEuler(secondsPerTick);
                     }
                     setNumActive(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getMassRankings());
+                    setLeaderboardBodies(universe.current.getRankings());
                     accumulatedTime -= secondsPerTick;
                 }
 

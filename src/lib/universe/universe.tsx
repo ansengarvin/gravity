@@ -6,6 +6,7 @@ import { setNormalAttribute, setPositionAttribute } from "../webGL/attributes";
 import React from "react";
 import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
 import { Camera } from "../webGL/camera";
+import { sortQuery } from "../defines/sortQuery";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -42,12 +43,14 @@ export class Universe {
     public bodyFollowedRef: React.RefObject<number>;
     public updateBodyFollowed: (newBodyFollowed: number) => void;
     private cameraRef: React.RefObject<Camera>;
+    private sortByRef: React.RefObject<sortQuery>;
 
     constructor(
         settings: UniverseSettings,
         cameraRef: React.RefObject<Camera>,
         bodyFollowedRef: React.RefObject<number>,
         updateBodyFollowed: (newBodyFollowed: number) => void,
+        sortByRef: React.RefObject<sortQuery>,
     ) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
@@ -77,6 +80,7 @@ export class Universe {
         this.cameraRef = cameraRef;
         this.bodyFollowedRef = bodyFollowedRef;
         this.updateBodyFollowed = updateBodyFollowed;
+        this.sortByRef = sortByRef;
 
         this.initialize();
     }
@@ -419,7 +423,7 @@ export class Universe {
         return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
     }
 
-    public getMassRankings(): Array<LeaderboardBody> {
+    public getRankings(): Array<LeaderboardBody> {
         const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
@@ -440,9 +444,25 @@ export class Universe {
         }
 
         massRankings.sort((a, b) => {
-            // if (a.index == this.bodyFollowedRef.current) return -1;
-            // if (b.index == this.bodyFollowedRef.current) return 1;
-            return b.mass - a.mass
+            switch (this.sortByRef.current) {
+                case sortQuery.name:
+                    return a.index - b.index;
+                case sortQuery.mass:
+                    return b.mass - a.mass;
+                case sortQuery.dOrigin:
+                    return b.dOrigin - a.dOrigin;
+                case sortQuery.dTarget:
+                    return a.dTarget - b.dTarget;
+                case sortQuery.orbiting:
+                    if (a.orbiting === -1 && b.orbiting === -1) return 0;
+                    if (a.orbiting === -1) return 1;
+                    if (b.orbiting === -1) return -1;
+                    return a.orbiting - b.orbiting;
+                case sortQuery.dOrbit:
+                    return a.dOrbit - b.dOrbit;
+                default:
+                    return b.mass - a.mass;
+            }
         });
 
         return massRankings;

@@ -4,10 +4,11 @@ import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
 import { useState } from "react";
 import { StopIcon } from "../../assets/icons/StopIcon";
+import { sortQuery } from "../../lib/defines/sortQuery";
 
 interface LeaderboardHeaderProps {
-    sortBy: string;
-    updateSortBy: (sortBy: string) => void;
+    sortBy: sortQuery;
+    updateSortBy: (sortBy: sortQuery) => void;
 }
 
 interface LeaderboardItemCardProps {
@@ -30,20 +31,20 @@ export function LeaderboardHeader(props: LeaderboardHeaderProps) {
     return (
         <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
             <HeaderCard width={ButtonWidth} current={false} bgcolor={'black'}>Go</HeaderCard>
-            <HeaderCard width={NameWidth} current={sortBy === 'name'}  bgcolor={'black'} onClick={() => {updateSortBy('name')}}>Name</HeaderCard>
-            <HeaderCard width={MassWidth} current={sortBy === 'mass'} bgcolor={'black'} onClick={() => {updateSortBy('mass')}}>
+            <HeaderCard width={NameWidth} current={sortBy === sortQuery.name} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.name)}}>Name</HeaderCard>
+            <HeaderCard width={MassWidth} current={sortBy === sortQuery.mass} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.mass)}}>
                 Mass
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === 'dOrigin'} bgcolor={'black'} onClick={() => {updateSortBy('dOrigin')}}>
+            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dOrigin} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dOrigin)}}>
                 dOrigin
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === 'dTarget'} bgcolor={'black'} onClick={() => {updateSortBy('dTarget')}}>
+            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dTarget} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dTarget)}}>
                 dTarget
             </HeaderCard>
-            <HeaderCard width={OrbitWidth} current={sortBy === 'orbiting'} bgcolor={'black'} onClick={() => {updateSortBy('orbiting')}}>
+            <HeaderCard width={OrbitWidth} current={sortBy === sortQuery.orbiting} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.orbiting)}}>
                 Orbiting
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === 'dOrbit'} bgcolor={'black'} onClick={() => {updateSortBy('dOrbit')}}>
+            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dOrbit} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dOrbit)}}>
                 dOrbit
             </HeaderCard>
         </LeaderboardHeaderStyle>

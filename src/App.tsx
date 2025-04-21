@@ -5,6 +5,7 @@ import { Leaderboard } from "./components/leaderboard/Leaderboard";
 import { LeaderboardBody } from "./components/leaderboard/LeaderboardBody";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
+import { sortQuery } from "./lib/defines/sortQuery";
 
 const Backdrop = styled.div`
     display: grid;
@@ -58,9 +59,9 @@ export function App() {
         pausedRef.current = status;
     };
 
-    const [sortByState, setSortByState] = useState<string>('mass');
-    const sortByRef = useRef<string>('mass');
-    const updateSortBy = (sortBy: string) => {
+    const [sortByState, setSortByState] = useState<sortQuery>(sortQuery.mass);
+    const sortByRef = useRef<sortQuery>(sortQuery.mass);
+    const updateSortBy = (sortBy: sortQuery) => {
         setSortByState(sortBy);
         sortByRef.current = sortBy;
     };

@@ -1,6 +1,7 @@
 import styled from "@emotion/styled";
 import { LeaderboardHeader, LeaderboardItemCard } from "./LeaderboardItemCard.tsx";
 import { LeaderboardBody } from "./LeaderboardBody.tsx";
+import { sortQuery } from "../../lib/defines/sortQuery.tsx";
 
 // I may just end up making a separate body object.
 
@@ -8,8 +9,8 @@ interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[];
     bodyFollowed: number;
     updateBodyFollowed: (newBodyFollowed: number) => void;
-    sortBy: string;
-    updateSortBy: (sortBy: string) => void;
+    sortBy: sortQuery;
+    updateSortBy: (sortBy: sortQuery) => void;
 }
 
 export function Leaderboard(props: LeaderboardProps) {
