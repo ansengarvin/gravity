@@ -8,16 +8,11 @@ import { LeaderboardBody } from "./LeaderboardBody.tsx";
 interface LeaderboardProps {
     leaderboardBodies: LeaderboardBody[];
     bodyFollowed: number;
-    updateBodyFollowed: (newBodiesFollowed: number) => void;
+    updateBodyFollowed: (newBodyFollowed: number) => void;
 }
 
 export function Leaderboard(props: LeaderboardProps) {
     const { leaderboardBodies, bodyFollowed, updateBodyFollowed } = props;
-
-    const cardClick = (idx: number, x: number, y: number, z: number) => {
-        console.log(x, y, z);
-        updateBodyFollowed(idx);
-    };
 
     return (
         <LeaderboardStyle>
@@ -26,7 +21,8 @@ export function Leaderboard(props: LeaderboardProps) {
                 <LeaderboardItemCard
                     key={index}
                     item={item}
-                    selected={bodyFollowed === item.index}
+                    followed={bodyFollowed === item.index}
+                    updateBodyFollowed={updateBodyFollowed}
                 />
             ))}
         </LeaderboardStyle> 
@@ -43,7 +39,7 @@ const LeaderboardStyle = styled.div`
     height: 200px;
     width: min-content;
     overflow-y: scroll;
-    background-color: #050505;
+    background-color: black;
     margin-left: auto;
     margin-right: auto;
     border: 4px solid white;
