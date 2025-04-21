@@ -237,11 +237,11 @@ export function Sim(props: SimProps) {
                 // Create a view matrix for the camera
         
                 // Update the camera position to the current position of the followed body
-                if (universe.current.bodyFollowedRef.current !== -1) {
+                if (bodyFollowedRef.current !== -1) {
                     cameraRef.current.setTarget(
-                        universe.current.positionsX[universe.current.bodyFollowedRef.current],
-                        universe.current.positionsY[universe.current.bodyFollowedRef.current],
-                        universe.current.positionsZ[universe.current.bodyFollowedRef.current],
+                        universe.current.positionsX[bodyFollowedRef.current],
+                        universe.current.positionsY[bodyFollowedRef.current],
+                        universe.current.positionsZ[bodyFollowedRef.current],
                     );
                 }
                 const cameraMatrix = cameraRef.current.getViewMatrix();

@@ -40,9 +40,9 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
 
-    public bodyFollowedRef: React.RefObject<number>;
     public updateBodyFollowed: (newBodyFollowed: number) => void;
     private sortByRef: React.RefObject<sortQuery>;
+    private bodyFollowedRef: React.RefObject<number>;
 
     constructor(
         settings: UniverseSettings,
