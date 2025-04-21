@@ -9,6 +9,10 @@ import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
+// Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
+import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
+import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
+
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
@@ -54,7 +58,6 @@ export function Sim(props: SimProps) {
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         cameraRef.current.zoom -= event.deltaY * 0.01;
         cameraRef.current.zoom = Math.min(Math.max(cameraRef.current.zoom, -50), -5);
-        console.log(cameraRef.current.zoom);
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -92,8 +95,6 @@ export function Sim(props: SimProps) {
                 cameraRef.current.pitch = -Math.PI / 2 + 0.001;
             }
 
-            console.log(`Mouse dragged by: (${deltaX}, ${deltaY})`);
-
             // Update the last mouse position
             lastMousePosition.current = currentMousePosition;
 
@@ -123,11 +124,11 @@ export function Sim(props: SimProps) {
             /*
             Get the UV sphere model
             */
-            const sphere = await getModel("uvsphere.glb");
+            const sphere = await getModel("uvSphereSmooth.glb");
 
             // Initialize a shader program; this is where all the lighting
             // for the vertices and so forth is established.
-            const shaderProgram = initShaderProgram(gl, vsSource, fsSource);
+            const shaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");
@@ -154,7 +155,6 @@ export function Sim(props: SimProps) {
 
             const buffers = initBuffers(gl, sphere);
 
-            console.log(universe.current.positionsX);
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -164,7 +164,7 @@ export function Sim(props: SimProps) {
                 accumulatedTime += deltaTime;
 
                 if (resetSim.current) {
-                    cameraRef.current = new Camera(0, 0, 0, 0, 0, -20);
+                    cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
                     updateBodyFollowed(-1);
                     universe.current.reset();
                     resetSim.current = false;
@@ -210,42 +210,4 @@ const SimCanvas = styled.canvas`
     height: 100%;
     width: 100%;
     display: block;
-`;
-
-const vsSource = `
-    attribute vec4 aVertexPosition;
-    attribute vec3 aVertexNormal;
-    attribute vec4 aVertexColor;
-
-    uniform mat4 uNormalMatrix;
-    uniform mat4 uModelViewMatrix;
-    uniform mat4 uProjectionMatrix;
-
-    varying highp vec3 vTransformedNormal;
-    varying highp vec4 vPosition;
-
-    void main(void) {
-      gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-      vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal;
-      vPosition = uModelViewMatrix * aVertexPosition;
-    }
-  `;
-
-const fsSource = `
-    uniform highp vec4 uFragColor;
-
-    varying highp vec3 vTransformedNormal;
-    varying highp vec4 vPosition;
-
-    void main(void) {
-        highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
-        highp vec3 directionalLightColor = vec3(1, 1, 1);
-        highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
-
-        highp vec3 normal = normalize(vTransformedNormal);
-        highp float directional = max(dot(normal, directionalVector), 0.0);
-
-        highp vec3 lighting = ambientLight + (directionalLightColor * directional);
-        gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
-    }
 `;

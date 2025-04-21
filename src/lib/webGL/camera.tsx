@@ -49,4 +49,15 @@ export class Camera {
         mat4.lookAt(viewMatrix, cameraPosition, target, up);
         return viewMatrix;
     }
+
+    public setAll(x: number, y: number, z: number, pitch: number, yaw: number, zoom: number): void {
+        this.target = {
+            x: x,
+            y: y,
+            z: z,
+        }
+        this.pitch = pitch;
+        this.yaw = yaw;
+        this.zoom = zoom;
+    }
 }
