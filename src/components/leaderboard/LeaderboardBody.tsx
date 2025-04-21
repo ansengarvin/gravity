@@ -6,4 +6,5 @@ export interface LeaderboardBody {
     dTarget: number;
     orbiting: number;
     dOrbit: number;
+    orbitColor: string;
 }

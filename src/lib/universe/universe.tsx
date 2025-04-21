@@ -435,6 +435,7 @@ export class Universe {
                 dTarget: this.distanceToFollowedBody(i),
                 orbiting: this.orbitalIndices[i],
                 dOrbit: this.orbitalDistances[i],
+                orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
             };
         }
 
