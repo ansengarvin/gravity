@@ -16,7 +16,7 @@ interface LeaderboardItemCardProps {
     updateBodyFollowed: (newBodyFollowed: number) => void;
 }
 
-const ButtonWidth = "50px";
+const ButtonWidth = "40px";
 const NameWidth = "50px";
 const MassWidth = "100px";
 const DistanceWidth = "120px";
@@ -76,13 +76,13 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                     <StopIcon
                         filled={false}
                         color={buttonIsHovered ? brightenColor(cancelColor, 1.2) : cancelColor}
-                        dim={"35px"}
+                        dim={"30px"}
                     />
                 ) : (
                     <TargetIcon
                         filled={true}
                         color={buttonIsHovered ? brightenColor(focusedColor, 3) : focusedColor}
-                        dim={"35px"}
+                        dim={"30px"}
                     />
                 )}
             </SelectButton>
@@ -112,8 +112,6 @@ const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean; 
 
     /* border-bottom: ${(props) => (props.followed ? 'solid 2px white' : 'none')}; */
 
-    margin-bottom: 5px;
-
     & > * {
         background-color: ${(props) => props.color};
     }
@@ -133,7 +131,7 @@ const InfoCard = styled.div<{ width: string }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 50px;
+    height: 40px;
     width: ${(props) => props.width};
     padding-left: 5px;
     padding-right: 5px;
@@ -178,7 +176,8 @@ const SelectButton = styled.button<{ color: string; followed: boolean }>`
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 50px;
+    height: ${ButtonWidth};
+    width: ${ButtonWidth};
     margin-bottom: 4px;
 
     // Remove all styling
