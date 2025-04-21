@@ -3,8 +3,6 @@ import { brightenColor } from "../../lib/colors/brightenColor";
 import { LeaderboardBody } from "./LeaderboardBody";
 import { TargetIcon } from "../../assets/icons/TargetIcon";
 import { useState } from "react";
-import { AltListIcon } from "../../assets/icons/AltListIcon";
-import { CancelIcon } from "../../assets/icons/CancelIcon";
 import { StopIcon } from "../../assets/icons/StopIcon";
 
 interface LeaderboardItemCardProps {
