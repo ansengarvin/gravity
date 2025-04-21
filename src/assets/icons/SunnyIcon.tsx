@@ -2,7 +2,7 @@ import { IconProps } from "./common/IconProps";
 import { GoogleSVG } from "./common/GoogleSVG";
 
 // Alternate List
-export function AltListIcon(props: IconProps) {
+export function SunnyIcon(props: IconProps) {
     const { color, dim, filled } = props;
 
     return (
