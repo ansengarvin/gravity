@@ -6,13 +6,14 @@ import { LeaderboardBody } from "./components/leaderboard/LeaderboardBody";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 import { sortQuery } from "./lib/defines/sortQuery";
+import { SettingsMenu } from "./components/Settings";
 
 const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top top top"
         "simulation simulation simulation"
-        "stats buttons leaderboard";
+        "settings buttons leaderboard";
     grid-template-rows: min-content 1fr 200px;
     grid-template-columns: 1fr 320px 1fr;
     height: 100%;
@@ -27,7 +28,7 @@ const Backdrop = styled.div`
 `;
 
 const StatScreen = styled.div`
-    grid-area: stats;
+    grid-area: settings;
     padding-left: 10px;
 `;
 
@@ -104,7 +105,6 @@ export function App() {
                         updateSortBy={updateSortBy}
                     />
                 ) : null}
-
                 <ControlButtons
                     pausedState={pausedState}
                     updatePaused={updatePaused}
@@ -114,6 +114,9 @@ export function App() {
                     settingsMenuShown={settingsMenuShown}
                     setSettingsMenuShown={setSettingsMenuShown}
                 />
+                {settingsMenuShown ? (
+                    <SettingsMenu/>
+                ) : null}
             </Backdrop>
         </body>
     );
