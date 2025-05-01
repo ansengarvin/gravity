@@ -82,49 +82,49 @@ export function App() {
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
     return (
-        <body>
-            <SimScreen>
-                <Sim
-                    width="1920px"
-                    height="1080px"
-                    setNumActive={setNumActive}
-                    setLeaderboardBodies={setLeaderboardBodies}
-                    bodyFollowedRef={bodyFollowedRef}
-                    updateBodyFollowed={updateBodyFollowed}
-                    resetSim={resetSim}
-                    pausedRef={pausedRef}
-                    sortByRef={sortByRef}
-                    starLightRef={starLightRef}
-                />
-            </SimScreen>
-            <Backdrop>
-                <Header />
-                <StatScreen>
-                    <br />
-                    Number of Bodies: {numActive}
-                </StatScreen>
-                {leaderboardShown ? (
-                    <Leaderboard
-                        leaderboardBodies={leaderboardBodies}
-                        bodyFollowed={bodyFollowed}
-                        updateBodyFollowed={updateBodyFollowed}
-                        sortBy={sortByState}
-                        updateSortBy={updateSortBy}
-                    />
-                ) : null}
-                <ControlButtons
-                    pausedState={pausedState}
-                    updatePaused={updatePaused}
-                    resetSim={resetSim}
-                    leaderboardShown={leaderboardShown}
-                    setLeaderboardShown={setLeaderboardShown}
-                    settingsMenuShown={settingsMenuShown}
-                    setSettingsMenuShown={setSettingsMenuShown}
-                    starLightState={starLightState}
-                    updateStarLight={updateStarLight}
-                />
-                {settingsMenuShown ? <SettingsMenu /> : null}
-            </Backdrop>
-        </body>
-    );
+<body>
+<SimScreen>
+<Sim
+width="1920px"
+height="1080px"
+setNumActive={setNumActive}
+setLeaderboardBodies={setLeaderboardBodies}
+bodyFollowedRef={bodyFollowedRef}
+updateBodyFollowed={updateBodyFollowed}
+resetSim={resetSim}
+pausedRef={pausedRef}
+sortByRef={sortByRef}
+starLightRef={starLightRef}
+/>
+</SimScreen>
+<Backdrop>
+<Header />
+<StatScreen>
+<br />
+Number of Bodies: {numActive}
+</StatScreen>
+{leaderboardShown ? (
+<Leaderboard
+leaderboardBodies={leaderboardBodies}
+bodyFollowed={bodyFollowed}
+updateBodyFollowed={updateBodyFollowed}
+sortBy={sortByState}
+updateSortBy={updateSortBy}
+/>
+) : null}
+<ControlButtons
+pausedState={pausedState}
+updatePaused={updatePaused}
+resetSim={resetSim}
+leaderboardShown={leaderboardShown}
+setLeaderboardShown={setLeaderboardShown}
+settingsMenuShown={settingsMenuShown}
+setSettingsMenuShown={setSettingsMenuShown}
+starLightState={starLightState}
+updateStarLight={updateStarLight}
+/>
+{settingsMenuShown ? <SettingsMenu /> : null}
+</Backdrop>
+</body>
+);
 }
