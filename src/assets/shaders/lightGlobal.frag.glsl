@@ -13,10 +13,10 @@ void main(void) {
     highp vec3 normal = normalize(vTransformedNormal);
     highp float directional = max(dot(normal, directionalVector), 0.0);
 
-    if (uIsStar > 0) {
-        ambientLight = vec3(1.0, 1.0, 1.0);
-        directionalLightColor = vec3(0.2, 0.2, 0.2);
-    }
+    // if (uIsStar > 0) {
+    //     ambientLight = vec3(1.0, 1.0, 1.0);
+    //     directionalLightColor = vec3(0.2, 0.2, 0.2);
+    // }
 
     highp vec3 lighting = ambientLight + (directionalLightColor * directional);
     gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
