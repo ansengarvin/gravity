@@ -1,4 +1,5 @@
 export interface ProgramInfo {
+    name: string;
     program: WebGLProgram;
     attribLocations: {
         vertexPosition: GLint;

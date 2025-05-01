@@ -67,6 +67,14 @@ export function App() {
         sortByRef.current = sortBy;
     };
 
+    const [starLightState, setStarLightState] = useState<boolean>(false);
+    const starLightRef = useRef<boolean>(false);
+    const updateStarLight = (starLight: boolean) => {
+        setStarLightState(starLight);
+        starLightRef.current = starLight;
+    };
+
+
     // Toggle to reset the simulation
     const resetSim = useRef<boolean>(false);
 
@@ -74,7 +82,6 @@ export function App() {
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
-
     return (
         <body>
             <SimScreen>
@@ -88,6 +95,7 @@ export function App() {
                     resetSim={resetSim}
                     pausedRef={pausedRef}
                     sortByRef={sortByRef}
+                    starLightRef={starLightRef}
                 />
             </SimScreen>
             <Backdrop>
@@ -113,6 +121,8 @@ export function App() {
                     setLeaderboardShown={setLeaderboardShown}
                     settingsMenuShown={settingsMenuShown}
                     setSettingsMenuShown={setSettingsMenuShown}
+                    starLightState={starLightState}
+                    updateStarLight={updateStarLight}
                 />
                 {settingsMenuShown ? (
                     <SettingsMenu/>

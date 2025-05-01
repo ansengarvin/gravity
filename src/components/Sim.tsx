@@ -33,6 +33,7 @@ interface SimProps {
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
     sortByRef: React.RefObject<sortQuery>;
+    starLightRef: React.RefObject<boolean>;
 }
 
 export function Sim(props: SimProps) {
@@ -45,7 +46,8 @@ export function Sim(props: SimProps) {
         updateBodyFollowed,
         resetSim,
         pausedRef,
-        sortByRef
+        sortByRef,
+        starLightRef,
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const settings: UniverseSettings = {
@@ -87,6 +89,7 @@ export function Sim(props: SimProps) {
                 return;
             }
             const starlightShaderProgramInfo: ProgramInfo = {
+                name: "starlight",
                 program: starlightShaderProgram,
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(starlightShaderProgram, "aVertexPosition"),
@@ -113,6 +116,7 @@ export function Sim(props: SimProps) {
                 return;
             }
             const camlightProgramInfo: ProgramInfo = {
+                name: "camlight",
                 program: camlightShaderProgram,
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
@@ -154,6 +158,12 @@ export function Sim(props: SimProps) {
                 const deltaTime = now - then;
                 then = now;
                 accumulatedTime += deltaTime;
+
+                if (starLightRef.current === true && programInfoRef.current?.name !== "starlight") {
+                    programInfoRef.current = starlightShaderProgramInfo;
+                } else if (starLightRef.current === false && programInfoRef.current?.name !== "camlight") {
+                    programInfoRef.current = camlightProgramInfo;
+                }
 
                 if (!programInfoRef.current) {
                     console.error("Program info not found");
