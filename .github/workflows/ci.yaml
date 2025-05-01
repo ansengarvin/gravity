@@ -1,11 +1,11 @@
-name: lint
+name: ci
 
 on:
     pull_request:
 
 jobs:
     prettier:
-        name: prettier
+        name: ci
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -19,5 +19,8 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Run Prettier
+            - name: Linting (prettier)
               run: npx prettier . --check
+
+            - name: Run Build
+              run: npm run build
