@@ -10,10 +10,10 @@ import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
-import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
-import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
-import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw"
-import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw"
+import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw";
+import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw";
+import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw";
+import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw";
 
 import { mat4, vec3 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
@@ -55,11 +55,14 @@ export function Sim(props: SimProps) {
         timeStep: 1.0 / 12.0, // time step in years (1 month)
         numBodies: 500,
         size: 20, // The size of the universe in astronomical units
-        starThreshold: 0.8
+        starThreshold: 0.8,
     };
 
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const {handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp} = useMouseControls(cameraRef, cameraSensititivy);
+    const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
+        cameraRef,
+        cameraSensititivy,
+    );
 
     const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed, sortByRef));
 
@@ -134,7 +137,7 @@ export function Sim(props: SimProps) {
                     uNumStars: gl.getUniformLocation(camlightShaderProgram, "uNumStars"),
                     uIsStar: gl.getUniformLocation(camlightShaderProgram, "uIsStar"),
                 },
-            }
+            };
 
             programInfoRef.current = camlightProgramInfo;
 
@@ -199,24 +202,24 @@ export function Sim(props: SimProps) {
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
                 gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-        
+
                 // Clear the canvas before we start drawing on it.
-        
+
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-        
+
                 // Create a perspective matrix, a special matrix that is
                 // used to simulate the distortion of perspective in a camera.
                 // Our field of view is 45 degrees, with a width/height
                 // ratio that matches the display size of the canvas
                 // and we only want to see objects between 0.1 units
                 // and 100 units away from the camera.
-        
+
                 const fieldOfView = (45 * Math.PI) / 180; // in radians
                 const canvas = gl.canvas as HTMLCanvasElement;
                 const aspect = canvas.clientWidth / canvas.clientHeight;
                 const zNear = 0.1;
                 const zFar = 100.0;
-        
+
                 /*
                     Binding buffers
                 */
@@ -226,21 +229,21 @@ export function Sim(props: SimProps) {
                 setNormalAttribute(gl, buffers, programInfoRef.current);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
                 gl.useProgram(programInfoRef.current.program);
-        
+
                 /*
                     Create Projection Matrix
                 */
                 const projectionMatrix = mat4.create();
-        
+
                 // note: glMatrix always has the first argument
                 // as the destination to receive the result.
                 mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-        
+
                 // Set the shader uniform for projection matrix
                 gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.projectionMatrix, false, projectionMatrix);
-        
+
                 // Create a view matrix for the camera
-        
+
                 // Update the camera position to the current position of the followed body
                 if (bodyFollowedRef.current !== -1) {
                     cameraRef.current.setTarget(
@@ -250,28 +253,40 @@ export function Sim(props: SimProps) {
                     );
                 }
                 const cameraMatrix = cameraRef.current.getViewMatrix();
-        
+
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
                     if (!universe.current.bodiesActive[i]) {
                         continue;
                     }
                     const modelMatrix = mat4.create();
-                    mat4.translate(modelMatrix, modelMatrix, [universe.current.positionsX[i], universe.current.positionsY[i], universe.current.positionsZ[i]]);
-                    mat4.scale(modelMatrix, modelMatrix, [universe.current.radii[i], universe.current.radii[i], universe.current.radii[i]]);
-        
+                    mat4.translate(modelMatrix, modelMatrix, [
+                        universe.current.positionsX[i],
+                        universe.current.positionsY[i],
+                        universe.current.positionsZ[i],
+                    ]);
+                    mat4.scale(modelMatrix, modelMatrix, [
+                        universe.current.radii[i],
+                        universe.current.radii[i],
+                        universe.current.radii[i],
+                    ]);
+
                     // Create model view matrix
                     const modelViewMatrix = mat4.create();
                     mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
-        
+
                     // Create normal matrix
                     const normalMatrix = mat4.create();
                     mat4.invert(normalMatrix, modelViewMatrix);
                     mat4.transpose(normalMatrix, normalMatrix);
-        
+
                     // Sets shader uniforms for model normals
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.modelMatrix, false, modelMatrix);
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, cameraMatrix);
-                    gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+                    gl.uniformMatrix4fv(
+                        programInfoRef.current.uniformLocations.modelViewMatrix,
+                        false,
+                        modelViewMatrix,
+                    );
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.normalMatrix, false, normalMatrix);
                     gl.uniform4fv(programInfoRef.current.uniformLocations.uFragColor, [
                         universe.current.colorsR[i],

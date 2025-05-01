@@ -55,7 +55,7 @@ export class Camera {
             x: x,
             y: y,
             z: z,
-        }
+        };
         this.pitch = pitch;
         this.yaw = yaw;
         this.zoom = zoom;

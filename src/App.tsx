@@ -74,7 +74,6 @@ export function App() {
         starLightRef.current = starLight;
     };
 
-
     // Toggle to reset the simulation
     const resetSim = useRef<boolean>(false);
 
@@ -124,9 +123,7 @@ export function App() {
                     starLightState={starLightState}
                     updateStarLight={updateStarLight}
                 />
-                {settingsMenuShown ? (
-                    <SettingsMenu/>
-                ) : null}
+                {settingsMenuShown ? <SettingsMenu /> : null}
             </Backdrop>
         </body>
     );

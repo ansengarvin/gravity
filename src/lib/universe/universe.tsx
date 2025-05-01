@@ -1,4 +1,3 @@
-
 import { getRandomFloat } from "../../random/random";
 import React from "react";
 import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
@@ -278,7 +277,6 @@ export class Universe {
             }
         }
 
-        
         /*
             Handle specific orbital energy
         */
@@ -383,7 +381,7 @@ export class Universe {
             if (this.masses[i] >= this.settings.starThreshold) {
                 Stars.push({
                     pos: vec3.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i]),
-                    mass: this.masses[i]
+                    mass: this.masses[i],
                 });
             }
         }
@@ -449,6 +447,6 @@ export class Universe {
         // Sum of standard gravitational patterns
         const U = G * (this.masses[bodyA] + this.masses[bodyB]);
 
-        return (0.5*v*v)-(U/r);
+        return 0.5 * v * v - U / r;
     }
 }

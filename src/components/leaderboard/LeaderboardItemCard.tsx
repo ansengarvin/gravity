@@ -29,21 +29,67 @@ export function LeaderboardHeader(props: LeaderboardHeaderProps) {
     const { sortBy, updateSortBy } = props;
     return (
         <LeaderboardHeaderStyle color={"black"} followed={false} buttonIsHovered={false}>
-            <HeaderCard width={ButtonWidth} current={false} bgcolor={'black'}>Go</HeaderCard>
-            <HeaderCard width={NameWidth} current={sortBy === sortQuery.name} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.name)}}>Name</HeaderCard>
-            <HeaderCard width={MassWidth} current={sortBy === sortQuery.mass} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.mass)}}>
+            <HeaderCard width={ButtonWidth} current={false} bgcolor={"black"}>
+                Go
+            </HeaderCard>
+            <HeaderCard
+                width={NameWidth}
+                current={sortBy === sortQuery.name}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.name);
+                }}
+            >
+                Name
+            </HeaderCard>
+            <HeaderCard
+                width={MassWidth}
+                current={sortBy === sortQuery.mass}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.mass);
+                }}
+            >
                 Mass
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dOrigin} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dOrigin)}}>
+            <HeaderCard
+                width={DistanceWidth}
+                current={sortBy === sortQuery.dOrigin}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.dOrigin);
+                }}
+            >
                 dOrigin
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dTarget} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dTarget)}}>
+            <HeaderCard
+                width={DistanceWidth}
+                current={sortBy === sortQuery.dTarget}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.dTarget);
+                }}
+            >
                 dTarget
             </HeaderCard>
-            <HeaderCard width={OrbitWidth} current={sortBy === sortQuery.orbiting} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.orbiting)}}>
+            <HeaderCard
+                width={OrbitWidth}
+                current={sortBy === sortQuery.orbiting}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.orbiting);
+                }}
+            >
                 Orbiting
             </HeaderCard>
-            <HeaderCard width={DistanceWidth} current={sortBy === sortQuery.dOrbit} bgcolor={'black'} onClick={() => {updateSortBy(sortQuery.dOrbit)}}>
+            <HeaderCard
+                width={DistanceWidth}
+                current={sortBy === sortQuery.dOrbit}
+                bgcolor={"black"}
+                onClick={() => {
+                    updateSortBy(sortQuery.dOrbit);
+                }}
+            >
                 dOrbit
             </HeaderCard>
         </LeaderboardHeaderStyle>
@@ -97,29 +143,17 @@ export function LeaderboardItemCard(props: LeaderboardItemCardProps) {
                 {item.dOrigin.toFixed(2)} au
             </InfoCard>
             <InfoCard width={DistanceWidth} bgcolor={item.color}>
-                {
-                    item.dTarget == -1
-                    ?
-                    <>--</>
-                    :
-                    <>{item.dTarget.toFixed(2)} au</>
-                }
+                {item.dTarget == -1 ? <>--</> : <>{item.dTarget.toFixed(2)} au</>}
             </InfoCard>
-            <InfoCard width={OrbitWidth} bgcolor={(item.orbiting != -1 ? item.orbitColor : item.color)}>
-                {
-                    item.orbiting == -1 
-                    ? 
-                    <>--</> 
-                    : 
+            <InfoCard width={OrbitWidth} bgcolor={item.orbiting != -1 ? item.orbitColor : item.color}>
+                {item.orbiting == -1 ? (
+                    <>--</>
+                ) : (
                     <>
-                        <TargetIcon 
-                            filled={true}
-                            color={'black'}
-                            dim={"0.75rem"}
-                        />
+                        <TargetIcon filled={true} color={"black"} dim={"0.75rem"} />
                         B-{item.orbiting.toFixed()}
                     </>
-                }
+                )}
             </InfoCard>
             <InfoCard width={DistanceWidth} bgcolor={item.color}>
                 {item.dOrbit == -1 ? <>--</> : <>{item.dOrbit.toFixed(2)} au</>}
@@ -136,7 +170,7 @@ const LeaderboardItemCardStyle = styled.div<{ color: string; followed: boolean; 
     width: min-content;
     height: min-content;
 
-    /* border-bottom: ${(props) => (props.followed ? 'solid 2px white' : 'none')}; */
+    /* border-bottom: ${(props) => (props.followed ? "solid 2px white" : "none")}; */
 
     button {
         background-color: black;
@@ -169,15 +203,14 @@ const LeaderboardHeaderStyle = styled(LeaderboardItemCardStyle)`
     border-bottom: 2px solid white;
     margin: 0;
     user-select: none;
-    
 `;
 
-const HeaderCard = styled(InfoCard)<{current: boolean}>`
+const HeaderCard = styled(InfoCard)<{ current: boolean }>`
     background-color: black;
     color: white;
 
-    border: ${(props) => (props.current ? 'dashed 1px white' : 'none')};
-    
+    border: ${(props) => (props.current ? "dashed 1px white" : "none")};
+
     height: 25px;
     margin-top: 4px;
     cursor: pointer;

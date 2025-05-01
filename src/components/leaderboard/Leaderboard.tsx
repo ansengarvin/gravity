@@ -18,7 +18,7 @@ export function Leaderboard(props: LeaderboardProps) {
 
     return (
         <LeaderboardStyle>
-            <LeaderboardHeader sortBy = {sortBy} updateSortBy={updateSortBy}/>
+            <LeaderboardHeader sortBy={sortBy} updateSortBy={updateSortBy} />
             {leaderboardBodies.map((item, index) => (
                 <LeaderboardItemCard
                     key={index}

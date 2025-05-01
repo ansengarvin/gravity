@@ -34,7 +34,7 @@ export function ControlButtons(props: ControlButtonProps) {
             <Dashboard>
                 <ButtonRow>
                     <ControlButton
-                        dim={'50px'}
+                        dim={"50px"}
                         onClick={() => {
                             setSettingsMenuShown(!settingsMenuShown);
                         }}
@@ -43,7 +43,7 @@ export function ControlButtons(props: ControlButtonProps) {
                     </ControlButton>
                     {pausedState ? (
                         <ControlButton
-                            dim={'50px'}
+                            dim={"50px"}
                             onClick={() => {
                                 updatePaused(false);
                             }}
@@ -52,7 +52,7 @@ export function ControlButtons(props: ControlButtonProps) {
                         </ControlButton>
                     ) : (
                         <ControlButton
-                            dim={'50px'}
+                            dim={"50px"}
                             onClick={() => {
                                 updatePaused(true);
                             }}
@@ -61,7 +61,7 @@ export function ControlButtons(props: ControlButtonProps) {
                         </ControlButton>
                     )}
                     <ControlButton
-                        dim={'50px'}
+                        dim={"50px"}
                         onClick={() => {
                             resetSim.current = true;
                         }}
@@ -69,7 +69,7 @@ export function ControlButtons(props: ControlButtonProps) {
                         <RestartIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                     <ControlButton
-                        dim={'50px'}
+                        dim={"50px"}
                         onClick={() => {
                             setLeaderboardShown(!leaderboardShown);
                         }}
@@ -79,7 +79,7 @@ export function ControlButtons(props: ControlButtonProps) {
                 </ButtonRow>
                 <ButtonRow>
                     <ControlButton
-                        dim={'40px'}
+                        dim={"40px"}
                         onClick={() => {
                             props.updateStarLight(!props.starLightState);
                         }}
@@ -89,7 +89,6 @@ export function ControlButtons(props: ControlButtonProps) {
                 </ButtonRow>
             </Dashboard>
         </ButtonContainer>
-        
     );
 }
 
@@ -101,7 +100,7 @@ const ButtonContainer = styled.div`
     align-items: center;
     height: 100%;
     width: min-content;
-`
+`;
 
 const Dashboard = styled.div`
     display: flex;
@@ -110,18 +109,18 @@ const Dashboard = styled.div`
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px
-`
+    margin-bottom: 20px;
+`;
 
 const ButtonRow = styled.div`
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 50px;  
+    gap: 50px;
 `;
 
-const ControlButton = styled.button<{dim: string}>`
+const ControlButton = styled.button<{ dim: string }>`
     // Clear all effects
     border: none;
     background: none;
@@ -140,4 +139,4 @@ const ControlButton = styled.button<{dim: string}>`
 
     border-color: white;
     background-color: none;
-`
+`;

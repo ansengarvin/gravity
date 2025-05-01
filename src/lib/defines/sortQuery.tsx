@@ -4,5 +4,5 @@ export enum sortQuery {
     dOrigin,
     dTarget,
     orbiting,
-    dOrbit
+    dOrbit,
 }

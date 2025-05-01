@@ -1,12 +1,7 @@
 import styled from "@emotion/styled";
 
-
 export function SettingsMenu() {
-    return (
-        <SettingsStyle>
-            Settings coming soon!
-        </SettingsStyle>
-    )
+    return <SettingsStyle>Settings coming soon!</SettingsStyle>;
 }
 
 const SettingsStyle = styled.div`
@@ -24,4 +19,4 @@ const SettingsStyle = styled.div`
 
     margin-left: auto;
     margin-right: auto;
-`
+`;

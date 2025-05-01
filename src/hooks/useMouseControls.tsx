@@ -9,7 +9,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         const minZoom = 1;
         const maxZoom = 50;
         cameraRef.current!.zoom -= event.deltaY * 0.01;
-        cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1*maxZoom), -1*minZoom);
+        cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -39,7 +39,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         // Clamp pitch between -90 and 90
         cameraRef.current!.pitch = Math.max(
             Math.min(cameraRef.current!.pitch, Math.PI / 2 - 0.001),
-            -Math.PI / 2 + 0.001
+            -Math.PI / 2 + 0.001,
         );
 
         lastMousePosition.current = currentMousePosition;

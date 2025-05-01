@@ -7,11 +7,7 @@ export function AltListIcon(props: IconProps) {
 
     return (
         <GoogleSVG color={color} dim={dim}>
-            {filled ? (
-                <path d="m280-400 200-200 200 200H280Z"/>
-            ) : (
-                <path d="m280-400 200-200 200 200H280Z"/>
-            )}
+            {filled ? <path d="m280-400 200-200 200 200H280Z" /> : <path d="m280-400 200-200 200 200H280Z" />}
         </GoogleSVG>
     );
 }
