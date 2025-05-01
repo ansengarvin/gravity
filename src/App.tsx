@@ -83,7 +83,7 @@ export function App() {
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
     return (
         <body>
-            <SimScreen>
+            <SimScreens>
                 <Sim
                     width="1920px"
                     height="1080px"
@@ -96,7 +96,7 @@ export function App() {
                     sortByRef={sortByRef}
                     starLightRef={starLightRef}
                 />
-            </SimScreen>
+            </SimScreens>
             <Backdrop>
                 <Header />
                 <StatScreen>
