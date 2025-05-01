@@ -13,6 +13,6 @@ varying highp vec4 vPosition;
 
 void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal;
+    vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal; // Multiplying vertex normal by normal matrix causes light to rotate with camera
     vPosition = uModelViewMatrix * aVertexPosition;
 }

@@ -15,6 +15,8 @@ interface ControlButtonProps {
     setLeaderboardShown: (shouldShow: boolean) => void;
     settingsMenuShown: boolean;
     setSettingsMenuShown: (shouldShow: boolean) => void;
+    starLightState: boolean;
+    updateStarLight: (starLight: boolean) => void;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
@@ -78,7 +80,9 @@ export function ControlButtons(props: ControlButtonProps) {
                 <ButtonRow>
                     <ControlButton
                         dim={'40px'}
-
+                        onClick={() => {
+                            props.updateStarLight(!props.starLightState);
+                        }}
                     >
                         <SunnyIcon color={"white"} dim={"40px"} filled={true} />
                     </ControlButton>
