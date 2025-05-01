@@ -82,7 +82,7 @@ export function App() {
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
     return (
-       
+        <bodyy>
             <SimScreen>
                 <Sim
                     width="1920px"
