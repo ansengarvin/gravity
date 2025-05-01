@@ -375,18 +375,21 @@ export class Universe {
     }
 
     public getStarLocations(): Array<vec3> {
-        const Stars = new Array<vec3>();
+        const Stars = new Array<{ pos: vec3; mass: number }>();
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
                 continue;
             }
             if (this.masses[i] >= this.settings.starThreshold) {
-                Stars.push(
-                    vec3.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i]),
-                );
+                Stars.push({
+                    pos: vec3.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i]),
+                    mass: this.masses[i]
+                });
             }
         }
-        return Stars;
+
+        Stars.sort((a, b) => b.mass - a.mass);
+        return Stars.map((star) => star.pos);
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
