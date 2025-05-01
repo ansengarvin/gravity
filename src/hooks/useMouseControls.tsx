@@ -6,8 +6,10 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
 
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
+        const minZoom = 1;
+        const maxZoom = 50;
         cameraRef.current!.zoom -= event.deltaY * 0.01;
-        cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -50), -5);
+        cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1*maxZoom), -1*minZoom);
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
