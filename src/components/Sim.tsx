@@ -12,7 +12,10 @@ import { sortQuery } from "../lib/defines/sortQuery";
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
 import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw"
 import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw"
-import { mat4 } from "gl-matrix";
+import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw"
+import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw"
+
+import { mat4, vec3, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 
@@ -50,6 +53,7 @@ export function Sim(props: SimProps) {
         timeStep: 1.0 / 12.0, // time step in years (1 month)
         numBodies: 500,
         size: 20, // The size of the universe in astronomical units
+        starThreshold: 0.8
     };
 
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
@@ -74,7 +78,7 @@ export function Sim(props: SimProps) {
             /*****************************
              * Initialize shader program
              *****************************/
-            const shaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
+            const shaderProgram = initShaderProgram(gl, vertLightStars, fragLightStars);
 
             if (!shaderProgram) {
                 console.error("Failed to initialize shader program");
@@ -92,6 +96,9 @@ export function Sim(props: SimProps) {
                     modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
                     uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor"),
+                    uStarLocations: gl.getUniformLocation(shaderProgram, "uStarLocations"),
+                    uNumStars: gl.getUniformLocation(shaderProgram, "uNumStars"),
+                    uIsStar: gl.getUniformLocation(shaderProgram, "uIsStar"),
                 },
             };
 
@@ -223,6 +230,23 @@ export function Sim(props: SimProps) {
                         universe.current.colorsB[i],
                         1.0,
                     ]);
+                    const isStar = universe.current.isStar(i) ? 1 : 0;
+
+                    // Gets each of the stars' locations for the purpose of creating a lighting shader
+                    const starLocs: Array<vec3> = universe.current.getStarLocations();
+                    const transformedStarLocs: Array<vec3> = starLocs.map((star) => {
+                        const starVec4 = vec4.fromValues(star[0], star[1], star[2], 1.0); // Convert to vec4 for matrix multiplication
+                        const transformedStarVec4 = vec4.create();
+                        vec4.transformMat4(transformedStarVec4, starVec4, cameraMatrix); // Transform to view space
+                        return vec3.fromValues(transformedStarVec4[0], transformedStarVec4[1], transformedStarVec4[2]); // Convert back to vec3
+                    });
+                    const flattenedStarLocs = transformedStarLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                    const numStars = transformedStarLocs.length;
+
+                    gl.uniform3fv(programInfo.uniformLocations.uStarLocations, flattenedStarLocs);
+                    gl.uniform1i(programInfo.uniformLocations.uNumStars, numStars);
+
+                    gl.uniform1i(programInfo.uniformLocations.uIsStar, isStar);
                     {
                         const type = gl.UNSIGNED_SHORT;
                         const offset = 0;

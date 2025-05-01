@@ -3,6 +3,7 @@ import { getRandomFloat } from "../../random/random";
 import React from "react";
 import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
 import { sortQuery } from "../defines/sortQuery";
+import { vec3 } from "gl-matrix";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -11,6 +12,7 @@ export interface UniverseSettings {
     timeStep: number;
     numBodies: number; // THe number of starting bodies in the universe
     size: number; // The size of the universe in astronomical units
+    starThreshold: number;
 }
 
 export class Universe {
@@ -366,6 +368,25 @@ export class Universe {
         });
 
         return massRankings;
+    }
+
+    public isStar(idx: number) {
+        return this.masses[idx] >= this.settings.starThreshold;
+    }
+
+    public getStarLocations(): Array<vec3> {
+        const Stars = new Array<vec3>();
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            if (this.masses[i] >= this.settings.starThreshold) {
+                Stars.push(
+                    vec3.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i]),
+                );
+            }
+        }
+        return Stars;
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {

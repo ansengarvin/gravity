@@ -10,5 +10,8 @@ export interface ProgramInfo {
         modelViewMatrix: WebGLUniformLocation | null;
         normalMatrix: WebGLUniformLocation | null;
         uFragColor: WebGLUniformLocation | null;
+        uStarLocations: WebGLUniformLocation | null;
+        uNumStars: WebGLUniformLocation | null;
+        uIsStar: WebGLUniformLocation | null;
     };
 }
