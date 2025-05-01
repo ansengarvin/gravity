@@ -11,26 +11,12 @@ uniform highp int uIsStar;
 
 void main(void) {
     highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
+    highp vec3 directionalLightColor = vec3(1, 1, 1);
+    highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
 
-    if (uIsStar == 1) {
-        ambientLight = vec3(1.0, 1.0, 1.0); // No ambient light for stars
-    }
     highp vec3 normal = normalize(vTransformedNormal);
-    highp vec3 lighting = ambientLight;
+    highp float directional = max(dot(normal, directionalVector), 0.0);
 
-    // Iterate through the stars and calculate their contribution
-    if (uIsStar == 0) {
-        for (int i = 0; i < MAX_STARS; i++) {
-            if (i >= uNumStars) break;
-
-            highp vec3 starDirection = normalize(uStarLocations[i] - vPosition.xyz);
-            highp float starIntensity = max(dot(normal, starDirection), 0.0);
-
-            // Add the star's contribution to the lighting
-            lighting += vec3(1.0, 1.0, 1.0) * starIntensity; // Assuming white light for stars
-        }
-    }
-    
-
+    highp vec3 lighting = ambientLight + (directionalLightColor * directional);
     gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
 }
