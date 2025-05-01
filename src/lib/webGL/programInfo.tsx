@@ -7,6 +7,8 @@ export interface ProgramInfo {
     };
     uniformLocations: {
         projectionMatrix: WebGLUniformLocation | null;
+        modelMatrix: WebGLUniformLocation | null;
+        viewMatrix: WebGLUniformLocation | null;
         modelViewMatrix: WebGLUniformLocation | null;
         normalMatrix: WebGLUniformLocation | null;
         uFragColor: WebGLUniformLocation | null;

@@ -93,6 +93,8 @@ export function Sim(props: SimProps) {
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(shaderProgram, "uProjectionMatrix"),
+                    modelMatrix: gl.getUniformLocation(shaderProgram, "uModelMatrix"),
+                    viewMatrix: gl.getUniformLocation(shaderProgram, "uViewMatrix"),
                     modelViewMatrix: gl.getUniformLocation(shaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(shaderProgram, "uNormalMatrix"),
                     uFragColor: gl.getUniformLocation(shaderProgram, "uFragColor"),
@@ -222,6 +224,8 @@ export function Sim(props: SimProps) {
                     mat4.transpose(normalMatrix, normalMatrix);
         
                     // Sets shader uniforms for model normals
+                    gl.uniformMatrix4fv(programInfo.uniformLocations.modelMatrix, false, modelMatrix);
+                    gl.uniformMatrix4fv(programInfo.uniformLocations.viewMatrix, false, cameraMatrix);
                     gl.uniformMatrix4fv(programInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
                     gl.uniformMatrix4fv(programInfo.uniformLocations.normalMatrix, false, normalMatrix);
                     gl.uniform4fv(programInfo.uniformLocations.uFragColor, [
@@ -234,14 +238,8 @@ export function Sim(props: SimProps) {
 
                     // Gets each of the stars' locations for the purpose of creating a lighting shader
                     const starLocs: Array<vec3> = universe.current.getStarLocations();
-                    const transformedStarLocs: Array<vec3> = starLocs.map((star) => {
-                        const starVec4 = vec4.fromValues(star[0], star[1], star[2], 1.0); // Convert to vec4 for matrix multiplication
-                        const transformedStarVec4 = vec4.create();
-                        vec4.transformMat4(transformedStarVec4, starVec4, cameraMatrix); // Transform to view space
-                        return vec3.fromValues(transformedStarVec4[0], transformedStarVec4[1], transformedStarVec4[2]); // Convert back to vec3
-                    });
-                    const flattenedStarLocs = transformedStarLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                    const numStars = transformedStarLocs.length;
+                    const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                    const numStars = starLocs.length;
 
                     gl.uniform3fv(programInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                     gl.uniform1i(programInfo.uniformLocations.uNumStars, numStars);
