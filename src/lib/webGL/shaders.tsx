@@ -1,7 +1,7 @@
 //
 // Initialize a shader program, so WebGL knows how to draw our data
 //
-export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string) {
+export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string): WebGLProgram | null {
     const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
     const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
 
@@ -33,7 +33,7 @@ export function initShaderProgram(gl: WebGLRenderingContext, vsSource: string, f
 // creates a shader of the given type, uploads the source and
 // compiles it.
 //
-export function loadShader(gl: WebGLRenderingContext, type: GLenum, source: string) {
+export function loadShader(gl: WebGLRenderingContext, type: GLenum, source: string): WebGLProgram | null {
     const shader = gl.createShader(type);
 
     // Verify shader is not null
