@@ -5,7 +5,7 @@ on:
 
 jobs:
     lint:
-        name: lint
+        name: Lint (Prettier)
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
@@ -23,7 +23,7 @@ jobs:
               run: npx prettier . --check
 
     build:
-        name: build
+        name: Validate Build
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
