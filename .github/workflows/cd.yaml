@@ -21,8 +21,8 @@ jobs:
 
             - name: Fetch and add deploy branch subtree
               run: |
-                git fetch origin deploy || true
-                git subtree add --prefix dist deploy || true
+                  git fetch origin deploy || true
+                  git subtree add --prefix dist deploy || true
               # We don't need to create the subtree here if it doesn't exist - git subtree push, below, can handle it.
 
             - name: Install dependencies
