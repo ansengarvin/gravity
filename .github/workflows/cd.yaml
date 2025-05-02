@@ -19,21 +19,26 @@ jobs:
               with:
                   node-version: "20.x"
 
+            # Configure git prior to git subtree add - required to fetch from origin
             - name: Configure Git
               run: |
                   git config --global user.name "GitHub Actions"
                   git config --global user.email "actions@github.com"
 
+            # Add the dist directory from our subtree prior to building with npm
+            # - required to have most up-do-date git history prior to pushing
             - name: Add 'dist' directory from deploy branch subtree
               run: git subtree add --prefix dist origin deploy || echo "dist directory not set up - see above information"
-              # We don't need to create the subtree here if it doesn't exist - git subtree push, below, can handle it.
 
+            # Install dependencies and build to dist
             - name: Install dependencies
               run: npm install
 
             - name: Run Build
               run: npm run build
-
+            
+            # Pushing via subtree ensures that we push only the contents of the dist directory (and not the directory itself)
+            # to our desired deployment branch.
             - name: Deploy to pages
               run: |
                   git add -A -f dist/.
