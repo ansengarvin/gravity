@@ -7,12 +7,13 @@ import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 import { sortQuery } from "./lib/defines/sortQuery";
 import { SettingsMenu } from "./components/Settings";
+import { DebugStats } from "./components/DebugStats";
 
 const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top top top"
-        "simulation simulation simulation"
+        "debug simulation simulation"
         "settings buttons leaderboard";
     grid-template-rows: min-content 1fr 200px;
     grid-template-columns: 1fr 320px 1fr;
@@ -27,11 +28,6 @@ const Backdrop = styled.div`
     }
 `;
 
-const StatScreen = styled.div`
-    grid-area: settings;
-    padding-left: 10px;
-`;
-
 const SimScreen = styled.div`
     position: absolute;
     height: 100vh;
@@ -40,7 +36,15 @@ const SimScreen = styled.div`
 `;
 
 export function App() {
-    const [numActive, setNumActive] = useState(0);
+    /*
+        Set Debug States
+    */
+    const [numActiveBodies, setNumActiveBodies] = useState(0);
+    const [numActiveUniforms, setNumActiveUniforms] = useState(0);
+    const [maxVertexUniformVectors, setMaxVertexUniformVectors] = useState(0);
+    const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
+    const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
+
     // Which orbital body is being followed by the camera
     // Universe class needs the ref, everything else needs the state
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
@@ -87,7 +91,11 @@ export function App() {
                 <Sim
                     width="1920px"
                     height="1080px"
-                    setNumActive={setNumActive}
+                    setMaxVertexUniformVectors={setMaxVertexUniformVectors}
+                    setMaxFragmentUniformVectors={setMaxFragmentUniformVectors}
+                    setNumActiveBodies={setNumActiveBodies}
+                    setNumActiveUniforms={setNumActiveUniforms}
+                    setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
@@ -99,10 +107,13 @@ export function App() {
             </SimScreen>
             <Backdrop>
                 <Header />
-                <StatScreen>
-                    <br />
-                    Number of Bodies: {numActive}
-                </StatScreen>
+                <DebugStats
+                    maxVertexUniformVectors={maxVertexUniformVectors}
+                    maxFragmentUniformVectors={maxFragmentUniformVectors}
+                    numActiveBodies={numActiveBodies}
+                    numActiveUniforms={numActiveUniforms}
+                    numActiveUniformVectors={numActiveUniformVectors}
+                />
                 {leaderboardShown ? (
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}

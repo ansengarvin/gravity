@@ -18,18 +18,30 @@ import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw";
 import { mat4, vec3 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
+import { calculateUniformVectors } from "./DebugStats";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 
 interface SimProps {
+    // canvas height and width
     height: string;
     width: string;
-    setNumActive: React.Dispatch<React.SetStateAction<number>>;
+
+    // debug information
+    setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
+    setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
+    setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+
+    // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
     bodyFollowedRef: React.RefObject<number>;
     updateBodyFollowed: (newBodiesFollowed: number) => void;
+
+    // miscellaneous controls
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
     sortByRef: React.RefObject<sortQuery>;
@@ -40,7 +52,11 @@ export function Sim(props: SimProps) {
     const {
         height,
         width,
-        setNumActive,
+        setMaxVertexUniformVectors,
+        setMaxFragmentUniformVectors,
+        setNumActiveBodies,
+        setNumActiveUniforms,
+        setNumActiveUniformVectors,
         setLeaderboardBodies,
         bodyFollowedRef,
         updateBodyFollowed,
@@ -81,7 +97,11 @@ export function Sim(props: SimProps) {
             return;
         }
 
+
+
         const initialize = async () => {
+            setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
+            setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             /*****************************
              * Initialize shader programs
              *****************************/
@@ -168,6 +188,8 @@ export function Sim(props: SimProps) {
                     programInfoRef.current = camlightProgramInfo;
                 }
 
+                // 
+
                 if (!programInfoRef.current) {
                     console.error("Program info not found");
                     return;
@@ -185,7 +207,7 @@ export function Sim(props: SimProps) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
                     }
-                    setNumActive(universe.current.numActive);
+                    setNumActiveBodies(universe.current.numActive);
                     setLeaderboardBodies(universe.current.getRankings());
                     accumulatedTime -= secondsPerTick;
                 }
@@ -311,6 +333,19 @@ export function Sim(props: SimProps) {
                         gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
                     }
                 }
+
+                // set debug information
+                setNumActiveUniforms(gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS));
+                setNumActiveUniformVectors(
+                    calculateUniformVectors(gl, programInfoRef.current.program),
+                );
+
+                for (let i = 0; i < gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS); i++) {
+                    const uniformInfo = gl.getActiveUniform(programInfoRef.current.program, i);
+                    if (!uniformInfo) continue;
+                    console.log(uniformInfo.name);
+                }
+
 
                 requestAnimationFrame(render);
             }
