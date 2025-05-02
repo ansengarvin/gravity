@@ -97,8 +97,6 @@ export function Sim(props: SimProps) {
             return;
         }
 
-
-
         const initialize = async () => {
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
@@ -188,7 +186,7 @@ export function Sim(props: SimProps) {
                     programInfoRef.current = camlightProgramInfo;
                 }
 
-                // 
+                //
 
                 if (!programInfoRef.current) {
                     console.error("Program info not found");
@@ -336,16 +334,13 @@ export function Sim(props: SimProps) {
 
                 // set debug information
                 setNumActiveUniforms(gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS));
-                setNumActiveUniformVectors(
-                    calculateUniformVectors(gl, programInfoRef.current.program),
-                );
+                setNumActiveUniformVectors(calculateUniformVectors(gl, programInfoRef.current.program));
 
                 for (let i = 0; i < gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS); i++) {
                     const uniformInfo = gl.getActiveUniform(programInfoRef.current.program, i);
                     if (!uniformInfo) continue;
                     console.log(uniformInfo.name);
                 }
-
 
                 requestAnimationFrame(render);
             }

@@ -8,8 +8,8 @@ export interface DebugStatsProps {
     numActiveUniformVectors: number;
 }
 
-export function DebugStats(props: DebugStatsProps){
-    const { 
+export function DebugStats(props: DebugStatsProps) {
+    const {
         numActiveBodies,
         numActiveUniforms,
         maxVertexUniformVectors,
@@ -26,7 +26,7 @@ export function DebugStats(props: DebugStatsProps){
             <div>Active Uniforms: {numActiveUniforms}</div>
             <div>Active Uniform Vectors: {numActiveUniformVectors}</div>
         </DebugStatsStyle>
-    )
+    );
 }
 
 const DebugStatsStyle = styled.div`
@@ -36,7 +36,7 @@ const DebugStatsStyle = styled.div`
     display: flex;
 
     flex-direction: column;
-`
+`;
 
 export function calculateUniformVectors(gl: WebGLRenderingContext, program: WebGLProgram): number {
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
@@ -52,17 +52,32 @@ export function calculateUniformVectors(gl: WebGLRenderingContext, program: WebG
         // Map WebGL uniform types to vector counts
         let vectors = 0;
         switch (type) {
-            case gl.FLOAT: vectors = 1; break;
-            case gl.FLOAT_VEC2: vectors = 1; break;
-            case gl.FLOAT_VEC3: vectors = 1; break;
-            case gl.FLOAT_VEC4: vectors = 1; break;
-            case gl.FLOAT_MAT2: vectors = 2; break;
-            case gl.FLOAT_MAT3: vectors = 3; break;
-            case gl.FLOAT_MAT4: vectors = 4; break;
-            default: break; // Handle other types if needed
+            case gl.FLOAT:
+                vectors = 1;
+                break;
+            case gl.FLOAT_VEC2:
+                vectors = 1;
+                break;
+            case gl.FLOAT_VEC3:
+                vectors = 1;
+                break;
+            case gl.FLOAT_VEC4:
+                vectors = 1;
+                break;
+            case gl.FLOAT_MAT2:
+                vectors = 2;
+                break;
+            case gl.FLOAT_MAT3:
+                vectors = 3;
+                break;
+            case gl.FLOAT_MAT4:
+                vectors = 4;
+                break;
+            default:
+                break; // Handle other types if needed
         }
 
         totalVectors += vectors * size;
     }
-    return totalVectors
+    return totalVectors;
 }
