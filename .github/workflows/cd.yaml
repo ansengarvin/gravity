@@ -36,7 +36,7 @@ jobs:
 
             - name: Run Build
               run: npm run build
-            
+
             # Pushing via subtree ensures that we push only the contents of the dist directory (and not the directory itself)
             # to our desired deployment branch.
             - name: Deploy to pages
