@@ -1,15 +1,18 @@
-name: ci
+name: cd
 
 on:
-    pull_request:
+    push:
+        branches:
+            - main
 
 jobs:
-    prettier:
-        name: ci
+    build:
         runs-on: ubuntu-latest
+        permissions:
+            contents: write
         steps:
             - name: Checkout code
-              uses: actions/checkout@v4
+              uses: actions/checkout@v2
 
             - name: Set up Node.js
               uses: actions/setup-node@v2
@@ -19,8 +22,11 @@ jobs:
             - name: Install dependencies
               run: npm install
 
-            - name: Linting (prettier)
-              run: npx prettier . --check
-
             - name: Run Build
               run: npm run build
+
+            - name: Deploy
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  publish_dir: ./dist
