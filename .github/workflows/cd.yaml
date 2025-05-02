@@ -19,10 +19,8 @@ jobs:
               with:
                   node-version: "20.x"
 
-            - name: Fetch and add deploy branch subtree
-              run: |
-                  git fetch origin deploy || true
-                  git subtree add --prefix dist deploy || true
+            - name: Add deploy branch subtree
+              run: git subtree add --prefix dist origin deploy || echo "Branch does not yet exist"
               # We don't need to create the subtree here if it doesn't exist - git subtree push, below, can handle it.
 
             - name: Install dependencies
