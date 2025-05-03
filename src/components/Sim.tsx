@@ -6,7 +6,6 @@ import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
-import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
 import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
@@ -46,7 +45,6 @@ interface SimProps {
     // miscellaneous controls
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
-    sortByRef: React.RefObject<sortQuery>;
     starLightRef: React.RefObject<boolean>;
 }
 
@@ -66,7 +64,6 @@ export function Sim(props: SimProps) {
         updateBodyFollowed,
         resetSim,
         pausedRef,
-        sortByRef,
         starLightRef,
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -84,7 +81,7 @@ export function Sim(props: SimProps) {
         cameraSensititivy,
     );
 
-    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed, sortByRef));
+    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed));
 
     const programInfoRef = useRef<ProgramInfo>(null);
 
@@ -211,7 +208,7 @@ export function Sim(props: SimProps) {
                         universe.current.updateEuler(secondsPerTick);
                     }
                     setNumActiveBodies(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getRankings());
+                    setLeaderboardBodies(universe.current.getActiveBodies());
                     accumulatedTime -= secondsPerTick;
                 }
 

@@ -1,8 +1,7 @@
 import { getRandomFloat } from "../../random/random";
 import React from "react";
-import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
-import { sortQuery } from "../defines/sortQuery";
 import { vec4 } from "gl-matrix";
+import { LeaderboardBody } from "../../components/Leaderboard";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -38,14 +37,12 @@ export class Universe {
     public orbitalDistances: Float32Array;
 
     public updateBodyFollowed: (newBodyFollowed: number) => void;
-    private sortByRef: React.RefObject<sortQuery>;
     private bodyFollowedRef: React.RefObject<number>;
 
     constructor(
         settings: UniverseSettings,
         bodyFollowedRef: React.RefObject<number>,
-        updateBodyFollowed: (newBodyFollowed: number) => void,
-        sortByRef: React.RefObject<sortQuery>,
+        updateBodyFollowed: (newBodyFollowed: number) => void
     ) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
@@ -74,7 +71,6 @@ export class Universe {
         this.numActive = this.settings.numBodies;
         this.bodyFollowedRef = bodyFollowedRef;
         this.updateBodyFollowed = updateBodyFollowed;
-        this.sortByRef = sortByRef;
 
         this.initialize();
     }
@@ -323,7 +319,7 @@ export class Universe {
         return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
     }
 
-    public getRankings(): Array<LeaderboardBody> {
+    public getActiveBodies(): Array<LeaderboardBody> {
         const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
@@ -342,28 +338,6 @@ export class Universe {
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
             };
         }
-
-        massRankings.sort((a, b) => {
-            switch (this.sortByRef.current) {
-                case sortQuery.name:
-                    return a.index - b.index;
-                case sortQuery.mass:
-                    return b.mass - a.mass;
-                case sortQuery.dOrigin:
-                    return b.dOrigin - a.dOrigin;
-                case sortQuery.dTarget:
-                    return a.dTarget - b.dTarget;
-                case sortQuery.orbiting:
-                    if (a.orbiting === -1 && b.orbiting === -1) return 0;
-                    if (a.orbiting === -1) return 1;
-                    if (b.orbiting === -1) return -1;
-                    return a.orbiting - b.orbiting;
-                case sortQuery.dOrbit:
-                    return a.dOrbit - b.dOrbit;
-                default:
-                    return b.mass - a.mass;
-            }
-        });
 
         return massRankings;
     }

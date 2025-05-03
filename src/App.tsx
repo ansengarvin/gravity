@@ -65,13 +65,6 @@ export function App() {
         pausedRef.current = status;
     };
 
-    const [sortByState, setSortByState] = useState<sortQuery>(sortQuery.mass);
-    const sortByRef = useRef<sortQuery>(sortQuery.mass);
-    const updateSortBy = (sortBy: sortQuery) => {
-        setSortByState(sortBy);
-        sortByRef.current = sortBy;
-    };
-
     const [starLightState, setStarLightState] = useState<boolean>(false);
     const starLightRef = useRef<boolean>(false);
     const updateStarLight = (starLight: boolean) => {
@@ -104,7 +97,6 @@ export function App() {
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
                     pausedRef={pausedRef}
-                    sortByRef={sortByRef}
                     starLightRef={starLightRef}
                 />
             </SimScreen>
