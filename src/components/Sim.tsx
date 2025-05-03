@@ -87,7 +87,7 @@ export function Sim(props: SimProps) {
 
     useEffect(() => {
         setLeaderboardBodies(universe.current.getActiveBodies());
-    }, [bodyFollowedRef.current])
+    }, [bodyFollowedRef.current]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -219,7 +219,6 @@ export function Sim(props: SimProps) {
                         setNumActiveBodies(universe.current.numActive);
                         setLeaderboardBodies(universe.current.getActiveBodies());
                     } else {
-
                     }
                     accumulatedTime -= secondsPerTick;
                 }

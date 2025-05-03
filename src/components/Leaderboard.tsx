@@ -20,18 +20,42 @@ export interface LeaderboardProps {
 
 export function Leaderboard(props: LeaderboardProps) {
     const { leaderboardBodies, bodyFollowed, updateBodyFollowed } = props;
-    const [sortBy, setSortBy] = useState<string>('mass');
+    const [sortBy, setSortBy] = useState<string>("mass");
     const sortedBodies = useMemo(() => {
         return sortBodies(leaderboardBodies, sortBy);
-    }, [sortBy, leaderboardBodies, bodyFollowed])
+    }, [sortBy, leaderboardBodies, bodyFollowed]);
     return (
         <LeaderboardStyle>
             <table>
                 <thead>
-                    <th onClick={() => {sortBy == 'name' ? setSortBy('nameReverse') : setSortBy('name')}}>Name</th>
-                    <th onClick={() => {sortBy == 'mass' ? setSortBy('massReverse') : setSortBy('mass')}}>Mass</th>
-                    <th onClick={() => {sortBy == 'dOrigin' ? setSortBy('dOriginReverse') : setSortBy('dOrigin')}}>dOrigin</th>
-                    <th onClick={() => {sortBy == 'dTarget' ? setSortBy('dTargetReverse') : setSortBy('dTarget')}}>dTarget</th>
+                    <th
+                        onClick={() => {
+                            sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
+                        }}
+                    >
+                        Name
+                    </th>
+                    <th
+                        onClick={() => {
+                            sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
+                        }}
+                    >
+                        Mass
+                    </th>
+                    <th
+                        onClick={() => {
+                            sortBy == "dOrigin" ? setSortBy("dOriginReverse") : setSortBy("dOrigin");
+                        }}
+                    >
+                        dOrigin
+                    </th>
+                    <th
+                        onClick={() => {
+                            sortBy == "dTarget" ? setSortBy("dTargetReverse") : setSortBy("dTarget");
+                        }}
+                    >
+                        dTarget
+                    </th>
                 </thead>
                 <tbody>
                     {sortedBodies.map((body: LeaderboardBody) => {
@@ -44,17 +68,19 @@ export function Leaderboard(props: LeaderboardProps) {
                                     style={{
                                         backgroundColor: bodyFollowed === body.index ? "blue" : "black",
                                     }}
-                                >B-{body.index}</td>
+                                >
+                                    B-{body.index}
+                                </td>
                                 <td>{body.mass.toFixed(2)}</td>
                                 <td>{body.dOrigin.toFixed(2)}</td>
                                 <td>{body.dTarget.toFixed(2)}</td>
                             </tr>
                         );
                     })}
-                </tbody>    
-            </table>      
+                </tbody>
+            </table>
         </LeaderboardStyle>
-    )
+    );
 }
 
 /*
@@ -65,7 +91,6 @@ const LeaderboardStyle = styled.div`
     grid-area: leaderboard;
     width: 320px;
     height: 200px;
-
 
     background-color: green;
     overflow-y: auto;
@@ -91,7 +116,7 @@ const LeaderboardStyle = styled.div`
         padding: 0;
         text-align: left;
     }
-`
+`;
 
 /*
     Helper Functions
@@ -101,35 +126,35 @@ function sortBodies(bodies: LeaderboardBody[], sortBy: string): LeaderboardBody[
     // copy bodies into new body array
     return bodies.sort((a, b) => {
         switch (sortBy) {
-            case 'name':
+            case "name":
                 return a.index - b.index;
-            case 'nameReverse':
+            case "nameReverse":
                 return b.index - a.index;
-            case 'mass':
+            case "mass":
                 return b.mass - a.mass;
-            case 'massReverse':
+            case "massReverse":
                 return a.mass - b.mass;
-            case 'dOrigin':
+            case "dOrigin":
                 return b.dOrigin - a.dOrigin;
-            case 'dOriginReverse':
+            case "dOriginReverse":
                 return a.dOrigin - b.dOrigin;
-            case 'dTarget':
+            case "dTarget":
                 return a.dTarget - b.dTarget;
-            case 'dTargetReverse':
+            case "dTargetReverse":
                 return b.dTarget - a.dTarget;
-            case 'orbiting':
+            case "orbiting":
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return a.orbiting - b.orbiting;
-            case 'orbitingReverse':
+            case "orbitingReverse":
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return b.orbiting - a.orbiting;
-            case 'dOribit':
+            case "dOribit":
                 return a.dOrbit - b.dOrbit;
-            case 'dOrbitReverse':
+            case "dOrbitReverse":
                 return b.dOrbit - a.dOrbit;
             default:
                 return b.mass - a.mass;

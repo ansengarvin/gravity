@@ -42,7 +42,7 @@ export class Universe {
     constructor(
         settings: UniverseSettings,
         bodyFollowedRef: React.RefObject<number>,
-        updateBodyFollowed: (newBodyFollowed: number) => void
+        updateBodyFollowed: (newBodyFollowed: number) => void,
     ) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
