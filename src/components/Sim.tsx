@@ -32,6 +32,7 @@ interface SimProps {
     // debug information
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
@@ -55,6 +56,7 @@ export function Sim(props: SimProps) {
         width,
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
+        setMaxUniformBufferBindingPoints,
         setNumActiveBodies,
         setNumActiveUniforms,
         setNumActiveUniformVectors,
@@ -93,7 +95,7 @@ export function Sim(props: SimProps) {
             return;
         }
 
-        const gl = canvas.getContext("webgl");
+        const gl = canvas.getContext("webgl2");
         if (!gl) {
             alert("Unable to initialize WebGL.");
             return;
@@ -102,6 +104,7 @@ export function Sim(props: SimProps) {
         const initialize = async () => {
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
+            setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
             /*****************************
              * Initialize shader programs
              *****************************/

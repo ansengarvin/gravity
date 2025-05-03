@@ -5,6 +5,7 @@ export interface DebugStatsProps {
     numStars: number;
     maxVertexUniformVectors: number;
     maxFragmentUniformVectors: number;  
+    maxUniformBufferBindingPoints: number;
     numActiveUniforms: number;
     numActiveUniformVectors: number;
 }
@@ -16,6 +17,7 @@ export function DebugStats(props: DebugStatsProps) {
         numActiveUniforms,
         maxVertexUniformVectors,
         maxFragmentUniformVectors,
+        maxUniformBufferBindingPoints,
         numActiveUniformVectors,
     } = props;
 
@@ -28,7 +30,7 @@ export function DebugStats(props: DebugStatsProps) {
             <h3>OpenGL</h3>
             <div>Max Vertex Uniform Vectors: {maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {maxFragmentUniformVectors}</div>
-            
+            <div>Max Uniform Buffer Binding Points: {maxUniformBufferBindingPoints}</div>
             <div>Active Uniforms: {numActiveUniforms}</div>
             <div>Active Uniform Vectors: {numActiveUniformVectors}</div>
         </DebugStatsStyle>
@@ -48,7 +50,7 @@ const DebugStatsStyle = styled.div`
     }
 `;
 
-export function calculateUniformVectors(gl: WebGLRenderingContext, program: WebGLProgram): number {
+export function calculateUniformVectors(gl: WebGL2RenderingContext, program: WebGLProgram): number {
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     let totalVectors = 0;
 
