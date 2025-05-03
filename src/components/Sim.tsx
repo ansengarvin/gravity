@@ -4,7 +4,6 @@ import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
-import { LeaderboardBody } from "./leaderboard/LeaderboardBody";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
@@ -19,6 +18,7 @@ import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { calculateUniformVectors } from "./DebugStats";
+import { LeaderboardBody } from "./Leaderboard";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;

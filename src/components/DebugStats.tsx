@@ -40,7 +40,7 @@ export function DebugStats(props: DebugStatsProps) {
 const DebugStatsStyle = styled.div`
     position: absolute;
     top: 100px;
-    lefT: 20px;
+    left: 20px;
     display: flex;
     z-index: 2;
 

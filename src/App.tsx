@@ -1,13 +1,12 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
-import { Leaderboard } from "./components/leaderboard/Leaderboard";
-import { LeaderboardBody } from "./components/leaderboard/LeaderboardBody";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 import { sortQuery } from "./lib/defines/sortQuery";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
+import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 
 const Backdrop = styled.div`
     display: grid;
@@ -125,8 +124,6 @@ export function App() {
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
                         updateBodyFollowed={updateBodyFollowed}
-                        sortBy={sortByState}
-                        updateSortBy={updateSortBy}
                     />
                 ) : null}
                 <ControlButtons
