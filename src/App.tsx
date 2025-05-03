@@ -113,7 +113,7 @@ export function App() {
                 <Header />
                 <DebugStats
                     numActiveBodies={numActiveBodies}
-                    numStars = {numStars}
+                    numStars={numStars}
                     maxVertexUniformVectors={maxVertexUniformVectors}
                     maxFragmentUniformVectors={maxFragmentUniformVectors}
                     maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}

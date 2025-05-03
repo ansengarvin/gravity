@@ -4,7 +4,7 @@ export interface DebugStatsProps {
     numActiveBodies: number;
     numStars: number;
     maxVertexUniformVectors: number;
-    maxFragmentUniformVectors: number;  
+    maxFragmentUniformVectors: number;
     maxUniformBufferBindingPoints: number;
     numActiveUniforms: number;
     numActiveUniformVectors: number;
@@ -45,7 +45,8 @@ const DebugStatsStyle = styled.div`
 
     flex-direction: column;
 
-    h2, h3 {
+    h2,
+    h3 {
         margin: 0;
     }
 `;

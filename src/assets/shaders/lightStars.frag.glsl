@@ -1,15 +1,23 @@
+#version 300 es
+
 // Flat-shaded with monodirectional light travelling with the camera
 #define MAX_STARS 500
 
 uniform highp vec4 uFragColor;
-varying highp vec3 vNormal;
+in highp vec3 vNormal;
 
 
-varying highp vec3 vFragPosition;
+in highp vec3 vFragPosition;
 
 uniform highp int uNumStars;
-uniform highp vec3 uStarLocations[MAX_STARS];
 uniform highp int uIsStar;
+uniform highp vec3 uStarLocations[MAX_STARS];
+
+// layout(std140) uniform StarLights{
+//     vec3 uboStarLocations[MAX_STARS];
+// };
+
+out highp vec4 fragColor;
 
 void main(void) {
     highp vec3 ambient = vec3(0.05, 0.05, 0.05);
@@ -67,5 +75,5 @@ void main(void) {
 
 
     highp vec3 result = (ambient + diffuse) * uFragColor.rgb;
-    gl_FragColor = vec4(result, uFragColor.a);
+    fragColor = vec4(result, uFragColor.a);
 }

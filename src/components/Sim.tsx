@@ -255,21 +255,12 @@ export function Sim(props: SimProps) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
                 gl.useProgram(programInfoRef.current.program);
 
-                /*
-                    Create Projection Matrix
-                */
+                //Create and bind projection Matrix
                 const projectionMatrix = mat4.create();
-
-                // note: glMatrix always has the first argument
-                // as the destination to receive the result.
                 mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
-                // Set the shader uniform for projection matrix
                 gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.projectionMatrix, false, projectionMatrix);
 
-                // Create a view matrix for the camera
-
-                // Update the camera position to the current position of the followed body
+                //Create and bind view matrix
                 if (bodyFollowedRef.current !== -1) {
                     cameraRef.current.setTarget(
                         universe.current.positionsX[bodyFollowedRef.current],
@@ -277,12 +268,31 @@ export function Sim(props: SimProps) {
                         universe.current.positionsZ[bodyFollowedRef.current],
                     );
                 }
-                const cameraMatrix = cameraRef.current.getViewMatrix();
+                const viewMatrix = cameraRef.current.getViewMatrix();
+                gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, viewMatrix);
+
+                //Create and bind light points (from stars)
+                // Gets each of the stars' locations for the purpose of creating a lighting shader
+                const starLocs: Array<vec3> = universe.current.getStarLocations();
+                const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+
+                // const ubo = gl.createBuffer();
+                // gl.bindBuffer(gl.ARRAY_BUFFER, ubo);
+                // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flattenedStarLocs), gl.STATIC_DRAW);
+                // gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo);
+                gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
+
+                const numStars = starLocs.length;
+                setNumStars(numStars); // Set for debug output
+                gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
 
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
+                    //
                     if (!universe.current.bodiesActive[i]) {
                         continue;
                     }
+
+                    // Create, transform, and bind model matrix for each sphere
                     const modelMatrix = mat4.create();
                     mat4.translate(modelMatrix, modelMatrix, [
                         universe.current.positionsX[i],
@@ -294,43 +304,36 @@ export function Sim(props: SimProps) {
                         universe.current.radii[i],
                         universe.current.radii[i],
                     ]);
-
-                    // Create model view matrix
-                    const modelViewMatrix = mat4.create();
-                    mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
-
-                    // Create normal matrix
-                    const normalMatrix = mat4.create();
-                    mat4.invert(normalMatrix, modelViewMatrix);
-                    mat4.transpose(normalMatrix, normalMatrix);
-
-                    // Sets shader uniforms for model normals
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.modelMatrix, false, modelMatrix);
-                    gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, cameraMatrix);
+
+                    //Create model view matrix for each sphere
+                    const modelViewMatrix = mat4.create();
+                    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
                     gl.uniformMatrix4fv(
                         programInfoRef.current.uniformLocations.modelViewMatrix,
                         false,
                         modelViewMatrix,
                     );
+
+                    // Create normal matrix for each sphere
+                    const normalMatrix = mat4.create();
+                    mat4.invert(normalMatrix, modelViewMatrix);
+                    mat4.transpose(normalMatrix, normalMatrix);
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.normalMatrix, false, normalMatrix);
+
+                    // Give each sphere its color
                     gl.uniform4fv(programInfoRef.current.uniformLocations.uFragColor, [
                         universe.current.colorsR[i],
                         universe.current.colorsG[i],
                         universe.current.colorsB[i],
                         1.0,
                     ]);
+
+                    // Tell each sphere whether it is a star or not
                     const isStar = universe.current.isStar(i) ? 1 : 0;
-
-                    // Gets each of the stars' locations for the purpose of creating a lighting shader
-                    const starLocs: Array<vec3> = universe.current.getStarLocations();
-                    const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                    const numStars = starLocs.length;
-                    setNumStars(numStars);
-
-                    gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
-                    gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
-
                     gl.uniform1i(programInfoRef.current.uniformLocations.uIsStar, isStar);
+
+                    // Draw each sphere
                     {
                         const type = gl.UNSIGNED_SHORT;
                         const offset = 0;

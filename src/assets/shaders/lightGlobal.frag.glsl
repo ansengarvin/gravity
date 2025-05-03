@@ -1,10 +1,11 @@
-// Flat-shaded with monodirectional light travelling with the camera
+#version 300 es
 
 uniform highp vec4 uFragColor;
 uniform highp int uIsStar;
 
-varying highp vec3 vTransformedNormal;
+in highp vec3 vTransformedNormal;
 
+out highp vec4 fragColor;
 void main(void) {
     highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
     highp vec3 directionalLightColor = vec3(1, 1, 1);
@@ -19,5 +20,5 @@ void main(void) {
     // }
 
     highp vec3 lighting = ambientLight + (directionalLightColor * directional);
-    gl_FragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
+    fragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
 }
