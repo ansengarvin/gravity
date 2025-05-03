@@ -384,7 +384,7 @@ export class Universe {
         }
 
         stars.sort((a, b) => b[3] - a[3]); // Sort by mass
-        return stars
+        return stars;
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
