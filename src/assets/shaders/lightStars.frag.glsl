@@ -13,8 +13,8 @@ uniform highp int uNumStars;
 uniform highp int uIsStar;
 uniform highp vec3 uStarLocations[MAX_STARS];
 
-// layout(std140) uniform StarLights{
-//     vec3 uboStarLocations[MAX_STARS];
+// layout(std140, binding=0) buffer StarLights {
+//     highp vec3 uboStarLocations[MAX_STARS];
 // };
 
 out highp vec4 fragColor;

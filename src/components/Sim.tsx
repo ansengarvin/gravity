@@ -273,8 +273,8 @@ export function Sim(props: SimProps) {
 
                 //Create and bind light points (from stars)
                 // Gets each of the stars' locations for the purpose of creating a lighting shader
-                const starLocs: Array<vec3> = universe.current.getStarLocations();
-                const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                const starData: Array<vec3> = universe.current.getStarLocations();
+                const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
 
                 // const ubo = gl.createBuffer();
                 // gl.bindBuffer(gl.ARRAY_BUFFER, ubo);
@@ -282,7 +282,7 @@ export function Sim(props: SimProps) {
                 // gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo);
                 gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
 
-                const numStars = starLocs.length;
+                const numStars = starData.length;
                 setNumStars(numStars); // Set for debug output
                 gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
 
