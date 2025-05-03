@@ -86,6 +86,10 @@ export function Sim(props: SimProps) {
     const programInfoRef = useRef<ProgramInfo>(null);
 
     useEffect(() => {
+        setLeaderboardBodies(universe.current.getActiveBodies());
+    }, [bodyFollowedRef.current])
+
+    useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
             console.error("Canvas element not found");
@@ -99,9 +103,15 @@ export function Sim(props: SimProps) {
         }
 
         const initialize = async () => {
+            // Set sorted universe parameters initially
+            setNumActiveBodies(universe.current.numActive);
+            setLeaderboardBodies(universe.current.getActiveBodies());
+
+            // Set unchanging webGL debug text
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
+
             /*****************************
              * Initialize shader programs
              *****************************/
@@ -208,7 +218,9 @@ export function Sim(props: SimProps) {
                         universe.current.updateEuler(secondsPerTick);
                         setNumActiveBodies(universe.current.numActive);
                         setLeaderboardBodies(universe.current.getActiveBodies());
-                    }            
+                    } else {
+
+                    }
                     accumulatedTime -= secondsPerTick;
                 }
 
