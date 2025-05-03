@@ -3,7 +3,6 @@ import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
-import { sortQuery } from "./lib/defines/sortQuery";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
