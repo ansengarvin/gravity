@@ -15,7 +15,7 @@ import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw";
 import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw";
 import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw";
 
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { calculateUniformVectors } from "./DebugStats";
@@ -273,7 +273,7 @@ export function Sim(props: SimProps) {
 
                 //Create and bind light points (from stars)
                 // Gets each of the stars' locations for the purpose of creating a lighting shader
-                const starData: Array<vec3> = universe.current.getStarLocations();
+                const starData: Array<vec4> = universe.current.getStarData();
                 const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
 
                 // const ubo = gl.createBuffer();

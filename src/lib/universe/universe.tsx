@@ -2,7 +2,7 @@ import { getRandomFloat } from "../../random/random";
 import React from "react";
 import { LeaderboardBody } from "../../components/leaderboard/LeaderboardBody";
 import { sortQuery } from "../defines/sortQuery";
-import { vec3 } from "gl-matrix";
+import { vec4 } from "gl-matrix";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -372,22 +372,19 @@ export class Universe {
         return this.masses[idx] >= this.settings.starThreshold;
     }
 
-    public getStarLocations(): Array<vec3> {
-        const Stars = new Array<{ pos: vec3; mass: number }>();
+    public getStarData(): Array<vec4> {
+        const stars = new Array<vec4>();
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
                 continue;
             }
-            if (this.masses[i] >= this.settings.starThreshold) {
-                Stars.push({
-                    pos: vec3.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i]),
-                    mass: this.masses[i],
-                });
+            if (this.isStar(i)) {
+                stars.push(vec4.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i], this.masses[i]));
             }
         }
 
-        Stars.sort((a, b) => b.mass - a.mass);
-        return Stars.map((star) => star.pos);
+        stars.sort((a, b) => b[3] - a[3]); // Sort by mass
+        return stars
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
