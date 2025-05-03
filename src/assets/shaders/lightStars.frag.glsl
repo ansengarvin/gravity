@@ -43,6 +43,9 @@ void main(void) {
         // According to graphing calculator, y = -x/50 + 1 is the formula
         // (This has no basis in physics, but may produce decent-looking results)
         highp float attenuation_factor = ((-1.0 * dist) / 50.0) + 1.0;
+        if (attenuation_factor < 0.0) {
+            attenuation_factor = 0.0;
+        }
         
         diffuse += diff * uFragColor.rgb * attenuation_factor;
     }
