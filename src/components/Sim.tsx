@@ -10,10 +10,10 @@ import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
-import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw";
-import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw";
-import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw";
-import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw";
+import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
+import vertLightGlobal from "../assets/shaders/camlight/camlight.vert.glsl?raw";
+import fragLightStars from "../assets/shaders/starlight/starlight.frag.glsl?raw";
+import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw";
 
 import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
