@@ -206,9 +206,9 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
-                    }
-                    setNumActiveBodies(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getActiveBodies());
+                        setNumActiveBodies(universe.current.numActive);
+                        setLeaderboardBodies(universe.current.getActiveBodies());
+                    }            
                     accumulatedTime -= secondsPerTick;
                 }
 
