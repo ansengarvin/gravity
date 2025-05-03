@@ -35,6 +35,7 @@ interface SimProps {
     setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setNumStars: React.Dispatch<React.SetStateAction<number>>;
 
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
@@ -58,6 +59,7 @@ export function Sim(props: SimProps) {
         setNumActiveUniforms,
         setNumActiveUniformVectors,
         setLeaderboardBodies,
+        setNumStars,
         bodyFollowedRef,
         updateBodyFollowed,
         resetSim,
@@ -320,6 +322,7 @@ export function Sim(props: SimProps) {
                     const starLocs: Array<vec3> = universe.current.getStarLocations();
                     const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
                     const numStars = starLocs.length;
+                    setNumStars(numStars);
 
                     gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
                     gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
@@ -335,12 +338,6 @@ export function Sim(props: SimProps) {
                 // set debug information
                 setNumActiveUniforms(gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS));
                 setNumActiveUniformVectors(calculateUniformVectors(gl, programInfoRef.current.program));
-
-                for (let i = 0; i < gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS); i++) {
-                    const uniformInfo = gl.getActiveUniform(programInfoRef.current.program, i);
-                    if (!uniformInfo) continue;
-                    console.log(uniformInfo.name);
-                }
 
                 requestAnimationFrame(render);
             }

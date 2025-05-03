@@ -40,6 +40,7 @@ export function App() {
         Set Debug States
     */
     const [numActiveBodies, setNumActiveBodies] = useState(0);
+    const [numStars, setNumStars] = useState(0);
     const [numActiveUniforms, setNumActiveUniforms] = useState(0);
     const [maxVertexUniformVectors, setMaxVertexUniformVectors] = useState(0);
     const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
@@ -97,6 +98,7 @@ export function App() {
                     setNumActiveUniforms={setNumActiveUniforms}
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
+                    setNumStars={setNumStars}
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
@@ -108,9 +110,10 @@ export function App() {
             <Backdrop>
                 <Header />
                 <DebugStats
+                    numActiveBodies={numActiveBodies}
+                    numStars = {numStars}
                     maxVertexUniformVectors={maxVertexUniformVectors}
                     maxFragmentUniformVectors={maxFragmentUniformVectors}
-                    numActiveBodies={numActiveBodies}
                     numActiveUniforms={numActiveUniforms}
                     numActiveUniformVectors={numActiveUniformVectors}
                 />

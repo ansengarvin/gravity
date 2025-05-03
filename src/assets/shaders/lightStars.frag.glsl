@@ -1,5 +1,5 @@
 // Flat-shaded with monodirectional light travelling with the camera
-#define MAX_STARS 1000
+#define MAX_STARS 500
 
 uniform highp vec4 uFragColor;
 varying highp vec3 vNormal;
