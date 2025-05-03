@@ -13,8 +13,8 @@ const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top top top"
-        "debug simulation simulation"
-        "settings buttons leaderboard";
+        "debug settings leaderboard"
+        "botleft buttons botright";
     grid-template-rows: min-content 1fr 200px;
     grid-template-columns: 1fr 320px 1fr;
     height: 100%;
