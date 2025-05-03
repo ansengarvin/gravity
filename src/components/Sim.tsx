@@ -10,12 +10,12 @@ import styled from "@emotion/styled";
 import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
-import fragLightGlobal from "../assets/shaders/lightGlobal.frag.glsl?raw";
-import vertLightGlobal from "../assets/shaders/lightGlobal.vert.glsl?raw";
-import fragLightStars from "../assets/shaders/lightStars.frag.glsl?raw";
-import vertLightStars from "../assets/shaders/lightStars.vert.glsl?raw";
+import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
+import vertLightGlobal from "../assets/shaders/camlight/camlight.vert.glsl?raw";
+import fragLightStars from "../assets/shaders/starlight/starlight.frag.glsl?raw";
+import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw";
 
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { calculateUniformVectors } from "./DebugStats";
@@ -32,9 +32,11 @@ interface SimProps {
     // debug information
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
+    setNumStars: React.Dispatch<React.SetStateAction<number>>;
 
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
@@ -54,10 +56,12 @@ export function Sim(props: SimProps) {
         width,
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
+        setMaxUniformBufferBindingPoints,
         setNumActiveBodies,
         setNumActiveUniforms,
         setNumActiveUniformVectors,
         setLeaderboardBodies,
+        setNumStars,
         bodyFollowedRef,
         updateBodyFollowed,
         resetSim,
@@ -91,7 +95,7 @@ export function Sim(props: SimProps) {
             return;
         }
 
-        const gl = canvas.getContext("webgl");
+        const gl = canvas.getContext("webgl2");
         if (!gl) {
             alert("Unable to initialize WebGL.");
             return;
@@ -100,6 +104,7 @@ export function Sim(props: SimProps) {
         const initialize = async () => {
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
+            setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
             /*****************************
              * Initialize shader programs
              *****************************/
@@ -250,21 +255,12 @@ export function Sim(props: SimProps) {
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
                 gl.useProgram(programInfoRef.current.program);
 
-                /*
-                    Create Projection Matrix
-                */
+                //Create and bind projection Matrix
                 const projectionMatrix = mat4.create();
-
-                // note: glMatrix always has the first argument
-                // as the destination to receive the result.
                 mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-
-                // Set the shader uniform for projection matrix
                 gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.projectionMatrix, false, projectionMatrix);
 
-                // Create a view matrix for the camera
-
-                // Update the camera position to the current position of the followed body
+                //Create and bind view matrix
                 if (bodyFollowedRef.current !== -1) {
                     cameraRef.current.setTarget(
                         universe.current.positionsX[bodyFollowedRef.current],
@@ -272,12 +268,31 @@ export function Sim(props: SimProps) {
                         universe.current.positionsZ[bodyFollowedRef.current],
                     );
                 }
-                const cameraMatrix = cameraRef.current.getViewMatrix();
+                const viewMatrix = cameraRef.current.getViewMatrix();
+                gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, viewMatrix);
+
+                //Create and bind light points (from stars)
+                // Gets each of the stars' locations for the purpose of creating a lighting shader
+                const starData: Array<vec4> = universe.current.getStarData();
+                const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+
+                // const ubo = gl.createBuffer();
+                // gl.bindBuffer(gl.ARRAY_BUFFER, ubo);
+                // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flattenedStarLocs), gl.STATIC_DRAW);
+                // gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo);
+                gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
+
+                const numStars = starData.length;
+                setNumStars(numStars); // Set for debug output
+                gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
 
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
+                    //
                     if (!universe.current.bodiesActive[i]) {
                         continue;
                     }
+
+                    // Create, transform, and bind model matrix for each sphere
                     const modelMatrix = mat4.create();
                     mat4.translate(modelMatrix, modelMatrix, [
                         universe.current.positionsX[i],
@@ -289,42 +304,36 @@ export function Sim(props: SimProps) {
                         universe.current.radii[i],
                         universe.current.radii[i],
                     ]);
-
-                    // Create model view matrix
-                    const modelViewMatrix = mat4.create();
-                    mat4.multiply(modelViewMatrix, cameraMatrix, modelMatrix);
-
-                    // Create normal matrix
-                    const normalMatrix = mat4.create();
-                    mat4.invert(normalMatrix, modelViewMatrix);
-                    mat4.transpose(normalMatrix, normalMatrix);
-
-                    // Sets shader uniforms for model normals
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.modelMatrix, false, modelMatrix);
-                    gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, cameraMatrix);
+
+                    //Create model view matrix for each sphere
+                    const modelViewMatrix = mat4.create();
+                    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
                     gl.uniformMatrix4fv(
                         programInfoRef.current.uniformLocations.modelViewMatrix,
                         false,
                         modelViewMatrix,
                     );
+
+                    // Create normal matrix for each sphere
+                    const normalMatrix = mat4.create();
+                    mat4.invert(normalMatrix, modelViewMatrix);
+                    mat4.transpose(normalMatrix, normalMatrix);
                     gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.normalMatrix, false, normalMatrix);
+
+                    // Give each sphere its color
                     gl.uniform4fv(programInfoRef.current.uniformLocations.uFragColor, [
                         universe.current.colorsR[i],
                         universe.current.colorsG[i],
                         universe.current.colorsB[i],
                         1.0,
                     ]);
+
+                    // Tell each sphere whether it is a star or not
                     const isStar = universe.current.isStar(i) ? 1 : 0;
-
-                    // Gets each of the stars' locations for the purpose of creating a lighting shader
-                    const starLocs: Array<vec3> = universe.current.getStarLocations();
-                    const flattenedStarLocs = starLocs.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                    const numStars = starLocs.length;
-
-                    gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
-                    gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
-
                     gl.uniform1i(programInfoRef.current.uniformLocations.uIsStar, isStar);
+
+                    // Draw each sphere
                     {
                         const type = gl.UNSIGNED_SHORT;
                         const offset = 0;
@@ -335,12 +344,6 @@ export function Sim(props: SimProps) {
                 // set debug information
                 setNumActiveUniforms(gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS));
                 setNumActiveUniformVectors(calculateUniformVectors(gl, programInfoRef.current.program));
-
-                for (let i = 0; i < gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS); i++) {
-                    const uniformInfo = gl.getActiveUniform(programInfoRef.current.program, i);
-                    if (!uniformInfo) continue;
-                    console.log(uniformInfo.name);
-                }
 
                 requestAnimationFrame(render);
             }

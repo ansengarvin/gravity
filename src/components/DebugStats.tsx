@@ -1,9 +1,11 @@
 import styled from "@emotion/styled";
 
 export interface DebugStatsProps {
+    numActiveBodies: number;
+    numStars: number;
     maxVertexUniformVectors: number;
     maxFragmentUniformVectors: number;
-    numActiveBodies: number;
+    maxUniformBufferBindingPoints: number;
     numActiveUniforms: number;
     numActiveUniformVectors: number;
 }
@@ -11,18 +13,24 @@ export interface DebugStatsProps {
 export function DebugStats(props: DebugStatsProps) {
     const {
         numActiveBodies,
+        numStars,
         numActiveUniforms,
         maxVertexUniformVectors,
         maxFragmentUniformVectors,
+        maxUniformBufferBindingPoints,
         numActiveUniformVectors,
     } = props;
 
     return (
         <DebugStatsStyle>
-            <div>Debug Stats</div>
+            <h2>Debug Stats</h2>
+            <h3>Simulation</h3>
+            <div>Number of Bodies: {numActiveBodies}</div>
+            <div>Number of Stars: {numStars}</div>
+            <h3>OpenGL</h3>
             <div>Max Vertex Uniform Vectors: {maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {maxFragmentUniformVectors}</div>
-            <div>Active Bodies: {numActiveBodies}</div>
+            <div>Max Uniform Buffer Binding Points: {maxUniformBufferBindingPoints}</div>
             <div>Active Uniforms: {numActiveUniforms}</div>
             <div>Active Uniform Vectors: {numActiveUniformVectors}</div>
         </DebugStatsStyle>
@@ -36,9 +44,14 @@ const DebugStatsStyle = styled.div`
     display: flex;
 
     flex-direction: column;
+
+    h2,
+    h3 {
+        margin: 0;
+    }
 `;
 
-export function calculateUniformVectors(gl: WebGLRenderingContext, program: WebGLProgram): number {
+export function calculateUniformVectors(gl: WebGL2RenderingContext, program: WebGLProgram): number {
     const numUniforms = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
     let totalVectors = 0;
 

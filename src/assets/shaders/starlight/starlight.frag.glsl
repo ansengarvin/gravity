@@ -1,15 +1,23 @@
+#version 300 es
+
 // Flat-shaded with monodirectional light travelling with the camera
-#define MAX_STARS 1000
+#define MAX_STARS 32
 
 uniform highp vec4 uFragColor;
-varying highp vec3 vNormal;
+in highp vec3 vNormal;
 
 
-varying highp vec3 vFragPosition;
+in highp vec3 vFragPosition;
 
 uniform highp int uNumStars;
-uniform highp vec3 uStarLocations[MAX_STARS];
 uniform highp int uIsStar;
+uniform highp vec3 uStarLocations[MAX_STARS];
+
+// layout(std140, binding=0) buffer StarLights {
+//     highp vec3 uboStarLocations[MAX_STARS];
+// };
+
+out highp vec4 fragColor;
 
 void main(void) {
     highp vec3 ambient = vec3(0.05, 0.05, 0.05);
@@ -35,6 +43,9 @@ void main(void) {
         // According to graphing calculator, y = -x/50 + 1 is the formula
         // (This has no basis in physics, but may produce decent-looking results)
         highp float attenuation_factor = ((-1.0 * dist) / 50.0) + 1.0;
+        if (attenuation_factor < 0.0) {
+            attenuation_factor = 0.0;
+        }
         
         diffuse += diff * uFragColor.rgb * attenuation_factor;
     }
@@ -67,5 +78,5 @@ void main(void) {
 
 
     highp vec3 result = (ambient + diffuse) * uFragColor.rgb;
-    gl_FragColor = vec4(result, uFragColor.a);
+    fragColor = vec4(result, uFragColor.a);
 }

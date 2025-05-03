@@ -4,7 +4,7 @@ import { Buffers } from "./buffers";
 import { setNormalAttribute, setPositionAttribute } from "./attributes";
 
 export function drawSceneCube(
-    gl: WebGLRenderingContext,
+    gl: WebGL2RenderingContext,
     programInfo: ProgramInfo,
     buffers: Buffers,
     cubeRotation: number,

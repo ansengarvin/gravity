@@ -40,9 +40,11 @@ export function App() {
         Set Debug States
     */
     const [numActiveBodies, setNumActiveBodies] = useState(0);
+    const [numStars, setNumStars] = useState(0);
     const [numActiveUniforms, setNumActiveUniforms] = useState(0);
     const [maxVertexUniformVectors, setMaxVertexUniformVectors] = useState(0);
     const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
+    const [maxUniformBufferBindingPoints, setMaxUniformBufferBindingPoints] = useState(0);
     const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
 
     // Which orbital body is being followed by the camera
@@ -93,10 +95,12 @@ export function App() {
                     height="1080px"
                     setMaxVertexUniformVectors={setMaxVertexUniformVectors}
                     setMaxFragmentUniformVectors={setMaxFragmentUniformVectors}
+                    setMaxUniformBufferBindingPoints={setMaxUniformBufferBindingPoints}
                     setNumActiveBodies={setNumActiveBodies}
                     setNumActiveUniforms={setNumActiveUniforms}
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
+                    setNumStars={setNumStars}
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
@@ -108,9 +112,11 @@ export function App() {
             <Backdrop>
                 <Header />
                 <DebugStats
+                    numActiveBodies={numActiveBodies}
+                    numStars={numStars}
                     maxVertexUniformVectors={maxVertexUniformVectors}
                     maxFragmentUniformVectors={maxFragmentUniformVectors}
-                    numActiveBodies={numActiveBodies}
+                    maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
                     numActiveUniforms={numActiveUniforms}
                     numActiveUniformVectors={numActiveUniformVectors}
                 />
