@@ -7,7 +7,6 @@ import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { ViewListIcon } from "../assets/icons/ViewListIcon";
 import { MenuName } from "../lib/defines/MenuName";
 
-
 interface ControlButtonProps {
     pausedState: boolean;
     updatePaused: (shouldPause: boolean) => void;
@@ -17,20 +16,14 @@ interface ControlButtonProps {
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const {
-        pausedState,
-        updatePaused,
-        resetSim,
-        menuShown,
-        setMenuShown
-    } = props;
+    const { pausedState, updatePaused, resetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>
             <ButtonRow>
                 <ControlButton
                     dim={"50px"}
                     onClick={() => {
-                        setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS)
+                        setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS);
                     }}
                 >
                     <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
@@ -65,7 +58,7 @@ export function ControlButtons(props: ControlButtonProps) {
                 <ControlButton
                     dim={"50px"}
                     onClick={() => {
-                        setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD)
+                        setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD);
                     }}
                 >
                     <ViewListIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.LEADERBOARD} />

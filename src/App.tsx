@@ -6,7 +6,7 @@ import { ControlButtons } from "./components/ControlButtons";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
-import { MenuName} from "./lib/defines/MenuName";
+import { MenuName } from "./lib/defines/MenuName";
 
 const Backdrop = styled.div`
     display: grid;
@@ -79,7 +79,7 @@ export function App() {
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
     const [debugStatsShown, setDebugStatsShown] = useState<boolean>(false);
-    const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE)
+    const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE);
     return (
         <>
             <SimScreen>
