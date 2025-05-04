@@ -19,6 +19,8 @@ export function useTouchControls(cameraRef: React.RefObject<Camera>, cameraSensi
     };
 
     const handleTouchMove = (event: React.TouchEvent<HTMLCanvasElement>) => {
+        // Stop pull-down refresh from happening
+        event.preventDefault();
         if (!isDragging.current || !lastTouchPosition.current) return;
 
         const touch = event.touches[0];
