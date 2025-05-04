@@ -79,6 +79,7 @@ export function App() {
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
+    const [debugStatsShown, setDebugStatsShown] = useState<boolean>(false);
     return (
         <>
             <SimScreen>
@@ -100,15 +101,18 @@ export function App() {
             </SimScreen>
             <Backdrop>
                 <Header />
-                <DebugStats
-                    numActiveBodies={numActiveBodies}
-                    numStars={numStars}
-                    maxVertexUniformVectors={maxVertexUniformVectors}
-                    maxFragmentUniformVectors={maxFragmentUniformVectors}
-                    maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
-                    numActiveUniforms={numActiveUniforms}
-                    numActiveUniformVectors={numActiveUniformVectors}
-                />
+                {debugStatsShown ? (
+                    <DebugStats
+                        numActiveBodies={numActiveBodies}
+                        numStars={numStars}
+                        maxVertexUniformVectors={maxVertexUniformVectors}
+                        maxFragmentUniformVectors={maxFragmentUniformVectors}
+                        maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
+                        numActiveUniforms={numActiveUniforms}
+                        numActiveUniformVectors={numActiveUniformVectors}
+                    />
+                ) : null}
+
                 {leaderboardShown ? (
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}
@@ -127,7 +131,9 @@ export function App() {
                     starLightState={starLightState}
                     updateStarLight={updateStarLight}
                 />
-                {settingsMenuShown ? <SettingsMenu /> : null}
+                {settingsMenuShown ? (
+                    <SettingsMenu debugStatsShown={debugStatsShown} setDebugStatsShown={setDebugStatsShown} />
+                ) : null}
             </Backdrop>
         </>
     );

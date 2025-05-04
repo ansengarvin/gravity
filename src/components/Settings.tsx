@@ -1,7 +1,24 @@
 import styled from "@emotion/styled";
+import React from "react";
 
-export function SettingsMenu() {
-    return <SettingsStyle>Settings coming soon!</SettingsStyle>;
+interface SettingsMenuProps {
+    debugStatsShown: boolean;
+    setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+export function SettingsMenu(props: SettingsMenuProps) {
+    const { debugStatsShown, setDebugStatsShown } = props;
+    return (
+        <SettingsStyle>
+            <button
+                onClick={() => {
+                    setDebugStatsShown(!debugStatsShown);
+                }}
+            >
+                {debugStatsShown ? "Hide Debug Stats" : "Show Debug Stats"}
+            </button>
+        </SettingsStyle>
+    );
 }
 
 const SettingsStyle = styled.div`
@@ -10,6 +27,7 @@ const SettingsStyle = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 5px;
 
     height: 150px;
     width: 320px;
