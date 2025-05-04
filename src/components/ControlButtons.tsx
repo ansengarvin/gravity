@@ -15,8 +15,6 @@ interface ControlButtonProps {
     setLeaderboardShown: (shouldShow: boolean) => void;
     settingsMenuShown: boolean;
     setSettingsMenuShown: (shouldShow: boolean) => void;
-    starLightState: boolean;
-    updateStarLight: (starLight: boolean) => void;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
@@ -31,63 +29,51 @@ export function ControlButtons(props: ControlButtonProps) {
     } = props;
     return (
         <ButtonContainer>
-            <Dashboard>
-                <ButtonRow>
+            <ButtonRow>
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        setSettingsMenuShown(!settingsMenuShown);
+                    }}
+                >
+                    <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
+                </ControlButton>
+                {pausedState ? (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            setSettingsMenuShown(!settingsMenuShown);
+                            updatePaused(false);
                         }}
                     >
-                        <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
+                        <PlayIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
-                    {pausedState ? (
-                        <ControlButton
-                            dim={"50px"}
-                            onClick={() => {
-                                updatePaused(false);
-                            }}
-                        >
-                            <PlayIcon color={"white"} dim={"50px"} filled={true} />
-                        </ControlButton>
-                    ) : (
-                        <ControlButton
-                            dim={"50px"}
-                            onClick={() => {
-                                updatePaused(true);
-                            }}
-                        >
-                            <PauseIcon color={"white"} dim={"50px"} filled={true} />
-                        </ControlButton>
-                    )}
+                ) : (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            resetSim.current = true;
+                            updatePaused(true);
                         }}
                     >
-                        <RestartIcon color={"white"} dim={"50px"} filled={true} />
+                        <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
-                    <ControlButton
-                        dim={"50px"}
-                        onClick={() => {
-                            setLeaderboardShown(!leaderboardShown);
-                        }}
-                    >
-                        <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
-                    </ControlButton>
+                )}
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        resetSim.current = true;
+                    }}
+                >
+                    <RestartIcon color={"white"} dim={"50px"} filled={true} />
+                </ControlButton>
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        setLeaderboardShown(!leaderboardShown);
+                    }}
+                >
+                    <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
+                </ControlButton>
                 </ButtonRow>
-                <ButtonRow>
-                    <ControlButton
-                        dim={"40px"}
-                        onClick={() => {
-                            props.updateStarLight(!props.starLightState);
-                        }}
-                    >
-                        <SunnyIcon color={"white"} dim={"40px"} filled={true} />
-                    </ControlButton>
-                </ButtonRow>
-            </Dashboard>
         </ButtonContainer>
     );
 }
@@ -96,24 +82,16 @@ const ButtonContainer = styled.div`
     grid-area: buttons;
     margin-left: auto;
     margin-right: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
 
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-
-    width: 320px;
-    height: 100%;
-`;
-
-const Dashboard = styled.div`
-    display: flex;
-    height: min-content;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
+    
+    width: 320px;
+    height: 100%;
 `;
 
 const ButtonRow = styled.div`

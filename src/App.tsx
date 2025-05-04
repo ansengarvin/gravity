@@ -11,10 +11,10 @@ const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top"
-        "menus"
         "empty"
+        "menus"
         "buttons";
-    grid-template-rows: 50px 320px 1fr min-content;
+    grid-template-rows: 50px 1fr 200px min-content;
     grid-template-columns: 1fr;
     height: 100%;
     width: 100%;
@@ -128,8 +128,6 @@ export function App() {
                     setLeaderboardShown={setLeaderboardShown}
                     settingsMenuShown={settingsMenuShown}
                     setSettingsMenuShown={setSettingsMenuShown}
-                    starLightState={starLightState}
-                    updateStarLight={updateStarLight}
                 />
                 {settingsMenuShown ? (
                     <SettingsMenu debugStatsShown={debugStatsShown} setDebugStatsShown={setDebugStatsShown} />

@@ -29,7 +29,7 @@ const SettingsStyle = styled.div`
     align-items: center;
     padding: 5px;
 
-    height: 150px;
+    height: 100%;
     width: 320px;
     color: white;
     background-color: #202020;

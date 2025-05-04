@@ -99,7 +99,7 @@ const LeaderboardStyle = styled.div`
     margin-left: auto;
     margin-right: auto;
     width: 320px;
-    height: 200px;
+    height: 100%;
 
     background-color: black;
     overflow-y: auto;
