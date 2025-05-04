@@ -54,5 +54,5 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         lastMousePosition.current = null;
     };
 
-    return { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp};
+    return { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp };
 }
