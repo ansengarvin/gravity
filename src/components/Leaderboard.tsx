@@ -63,18 +63,24 @@ export function Leaderboard(props: LeaderboardProps) {
                 <tbody>
                     {sortedBodies.map((body: LeaderboardBody) => {
                         return (
-                            <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={bodyFollowed == body.index}>
+                            <LeaderboardRowStyle
+                                key={body.index}
+                                bodyColor={body.color}
+                                selected={bodyFollowed == body.index}
+                            >
                                 <td>
                                     <button
                                         onClick={() => {
                                             updateBodyFollowed(body.index);
                                         }}
                                         disabled={bodyFollowed == body.index}
-                                    >B-{body.index}</button>
+                                    >
+                                        B-{body.index}
+                                    </button>
                                 </td>
                                 <td>{body.mass.toFixed(2)}</td>
                                 <td>{body.dOrigin.toFixed(2)}</td>
-                                <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : '--'}</td>
+                                <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
                             </LeaderboardRowStyle>
                         );
                     })}
@@ -101,18 +107,18 @@ const LeaderboardStyle = styled.div`
     table {
         width: 100%;
         border-spacing: 5px;
-    }   
+    }
 `;
 
-const LeaderboardRowStyle = styled.tr<{bodyColor: string, selected: boolean}>`
+const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     td {
-        background-color: ${props => props.selected ? "black" : props.bodyColor};
-        color: ${props => props.selected ? props.bodyColor : "white"};
+        background-color: ${(props) => (props.selected ? "black" : props.bodyColor)};
+        color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
         height: 40px;
 
-        border: ${props => props.selected ? "3px solid " + props.bodyColor : "none"};
+        border: ${(props) => (props.selected ? "3px solid " + props.bodyColor : "none")};
 
         button {
             // Remove all styling
@@ -125,20 +131,20 @@ const LeaderboardRowStyle = styled.tr<{bodyColor: string, selected: boolean}>`
             width: 100%;
             height: 100%;
 
-            border: 3px solid ${props => props.selected ? "black" : brightenColor(props.bodyColor, 0.5)};
+            border: 3px solid ${(props) => (props.selected ? "black" : brightenColor(props.bodyColor, 0.5))};
 
             :hover {
-                background-color: ${props => brightenColor(props.bodyColor, 1.2)};
+                background-color: ${(props) => brightenColor(props.bodyColor, 1.2)};
             }
 
             :disabled {
                 background-color: black;
-                color: ${props => props.bodyColor};
+                color: ${(props) => props.bodyColor};
                 cursor: auto;
             }
         }
     }
-`
+`;
 
 /*
     Helper Functions

@@ -75,10 +75,7 @@ export function Sim(props: SimProps) {
         cameraRef,
         cameraSensititivy,
     );
-    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(
-        cameraRef,
-        cameraSensititivy,
-    )
+    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
 
     const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed));
 

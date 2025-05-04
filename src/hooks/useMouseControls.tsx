@@ -8,7 +8,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     /*
         Mouse Controls
     */
-   // Zoom in and out on mouse wheel
+    // Zoom in and out on mouse wheel
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
         const minZoom = 1;
         const maxZoom = 50;
@@ -57,7 +57,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     /*
         Touch Controls
     */
-   const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
+    const handleTouchStart = (event: React.TouchEvent<HTMLCanvasElement>) => {
         isDragging.current = true;
         const touch = event.touches[0];
         const rect = event.currentTarget.getBoundingClientRect();
@@ -90,7 +90,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         );
 
         lastMousePosition.current = currentMousePosition;
-    }
+    };
 
     return { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp, handleTouchStart, handleTouchMove };
 }
