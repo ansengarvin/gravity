@@ -5,15 +5,15 @@ import { RestartIcon } from "../assets/icons/RestartIcon";
 import { PlayIcon } from "../assets/icons/PlayIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { ViewListIcon } from "../assets/icons/ViewListIcon";
+import { MenuName } from "../lib/defines/MenuName";
+
 
 interface ControlButtonProps {
     pausedState: boolean;
     updatePaused: (shouldPause: boolean) => void;
     resetSim: React.RefObject<boolean>;
-    leaderboardShown: boolean;
-    setLeaderboardShown: (shouldShow: boolean) => void;
-    settingsMenuShown: boolean;
-    setSettingsMenuShown: (shouldShow: boolean) => void;
+    menuShown: MenuName;
+    setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
@@ -21,10 +21,8 @@ export function ControlButtons(props: ControlButtonProps) {
         pausedState,
         updatePaused,
         resetSim,
-        leaderboardShown,
-        setLeaderboardShown,
-        settingsMenuShown,
-        setSettingsMenuShown,
+        menuShown,
+        setMenuShown
     } = props;
     return (
         <ButtonContainer>
@@ -32,10 +30,10 @@ export function ControlButtons(props: ControlButtonProps) {
                 <ControlButton
                     dim={"50px"}
                     onClick={() => {
-                        setSettingsMenuShown(!settingsMenuShown);
+                        setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS)
                     }}
                 >
-                    <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
+                    <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
                 </ControlButton>
                 {pausedState ? (
                     <ControlButton
@@ -67,10 +65,10 @@ export function ControlButtons(props: ControlButtonProps) {
                 <ControlButton
                     dim={"50px"}
                     onClick={() => {
-                        setLeaderboardShown(!leaderboardShown);
+                        setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD)
                     }}
                 >
-                    <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
+                    <ViewListIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.LEADERBOARD} />
                 </ControlButton>
             </ButtonRow>
         </ButtonContainer>

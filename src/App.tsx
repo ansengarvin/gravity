@@ -6,6 +6,7 @@ import { ControlButtons } from "./components/ControlButtons";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
+import { MenuName} from "./lib/defines/MenuName";
 
 const Backdrop = styled.div`
     display: grid;
@@ -77,9 +78,8 @@ export function App() {
 
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-    const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
-    const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
     const [debugStatsShown, setDebugStatsShown] = useState<boolean>(false);
+    const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE)
     return (
         <>
             <SimScreen>
@@ -113,7 +113,7 @@ export function App() {
                     />
                 ) : null}
 
-                {leaderboardShown ? (
+                {menuShown == MenuName.LEADERBOARD ? (
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
@@ -124,12 +124,10 @@ export function App() {
                     pausedState={pausedState}
                     updatePaused={updatePaused}
                     resetSim={resetSim}
-                    leaderboardShown={leaderboardShown}
-                    setLeaderboardShown={setLeaderboardShown}
-                    settingsMenuShown={settingsMenuShown}
-                    setSettingsMenuShown={setSettingsMenuShown}
+                    menuShown={menuShown}
+                    setMenuShown={setMenuShown}
                 />
-                {settingsMenuShown ? (
+                {menuShown == MenuName.SETTINGS ? (
                     <SettingsMenu
                         debugStatsShown={debugStatsShown}
                         setDebugStatsShown={setDebugStatsShown}
