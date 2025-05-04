@@ -17,6 +17,8 @@ const SettingsStyle = styled.div`
     background-color: #202020;
     border: 2px solid white;
 
+    z-index: 3;
+
     margin-left: auto;
     margin-right: auto;
 `;
