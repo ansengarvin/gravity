@@ -211,6 +211,7 @@ void main(void) {
     height: 100%;
     width: 100%;
     display: block;
+    touch-action: none;
 `,_g="#e4e4e4",i0="770px",Ng="425px",Pp=ge.div`
     grid-area: top;
     height: 50px;
