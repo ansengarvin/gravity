@@ -5,89 +5,65 @@ import { RestartIcon } from "../assets/icons/RestartIcon";
 import { PlayIcon } from "../assets/icons/PlayIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { ViewListIcon } from "../assets/icons/ViewListIcon";
-import { SunnyIcon } from "../assets/icons/SunnyIcon";
+import { MenuName } from "../lib/defines/MenuName";
 
 interface ControlButtonProps {
     pausedState: boolean;
     updatePaused: (shouldPause: boolean) => void;
     resetSim: React.RefObject<boolean>;
-    leaderboardShown: boolean;
-    setLeaderboardShown: (shouldShow: boolean) => void;
-    settingsMenuShown: boolean;
-    setSettingsMenuShown: (shouldShow: boolean) => void;
-    starLightState: boolean;
-    updateStarLight: (starLight: boolean) => void;
+    menuShown: MenuName;
+    setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const {
-        pausedState,
-        updatePaused,
-        resetSim,
-        leaderboardShown,
-        setLeaderboardShown,
-        settingsMenuShown,
-        setSettingsMenuShown,
-    } = props;
+    const { pausedState, updatePaused, resetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>
-            <Dashboard>
-                <ButtonRow>
+            <ButtonRow>
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS);
+                    }}
+                >
+                    <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
+                </ControlButton>
+                {pausedState ? (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            setSettingsMenuShown(!settingsMenuShown);
+                            updatePaused(false);
                         }}
                     >
-                        <SettingsIcon color={"white"} dim={"50px"} filled={!settingsMenuShown} />
+                        <PlayIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
-                    {pausedState ? (
-                        <ControlButton
-                            dim={"50px"}
-                            onClick={() => {
-                                updatePaused(false);
-                            }}
-                        >
-                            <PlayIcon color={"white"} dim={"50px"} filled={true} />
-                        </ControlButton>
-                    ) : (
-                        <ControlButton
-                            dim={"50px"}
-                            onClick={() => {
-                                updatePaused(true);
-                            }}
-                        >
-                            <PauseIcon color={"white"} dim={"50px"} filled={true} />
-                        </ControlButton>
-                    )}
+                ) : (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            resetSim.current = true;
+                            updatePaused(true);
                         }}
                     >
-                        <RestartIcon color={"white"} dim={"50px"} filled={true} />
+                        <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
-                    <ControlButton
-                        dim={"50px"}
-                        onClick={() => {
-                            setLeaderboardShown(!leaderboardShown);
-                        }}
-                    >
-                        <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
-                    </ControlButton>
-                </ButtonRow>
-                <ButtonRow>
-                    <ControlButton
-                        dim={"40px"}
-                        onClick={() => {
-                            props.updateStarLight(!props.starLightState);
-                        }}
-                    >
-                        <SunnyIcon color={"white"} dim={"40px"} filled={true} />
-                    </ControlButton>
-                </ButtonRow>
-            </Dashboard>
+                )}
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        resetSim.current = true;
+                    }}
+                >
+                    <RestartIcon color={"white"} dim={"50px"} filled={true} />
+                </ControlButton>
+                <ControlButton
+                    dim={"50px"}
+                    onClick={() => {
+                        setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD);
+                    }}
+                >
+                    <ViewListIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.LEADERBOARD} />
+                </ControlButton>
+            </ButtonRow>
         </ButtonContainer>
     );
 }
@@ -96,24 +72,16 @@ const ButtonContainer = styled.div`
     grid-area: buttons;
     margin-left: auto;
     margin-right: auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
 
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    flex-direction: row;
+    justify-content: center;
     align-items: center;
 
     width: 320px;
     height: 100%;
-`;
-
-const Dashboard = styled.div`
-    display: flex;
-    height: min-content;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
 `;
 
 const ButtonRow = styled.div`
