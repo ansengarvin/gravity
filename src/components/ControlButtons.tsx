@@ -94,12 +94,16 @@ export function ControlButtons(props: ControlButtonProps) {
 
 const ButtonContainer = styled.div`
     grid-area: buttons;
+    margin-left: auto;
+    margin-right: auto;
+
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
+
+    width: 320px;
     height: 100%;
-    width: min-content;
 `;
 
 const Dashboard = styled.div`
@@ -117,7 +121,7 @@ const ButtonRow = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 50px;
+    gap: 25px;
 `;
 
 const ControlButton = styled.button<{ dim: string }>`

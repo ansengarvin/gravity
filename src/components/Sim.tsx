@@ -4,10 +4,8 @@ import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
-import { LeaderboardBody } from "./leaderboard/LeaderboardBody";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
-import { sortQuery } from "../lib/defines/sortQuery";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
 import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
@@ -18,17 +16,15 @@ import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw"
 import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
+import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
+import { LeaderboardBody } from "./Leaderboard";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 
 interface SimProps {
-    // canvas height and width
-    height: string;
-    width: string;
-
     // debug information
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
@@ -46,14 +42,11 @@ interface SimProps {
     // miscellaneous controls
     resetSim: React.RefObject<boolean>;
     pausedRef: React.RefObject<boolean>;
-    sortByRef: React.RefObject<sortQuery>;
     starLightRef: React.RefObject<boolean>;
 }
 
 export function Sim(props: SimProps) {
     const {
-        height,
-        width,
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
         setMaxUniformBufferBindingPoints,
@@ -66,7 +59,6 @@ export function Sim(props: SimProps) {
         updateBodyFollowed,
         resetSim,
         pausedRef,
-        sortByRef,
         starLightRef,
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -83,10 +75,15 @@ export function Sim(props: SimProps) {
         cameraRef,
         cameraSensititivy,
     );
+    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
 
-    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed, sortByRef));
+    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed));
 
     const programInfoRef = useRef<ProgramInfo>(null);
+
+    useEffect(() => {
+        setLeaderboardBodies(universe.current.getActiveBodies());
+    }, [bodyFollowedRef.current]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -102,9 +99,15 @@ export function Sim(props: SimProps) {
         }
 
         const initialize = async () => {
+            // Set sorted universe parameters initially
+            setNumActiveBodies(universe.current.numActive);
+            setLeaderboardBodies(universe.current.getActiveBodies());
+
+            // Set unchanging webGL debug text
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
+
             /*****************************
              * Initialize shader programs
              *****************************/
@@ -209,9 +212,10 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
+                        setNumActiveBodies(universe.current.numActive);
+                        setLeaderboardBodies(universe.current.getActiveBodies());
+                    } else {
                     }
-                    setNumActiveBodies(universe.current.numActive);
-                    setLeaderboardBodies(universe.current.getRankings());
                     accumulatedTime -= secondsPerTick;
                 }
 
@@ -357,12 +361,15 @@ export function Sim(props: SimProps) {
     return (
         <SimCanvas
             ref={canvasRef}
-            height={height}
-            width={width}
+            height={"1080px"}
+            width={"1920px"}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
         />
     );
 }

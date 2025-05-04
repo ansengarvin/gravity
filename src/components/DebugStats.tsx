@@ -38,12 +38,14 @@ export function DebugStats(props: DebugStatsProps) {
 }
 
 const DebugStatsStyle = styled.div`
-    grid-area: debug;
-    padding-left: 20px;
-    padding-top: 20px;
+    position: absolute;
+    top: 100px;
+    left: 20px;
     display: flex;
+    z-index: 2;
 
     flex-direction: column;
+    font-size: 0.75rem;
 
     h2,
     h3 {

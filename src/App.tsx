@@ -1,22 +1,21 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useRef, useState } from "react";
-import { Leaderboard } from "./components/leaderboard/Leaderboard";
-import { LeaderboardBody } from "./components/leaderboard/LeaderboardBody";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
-import { sortQuery } from "./lib/defines/sortQuery";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
+import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 
 const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
-        "top top top"
-        "debug simulation simulation"
-        "settings buttons leaderboard";
-    grid-template-rows: min-content 1fr 200px;
-    grid-template-columns: 1fr 320px 1fr;
+        "top"
+        "menus"
+        "empty"
+        "buttons";
+    grid-template-rows: 50px 320px 1fr min-content;
+    grid-template-columns: 1fr;
     height: 100%;
     width: 100%;
     z-index: 1;
@@ -66,13 +65,6 @@ export function App() {
         pausedRef.current = status;
     };
 
-    const [sortByState, setSortByState] = useState<sortQuery>(sortQuery.mass);
-    const sortByRef = useRef<sortQuery>(sortQuery.mass);
-    const updateSortBy = (sortBy: sortQuery) => {
-        setSortByState(sortBy);
-        sortByRef.current = sortBy;
-    };
-
     const [starLightState, setStarLightState] = useState<boolean>(false);
     const starLightRef = useRef<boolean>(false);
     const updateStarLight = (starLight: boolean) => {
@@ -88,11 +80,9 @@ export function App() {
     const [leaderboardShown, setLeaderboardShown] = useState<boolean>(false);
     const [settingsMenuShown, setSettingsMenuShown] = useState<boolean>(false);
     return (
-        <body>
+        <>
             <SimScreen>
                 <Sim
-                    width="1920px"
-                    height="1080px"
                     setMaxVertexUniformVectors={setMaxVertexUniformVectors}
                     setMaxFragmentUniformVectors={setMaxFragmentUniformVectors}
                     setMaxUniformBufferBindingPoints={setMaxUniformBufferBindingPoints}
@@ -105,7 +95,6 @@ export function App() {
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
                     pausedRef={pausedRef}
-                    sortByRef={sortByRef}
                     starLightRef={starLightRef}
                 />
             </SimScreen>
@@ -125,8 +114,6 @@ export function App() {
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
                         updateBodyFollowed={updateBodyFollowed}
-                        sortBy={sortByState}
-                        updateSortBy={updateSortBy}
                     />
                 ) : null}
                 <ControlButtons
@@ -142,6 +129,6 @@ export function App() {
                 />
                 {settingsMenuShown ? <SettingsMenu /> : null}
             </Backdrop>
-        </body>
+        </>
     );
 }
