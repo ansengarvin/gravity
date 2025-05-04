@@ -58,40 +58,36 @@ export function useTouchControls(cameraRef: React.RefObject<Camera>, cameraSensi
                 lastTouch2Position.current = {
                     x: touch2.clientX - rect.left,
                     y: touch2.clientY - rect.top,
-                }
+                };
             }
 
             const currentTouchPosition = {
                 x: touch.clientX - rect.left,
                 y: touch.clientY - rect.top,
-            }
+            };
             const currentTouch2Position = {
                 x: touch2.clientX - rect.left,
                 y: touch2.clientY - rect.top,
-            }
+            };
 
             // Calculate previous and current distance between touch points
             const prevDistance = Math.sqrt(
                 Math.pow(lastTouchPosition.current.x - lastTouch2Position.current.x, 2) +
-                Math.pow(lastTouchPosition.current.y - lastTouch2Position.current.y, 2),
+                    Math.pow(lastTouchPosition.current.y - lastTouch2Position.current.y, 2),
             );
             const currentDistance = Math.sqrt(
                 Math.pow(currentTouchPosition.x - currentTouch2Position.x, 2) +
-                Math.pow(currentTouchPosition.y - currentTouch2Position.y, 2),
+                    Math.pow(currentTouchPosition.y - currentTouch2Position.y, 2),
             );
-            
+
             const zoomDelta = prevDistance - currentDistance;
             const minZoom = 1;
             const maxZoom = 50;
             cameraRef.current!.zoom -= zoomDelta * 0.01;
-            cameraRef.current!.zoom = Math.min(
-                Math.max(cameraRef.current!.zoom, -1 * maxZoom),
-                -1 * minZoom,
-            );
+            cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
             lastTouchPosition.current = currentTouchPosition;
             lastTouch2Position.current = currentTouch2Position;
-
-        }  
+        }
     };
 
     const handleTouchEnd = () => {
