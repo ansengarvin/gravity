@@ -86,7 +86,7 @@ export function useTouchControls(cameraRef: React.RefObject<Camera>, cameraSensi
             const zoomDelta = prevDistance - currentDistance;
             const minZoom = 1;
             const maxZoom = 50;
-            cameraRef.current!.zoom -= zoomDelta * 0.01;
+            cameraRef.current!.zoom -= zoomDelta * 0.05;
             cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
             lastTouchPosition.current = currentTouchPosition;
             lastTouch2Position.current = currentTouch2Position;
