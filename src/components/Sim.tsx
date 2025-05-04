@@ -378,4 +378,5 @@ const SimCanvas = styled.canvas`
     height: 100%;
     width: 100%;
     display: block;
+    touch-action: none;
 `;
