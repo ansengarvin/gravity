@@ -17,6 +17,14 @@ export function useTouchControls(cameraRef: React.RefObject<Camera>, cameraSensi
             x: touch.clientX - rect.left,
             y: touch.clientY - rect.top,
         };
+
+        if (event.touches.length > 1) {
+            const touch2 = event.touches[1];
+            lastTouch2Position.current = {
+                x: touch2.clientX - rect.left,
+                y: touch2.clientY - rect.top,
+            };
+        }
     };
 
     const handleTouchMove = (event: React.TouchEvent<HTMLCanvasElement>) => {
@@ -54,12 +62,7 @@ export function useTouchControls(cameraRef: React.RefObject<Camera>, cameraSensi
             const touch2 = event.touches[1];
 
             // Initialize second touch position (not necessarily handled by touchStart)
-            if (!lastTouch2Position.current) {
-                lastTouch2Position.current = {
-                    x: touch2.clientX - rect.left,
-                    y: touch2.clientY - rect.top,
-                };
-            }
+            if (!lastTouch2Position.current) return;
 
             const currentTouchPosition = {
                 x: touch.clientX - rect.left,
