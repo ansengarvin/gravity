@@ -24,10 +24,6 @@ const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 
 interface SimProps {
-    // canvas height and width
-    height: string;
-    width: string;
-
     // debug information
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
@@ -50,8 +46,6 @@ interface SimProps {
 
 export function Sim(props: SimProps) {
     const {
-        height,
-        width,
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
         setMaxUniformBufferBindingPoints,
@@ -365,8 +359,8 @@ export function Sim(props: SimProps) {
     return (
         <SimCanvas
             ref={canvasRef}
-            height={height}
-            width={width}
+            height={"1080px"}
+            width={"1920px"}
             onWheel={handleMouseWheel}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}

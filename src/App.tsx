@@ -10,11 +10,12 @@ import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
-        "top top top"
-        "debug settings leaderboard"
-        "botleft buttons botright";
-    grid-template-rows: min-content 1fr 200px;
-    grid-template-columns: 1fr 320px 1fr;
+        "top"
+        "menus"
+        "empty"
+        "buttons";
+    grid-template-rows: 50px 320px 1fr min-content;
+    grid-template-columns: 1fr;
     height: 100%;
     width: 100%;
     z-index: 1;
@@ -82,8 +83,6 @@ export function App() {
         <>
             <SimScreen>
                 <Sim
-                    width="1920px"
-                    height="1080px"
                     setMaxVertexUniformVectors={setMaxVertexUniformVectors}
                     setMaxFragmentUniformVectors={setMaxFragmentUniformVectors}
                     setMaxUniformBufferBindingPoints={setMaxUniformBufferBindingPoints}

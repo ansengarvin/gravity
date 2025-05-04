@@ -5,14 +5,14 @@ export function SettingsMenu() {
 }
 
 const SettingsStyle = styled.div`
-    grid-area: settings;
+    grid-area: menus;
 
     display: flex;
     flex-direction: column;
     align-items: center;
 
     height: 150px;
-    width: 350px;
+    width: 320px;
     color: white;
     background-color: #202020;
     border: 2px solid white;

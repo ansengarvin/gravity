@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
+import { brightenColor } from "../lib/colors/brightenColor";
 
 export interface LeaderboardBody {
     index: number;
@@ -28,53 +29,53 @@ export function Leaderboard(props: LeaderboardProps) {
         <LeaderboardStyle>
             <table>
                 <thead>
-                    <th
-                        onClick={() => {
-                            sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
-                        }}
-                    >
-                        Name
-                    </th>
-                    <th
-                        onClick={() => {
-                            sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
-                        }}
-                    >
-                        Mass
-                    </th>
-                    <th
-                        onClick={() => {
-                            sortBy == "dOrigin" ? setSortBy("dOriginReverse") : setSortBy("dOrigin");
-                        }}
-                    >
-                        dOrigin
-                    </th>
-                    <th
-                        onClick={() => {
-                            sortBy == "dTarget" ? setSortBy("dTargetReverse") : setSortBy("dTarget");
-                        }}
-                    >
-                        dTarget
-                    </th>
+                    <tr>
+                        <th
+                            onClick={() => {
+                                sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
+                            }}
+                        >
+                            <div>Name</div>
+                        </th>
+                        <th
+                            onClick={() => {
+                                sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
+                            }}
+                        >
+                            <div>Mass</div>
+                        </th>
+                        <th
+                            onClick={() => {
+                                sortBy == "dOrigin" ? setSortBy("dOriginReverse") : setSortBy("dOrigin");
+                            }}
+                        >
+                            <div>dOrigin</div>
+                        </th>
+                        <th
+                            onClick={() => {
+                                sortBy == "dTarget" ? setSortBy("dTargetReverse") : setSortBy("dTarget");
+                            }}
+                        >
+                            <div>dTarget</div>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
                     {sortedBodies.map((body: LeaderboardBody) => {
                         return (
-                            <tr>
-                                <td
-                                    onClick={() => {
-                                        updateBodyFollowed(body.index);
-                                    }}
-                                    style={{
-                                        backgroundColor: bodyFollowed === body.index ? "blue" : "black",
-                                    }}
-                                >
-                                    B-{body.index}
+                            <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={bodyFollowed == body.index}>
+                                <td>
+                                    <button
+                                        onClick={() => {
+                                            updateBodyFollowed(body.index);
+                                        }}
+                                        disabled={bodyFollowed == body.index}
+                                    >B-{body.index}</button>
                                 </td>
                                 <td>{body.mass.toFixed(2)}</td>
                                 <td>{body.dOrigin.toFixed(2)}</td>
-                                <td>{body.dTarget.toFixed(2)}</td>
-                            </tr>
+                                <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : '--'}</td>
+                            </LeaderboardRowStyle>
                         );
                     })}
                 </tbody>
@@ -88,35 +89,56 @@ export function Leaderboard(props: LeaderboardProps) {
 */
 
 const LeaderboardStyle = styled.div`
-    grid-area: leaderboard;
+    grid-area: menus;
+    margin-left: auto;
+    margin-right: auto;
     width: 320px;
     height: 200px;
 
-    background-color: green;
+    background-color: black;
     overflow-y: auto;
 
     table {
         width: 100%;
-    }
-
-    tr {
-        background-color: black;
-    }
-
-    th {
-        background-color: black;
-        color: white;
-        padding: 0;
-        text-align: left;
-    }
-
-    td {
-        background-color: #3b0101;
-        color: white;
-        padding: 0;
-        text-align: left;
-    }
+        border-spacing: 5px;
+    }   
 `;
+
+const LeaderboardRowStyle = styled.tr<{bodyColor: string, selected: boolean}>`
+    td {
+        background-color: ${props => props.selected ? "black" : props.bodyColor};
+        color: ${props => props.selected ? props.bodyColor : "white"};
+        padding: 0;
+        text-align: center;
+        height: 40px;
+
+        border: ${props => props.selected ? "3px solid " + props.bodyColor : "none"};
+
+        button {
+            // Remove all styling
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+            outline: inherit;
+            width: 100%;
+            height: 100%;
+
+            border: 3px solid ${props => props.selected ? "black" : brightenColor(props.bodyColor, 0.5)};
+
+            :hover {
+                background-color: ${props => brightenColor(props.bodyColor, 1.2)};
+            }
+
+            :disabled {
+                background-color: black;
+                color: ${props => props.bodyColor};
+                cursor: auto;
+            }
+        }
+    }
+`
 
 /*
     Helper Functions
