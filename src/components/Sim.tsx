@@ -16,6 +16,7 @@ import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw"
 import { mat4, vec4 } from "gl-matrix";
 import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
+import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
 
@@ -74,6 +75,10 @@ export function Sim(props: SimProps) {
         cameraRef,
         cameraSensititivy,
     );
+    const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(
+        cameraRef,
+        cameraSensititivy,
+    )
 
     const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed));
 
@@ -365,6 +370,9 @@ export function Sim(props: SimProps) {
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
         />
     );
 }
