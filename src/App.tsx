@@ -30,7 +30,7 @@ const Backdrop = styled.div`
 const SimScreen = styled.div`
     position: absolute;
     height: 100vh;
-    width: 100%;
+    width: 100vw;
     z-index: 0;
 `;
 

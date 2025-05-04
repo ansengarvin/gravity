@@ -10,13 +10,13 @@ const Headerbar = styled.div`
 
     display: grid;
     grid-template-areas: "left center right";
-    grid-template-columns: 200px 1fr 200px;
+    grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: 1fr;
 
     border-bottom: 0.25rem solid ${color_offwhite};
 
     @media (max-width: ${phone}) {
-        height: 30px;
+        height: 45px;
     }
 
     a {
@@ -45,7 +45,7 @@ const Headerbar = styled.div`
 
         @media (max-width: ${phone}) {
             margin-left: 0px;
-            font-size: 0.95rem;
+            font-size: 0.75rem;
         }
     }
 `;
@@ -71,6 +71,9 @@ const Center = styled.div`
         border: none;
         padding: 0;
         margin: 0;
+        @media (max-width: ${tablet}) {
+            font-size: 1.25rem;
+        }
     }
 `;
 
