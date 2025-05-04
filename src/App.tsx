@@ -130,7 +130,12 @@ export function App() {
                     setSettingsMenuShown={setSettingsMenuShown}
                 />
                 {settingsMenuShown ? (
-                    <SettingsMenu debugStatsShown={debugStatsShown} setDebugStatsShown={setDebugStatsShown} />
+                    <SettingsMenu
+                        debugStatsShown={debugStatsShown}
+                        setDebugStatsShown={setDebugStatsShown}
+                        starLightState={starLightState}
+                        updateStarLight={updateStarLight}
+                    />
                 ) : null}
             </Backdrop>
         </>

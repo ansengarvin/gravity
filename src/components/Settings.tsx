@@ -4,12 +4,21 @@ import React from "react";
 interface SettingsMenuProps {
     debugStatsShown: boolean;
     setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
+    starLightState: boolean;
+    updateStarLight: (starLight: boolean) => void;
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown } = props;
+    const { debugStatsShown, setDebugStatsShown, starLightState, updateStarLight } = props;
     return (
         <SettingsStyle>
+            <button
+                onClick={() => {
+                    updateStarLight(!starLightState);
+                }}
+            >
+                {starLightState ? "Disable Star Light" : "Enable Star Light"}
+            </button>
             <button
                 onClick={() => {
                     setDebugStatsShown(!debugStatsShown);

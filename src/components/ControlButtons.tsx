@@ -5,7 +5,6 @@ import { RestartIcon } from "../assets/icons/RestartIcon";
 import { PlayIcon } from "../assets/icons/PlayIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { ViewListIcon } from "../assets/icons/ViewListIcon";
-import { SunnyIcon } from "../assets/icons/SunnyIcon";
 
 interface ControlButtonProps {
     pausedState: boolean;
@@ -73,7 +72,7 @@ export function ControlButtons(props: ControlButtonProps) {
                 >
                     <ViewListIcon color={"white"} dim={"50px"} filled={!leaderboardShown} />
                 </ControlButton>
-                </ButtonRow>
+            </ButtonRow>
         </ButtonContainer>
     );
 }
@@ -89,7 +88,7 @@ const ButtonContainer = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    
+
     width: 320px;
     height: 100%;
 `;
