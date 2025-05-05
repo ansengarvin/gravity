@@ -23,6 +23,9 @@ import { LeaderboardBody } from "./Leaderboard";
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
+const fieldOfView = (45 * Math.PI) / 180; // in radians
+const zNear = 0.1;
+const zFar = 100.0;
 
 interface SimProps {
     // debug information
@@ -255,19 +258,6 @@ export function Sim(props: SimProps) {
 
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-                // Create a perspective matrix, a special matrix that is
-                // used to simulate the distortion of perspective in a camera.
-                // Our field of view is 45 degrees, with a width/height
-                // ratio that matches the display size of the canvas
-                // and we only want to see objects between 0.1 units
-                // and 100 units away from the camera.
-
-                const fieldOfView = (45 * Math.PI) / 180; // in radians
-                const canvas = gl.canvas as HTMLCanvasElement;
-                const aspect = canvas.clientWidth / canvas.clientHeight;
-                const zNear = 0.1;
-                const zFar = 100.0;
-
                 /*
                     Binding buffers
                 */
@@ -281,6 +271,8 @@ export function Sim(props: SimProps) {
                 */
                 // Projection Matrix
                 const projectionMatrix = mat4.create();
+                const canvas = gl.canvas as HTMLCanvasElement;
+                const aspect = canvas.clientWidth / canvas.clientHeight;
                 mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
                 gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.projectionMatrix, false, projectionMatrix);
 
