@@ -35,7 +35,6 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
 
-
     constructor(settings: UniverseSettings) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);

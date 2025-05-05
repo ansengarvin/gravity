@@ -7,6 +7,7 @@ import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { MenuName } from "./lib/defines/MenuName";
+import { LightingMode } from "./lib/webGL/shaderPrograms";
 
 const Backdrop = styled.div`
     display: grid;
@@ -53,12 +54,7 @@ export function App() {
 
     const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
 
-    const [starLightState, setStarLightState] = useState<boolean>(false);
-    const starLightRef = useRef<boolean>(false);
-    const updateStarLight = (starLight: boolean) => {
-        setStarLightState(starLight);
-        starLightRef.current = starLight;
-    };
+    const [lightingMode, setLightingMode] = useState<LightingMode>(LightingMode.CAMLIGHT);
 
     // Toggle to reset the simulation
     const resetSim = useRef<boolean>(false);
@@ -79,11 +75,11 @@ export function App() {
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
                     setNumStars={setNumStars}
+                    lightingMode={lightingMode}
                     bodyFollowed={bodyFollowed}
                     setBodyFollowed={setBodyFollowed}
                     resetSim={resetSim}
                     paused={paused}
-                    starLightRef={starLightRef}
                 />
             </SimScreen>
             <Backdrop>
@@ -129,8 +125,8 @@ export function App() {
                     <SettingsMenu
                         debugStatsShown={debugStatsShown}
                         setDebugStatsShown={setDebugStatsShown}
-                        starLightState={starLightState}
-                        updateStarLight={updateStarLight}
+                        lightingMode={lightingMode}
+                        setLightingMode={setLightingMode}
                     />
                 ) : null}
             </Backdrop>

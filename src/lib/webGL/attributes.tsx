@@ -1,7 +1,7 @@
 // Tell WebGL how to pull out the positions from the position
 
 import { Buffers } from "./buffers";
-import { ProgramInfo } from "./programInfo";
+import { ProgramInfo } from "./shaderPrograms";
 
 // buffer into the vertexPosition attribute.
 export function setPositionAttribute(gl: WebGL2RenderingContext, buffers: Buffers, programInfo: ProgramInfo) {

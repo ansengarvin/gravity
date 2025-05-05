@@ -1,5 +1,5 @@
 import { mat4 } from "gl-matrix";
-import { ProgramInfo } from "./programInfo";
+import { ProgramInfo } from "./shaderPrograms";
 import { Buffers } from "./buffers";
 import { setNormalAttribute, setPositionAttribute } from "./attributes";
 
