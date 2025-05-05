@@ -12,10 +12,11 @@ const Backdrop = styled.div`
     display: grid;
     grid-template-areas:
         "top"
+        "info"
         "empty"
         "menus"
         "buttons";
-    grid-template-rows: 50px 1fr 200px min-content;
+    grid-template-rows: 50px 50px 1fr 200px min-content;
     grid-template-columns: 1fr;
     height: 100%;
     width: 100%;
@@ -100,6 +101,17 @@ export function App() {
                 />
             </SimScreen>
             <Backdrop>
+                <InfoBox>
+                    <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
+                    {bodyFollowed != -1 ? (
+                        <div>
+                            <button>Stop Following</button>
+                            <button>Reset Camera</button>
+                        </div>
+                    ) : (
+                        <></>
+                    )}
+                </InfoBox>
                 <Header />
                 {debugStatsShown ? (
                     <DebugStats
@@ -139,3 +151,14 @@ export function App() {
         </>
     );
 }
+
+const InfoBox = styled.div`
+    grid-area: info;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.2rem;
+`;
