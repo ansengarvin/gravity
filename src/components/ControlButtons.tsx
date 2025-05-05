@@ -8,15 +8,15 @@ import { ViewListIcon } from "../assets/icons/ViewListIcon";
 import { MenuName } from "../lib/defines/MenuName";
 
 interface ControlButtonProps {
-    pausedState: boolean;
-    updatePaused: (shouldPause: boolean) => void;
+    paused: boolean;
+    setPaused: React.Dispatch<React.SetStateAction<boolean>>;
     resetSim: React.RefObject<boolean>;
     menuShown: MenuName;
     setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const { pausedState, updatePaused, resetSim, menuShown, setMenuShown } = props;
+    const { paused, setPaused, resetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>
             <ButtonRow>
@@ -28,11 +28,11 @@ export function ControlButtons(props: ControlButtonProps) {
                 >
                     <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
                 </ControlButton>
-                {pausedState ? (
+                {paused ? (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            updatePaused(false);
+                            setPaused(false);
                         }}
                     >
                         <PlayIcon color={"white"} dim={"50px"} filled={true} />
@@ -41,7 +41,7 @@ export function ControlButtons(props: ControlButtonProps) {
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            updatePaused(true);
+                            setPaused(true);
                         }}
                     >
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />

@@ -57,15 +57,7 @@ export function App() {
         bodyFollowedRef.current = newBodyFollowed;
     };
 
-    // Whether the app is paused or not
-    // State is needed so pause/play button can re-render for icons
-    // Ref is needed to be passed into render()
-    const [pausedState, setPausedState] = useState<boolean>(true);
-    const pausedRef = useRef<boolean>(true);
-    const updatePaused = (status: boolean) => {
-        setPausedState(status);
-        pausedRef.current = status;
-    };
+    const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
 
     const [starLightState, setStarLightState] = useState<boolean>(false);
     const starLightRef = useRef<boolean>(false);
@@ -96,7 +88,7 @@ export function App() {
                     bodyFollowedRef={bodyFollowedRef}
                     updateBodyFollowed={updateBodyFollowed}
                     resetSim={resetSim}
-                    pausedRef={pausedRef}
+                    paused={paused}
                     starLightRef={starLightRef}
                 />
             </SimScreen>
@@ -133,8 +125,8 @@ export function App() {
                     />
                 ) : null}
                 <ControlButtons
-                    pausedState={pausedState}
-                    updatePaused={updatePaused}
+                    paused={paused}
+                    setPaused={setPaused}
                     resetSim={resetSim}
                     menuShown={menuShown}
                     setMenuShown={setMenuShown}

@@ -41,7 +41,7 @@ interface SimProps {
 
     // miscellaneous controls
     resetSim: React.RefObject<boolean>;
-    pausedRef: React.RefObject<boolean>;
+    paused: boolean;
     starLightRef: React.RefObject<boolean>;
 }
 
@@ -58,7 +58,7 @@ export function Sim(props: SimProps) {
         bodyFollowedRef,
         updateBodyFollowed,
         resetSim,
-        pausedRef,
+        paused,
         starLightRef,
     } = props;
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -81,9 +81,16 @@ export function Sim(props: SimProps) {
 
     const programInfoRef = useRef<ProgramInfo>(null);
 
+
     useEffect(() => {
         setLeaderboardBodies(universe.current.getActiveBodies());
     }, [bodyFollowedRef.current]);
+
+    // Sets a paused ref for use inside of render
+    const pausedRef = useRef(paused);
+    useEffect(() => {
+        pausedRef.current = paused;
+    }, [paused])
 
     useEffect(() => {
         const canvas = canvasRef.current;
