@@ -136,14 +136,13 @@ export function Sim(props: SimProps) {
             // Initialize all shader programs
             const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
             if (!camlightShaderProgram) {
-                console.error("Failed to initialize shader program B");
+                console.error("Failed to initialize camera light shader");
                 return;
             }
             const camlightProgramInfo: ProgramInfo = {
                 program: camlightShaderProgram,
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
-                    vertexColor: gl.getAttribLocation(camlightShaderProgram, "aVertexColor"),
                     vertexNormal: gl.getAttribLocation(camlightShaderProgram, "aVertexNormal"),
                 },
                 uniformLocations: {
@@ -168,7 +167,6 @@ export function Sim(props: SimProps) {
                 program: starlightShaderProgram,
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(starlightShaderProgram, "aVertexPosition"),
-                    vertexColor: gl.getAttribLocation(starlightShaderProgram, "aVertexColor"),
                     vertexNormal: gl.getAttribLocation(starlightShaderProgram, "aVertexNormal"),
                 },
                 uniformLocations: {
