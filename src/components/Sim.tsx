@@ -181,8 +181,6 @@ export function Sim(props: SimProps) {
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                 },
             };
-
-            programInfoRef.current = camlightProgramInfo;
             /*****************************
              * Load Model Buffers
              *****************************/
@@ -192,6 +190,10 @@ export function Sim(props: SimProps) {
                 console.error("Failed to initialize buffers");
                 return;
             }
+
+            /*
+                Projection matrix does not need to change every render.
+            */
 
             let then = 0;
             let accumulatedTime = 0;
@@ -269,8 +271,8 @@ export function Sim(props: SimProps) {
                 /*
                     Binding buffers
                 */
-                setPositionAttribute(gl, buffers, programInfoRef.current);
-                setNormalAttribute(gl, buffers, programInfoRef.current);
+                setPositionAttribute(gl, buffers, programInfoRef.current.attribLocations);
+                setNormalAttribute(gl, buffers, programInfoRef.current.attribLocations);
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
                 gl.useProgram(programInfoRef.current.program);
 
@@ -292,6 +294,16 @@ export function Sim(props: SimProps) {
                 }
                 const viewMatrix = cameraRef.current.getViewMatrix();
                 gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, viewMatrix);
+
+                switch (lightingModeRef.current) {
+                    case LightingMode.CAMLIGHT:
+                        break;
+                    case LightingMode.STARLIGHT:
+                        break;
+                    default:
+                        console.error("Invalid lighting mode");
+                        return;
+                }
 
                 /*
                     Set global program uniforms unique to each shader program
