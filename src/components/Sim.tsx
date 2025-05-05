@@ -36,8 +36,8 @@ interface SimProps {
 
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-    bodyFollowedRef: React.RefObject<number>;
-    updateBodyFollowed: (newBodiesFollowed: number) => void;
+    bodyFollowed: number;
+    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 
     // miscellaneous controls
     resetSim: React.RefObject<boolean>;
@@ -55,8 +55,8 @@ export function Sim(props: SimProps) {
         setNumActiveUniformVectors,
         setLeaderboardBodies,
         setNumStars,
-        bodyFollowedRef,
-        updateBodyFollowed,
+        bodyFollowed,
+        setBodyFollowed,
         resetSim,
         paused,
         starLightRef,
@@ -81,16 +81,18 @@ export function Sim(props: SimProps) {
 
     const programInfoRef = useRef<ProgramInfo>(null);
 
-
-    useEffect(() => {
-        setLeaderboardBodies(universe.current.getActiveBodies());
-    }, [bodyFollowedRef.current]);
-
-    // Sets a paused ref for use inside of render
-    const pausedRef = useRef(paused);
+    // WebGL render function needs a ref to see the most recent value
+    const pausedRef = useRef(paused); 
     useEffect(() => {
         pausedRef.current = paused;
     }, [paused])
+
+
+    const bodyFollowedRef = useRef(bodyFollowed)
+    useEffect(() => {
+        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
+        bodyFollowedRef.current = bodyFollowed;
+    }, [bodyFollowed]);
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -108,7 +110,7 @@ export function Sim(props: SimProps) {
         const initialize = async () => {
             // Set sorted universe parameters initially
             setNumActiveBodies(universe.current.numActive);
-            setLeaderboardBodies(universe.current.getActiveBodies());
+            setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
             // Set unchanging webGL debug text
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
@@ -210,7 +212,7 @@ export function Sim(props: SimProps) {
 
                 if (resetSim.current) {
                     cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-                    updateBodyFollowed(-1);
+                    setBodyFollowed(-1);
                     universe.current.reset();
                     resetSim.current = false;
                 }
@@ -220,7 +222,7 @@ export function Sim(props: SimProps) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
                         setNumActiveBodies(universe.current.numActive);
-                        setLeaderboardBodies(universe.current.getActiveBodies());
+                        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
                     } else {
                     }
                     accumulatedTime -= secondsPerTick;

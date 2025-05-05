@@ -307,7 +307,7 @@ export class Universe {
         return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
     }
 
-    public getActiveBodies(target?: number): Array<LeaderboardBody> {
+    public getActiveBodies(target: number): Array<LeaderboardBody> {
         const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
@@ -320,7 +320,7 @@ export class Universe {
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
                 dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
-                dTarget: target ? this.bodyDistance(target, i) : -1,
+                dTarget: target > -1 ? this.bodyDistance(target, i) : -1,
                 orbiting: this.orbitalIndices[i],
                 dOrbit: this.orbitalDistances[i],
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,

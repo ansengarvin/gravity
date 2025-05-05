@@ -49,13 +49,7 @@ export function App() {
     const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
 
     // Which orbital body is being followed by the camera
-    // Universe class needs the ref, everything else needs the state
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
-    const bodyFollowedRef = useRef<number>(bodyFollowed);
-    const updateBodyFollowed = (newBodyFollowed: number) => {
-        setBodyFollowed(newBodyFollowed);
-        bodyFollowedRef.current = newBodyFollowed;
-    };
 
     const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
 
@@ -85,8 +79,8 @@ export function App() {
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
                     setNumStars={setNumStars}
-                    bodyFollowedRef={bodyFollowedRef}
-                    updateBodyFollowed={updateBodyFollowed}
+                    bodyFollowed={bodyFollowed}
+                    setBodyFollowed={setBodyFollowed}
                     resetSim={resetSim}
                     paused={paused}
                     starLightRef={starLightRef}
@@ -121,7 +115,7 @@ export function App() {
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}
                         bodyFollowed={bodyFollowed}
-                        updateBodyFollowed={updateBodyFollowed}
+                        setBodyFollowed={setBodyFollowed}
                     />
                 ) : null}
                 <ControlButtons
