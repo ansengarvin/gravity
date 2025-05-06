@@ -107,7 +107,16 @@ const LeaderboardStyle = styled.div`
     table {
         width: 100%;
         border-spacing: 5px;
+
     }
+
+    th {
+        position: sticky;
+        top: 0px;
+        background-color: #010101;
+    }
+
+
 `;
 
 const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
