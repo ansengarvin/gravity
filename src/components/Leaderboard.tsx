@@ -29,36 +29,36 @@ export function Leaderboard(props: LeaderboardProps) {
         <LeaderboardStyle>
             <table>
                 <thead>
-                    <tr>
-                        <th
-                            onClick={() => {
-                                sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
-                            }}
-                        >
-                            <div>Name</div>
-                        </th>
-                        <th
-                            onClick={() => {
-                                sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
-                            }}
-                        >
-                            <div>Mass</div>
-                        </th>
-                        <th
-                            onClick={() => {
-                                sortBy == "dOrigin" ? setSortBy("dOriginReverse") : setSortBy("dOrigin");
-                            }}
-                        >
-                            <div>dOrigin</div>
-                        </th>
-                        <th
-                            onClick={() => {
-                                sortBy == "dTarget" ? setSortBy("dTargetReverse") : setSortBy("dTarget");
-                            }}
-                        >
-                            <div>dTarget</div>
-                        </th>
-                    </tr>
+                <tr>
+                    <th>
+                        <button onClick={() => {
+                            sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
+                        }}>
+                            Name
+                        </button>
+                    </th>
+                    <th>
+                        <button onClick={() => {
+                            sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
+                        }}>
+                            Mass
+                        </button>
+                    </th>
+                    <th>
+                        <button onClick={() => {
+                            sortBy == "dOrigin" ? setSortBy("dOriginReverse") : setSortBy("dOrigin");
+                        }}>
+                            dOrigin
+                        </button>
+                    </th>
+                    <th>
+                        <button onClick={() => {
+                            sortBy == "dTarget" ? setSortBy("dTargetReverse") : setSortBy("dTarget");
+                        }}>
+                            dTarget
+                        </button>
+                    </th>
+                </tr>
                 </thead>
                 <tbody>
                     {sortedBodies.map((body: LeaderboardBody) => {
@@ -116,6 +116,21 @@ const LeaderboardStyle = styled.div`
         background-color: #010101;
     }
 
+    thead {
+        button {
+            color: white;
+            height: 100%;
+            width: 100%;
+
+            // remove all default button styling
+            background: none;
+            border: none;
+            color: inherit;
+            font: inherit;
+            cursor: pointer;
+        }
+    }
+
 
 `;
 
@@ -168,31 +183,31 @@ function sortBodies(bodies: LeaderboardBody[], sortBy: string): LeaderboardBody[
             case "nameReverse":
                 return b.index - a.index;
             case "mass":
-                return b.mass - a.mass;
+                return b.mass - a.mass || a.index - b.index;
             case "massReverse":
-                return a.mass - b.mass;
+                return a.mass - b.mass || a.index - b.index;
             case "dOrigin":
-                return b.dOrigin - a.dOrigin;
+                return b.dOrigin - a.dOrigin || a.index - b.index;
             case "dOriginReverse":
-                return a.dOrigin - b.dOrigin;
+                return a.dOrigin - b.dOrigin || a.index - b.index;
             case "dTarget":
-                return a.dTarget - b.dTarget;
+                return a.dTarget - b.dTarget || a.index - b.index;
             case "dTargetReverse":
-                return b.dTarget - a.dTarget;
+                return b.dTarget - a.dTarget || a.index - b.index;
             case "orbiting":
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
-                return a.orbiting - b.orbiting;
+                return a.orbiting - b.orbiting || a.index - b.index;
             case "orbitingReverse":
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
-                return b.orbiting - a.orbiting;
+                return b.orbiting - a.orbiting || a.index - b.index;
             case "dOribit":
-                return a.dOrbit - b.dOrbit;
+                return a.dOrbit - b.dOrbit || a.index - b.index;
             case "dOrbitReverse":
-                return b.dOrbit - a.dOrbit;
+                return b.dOrbit - a.dOrbit || a.index - b.index;
             default:
                 return b.mass - a.mass;
         }
