@@ -393,9 +393,9 @@ function sortBodies(bodies: LeaderboardBody[], sortBy: SortType): LeaderboardBod
             case SortType.D_ORBIT_REVERSE:
                 return b.dOrbit - a.dOrbit || a.index - b.index;
             case SortType.NUM_SAT:
-                return a.numSattelites - b.numSattelites || a.index - b.index;
-            case SortType.NUM_SAT_REVERSE:
                 return b.numSattelites - a.numSattelites || a.index - b.index;
+            case SortType.NUM_SAT_REVERSE:
+                return a.numSattelites - b.numSattelites || a.index - b.index;
             default:
                 return b.mass - a.mass;
         }
