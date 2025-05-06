@@ -288,7 +288,7 @@ export function Sim(props: SimProps) {
                         break;
                     }
                 }
-                
+
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
                     if (!universe.current.bodiesActive[i]) {
                         continue;
@@ -308,11 +308,11 @@ export function Sim(props: SimProps) {
 
                     const modelViewMatrix = mat4.create();
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
-                    
+
                     const normalMatrix = mat4.create();
                     mat4.invert(normalMatrix, modelViewMatrix);
                     mat4.transpose(normalMatrix, normalMatrix);
-                    
+
                     // Bind uniforms based on current lighting mode
                     switch (lightingModeRef.current) {
                         case LightingMode.CAMLIGHT: {
@@ -329,22 +329,24 @@ export function Sim(props: SimProps) {
                                 1.0,
                             ]);
 
-                            setNumActiveUniforms(gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
+                            setNumActiveUniforms(
+                                gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                            );
                             setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
                             break;
                         }
                         case LightingMode.STARLIGHT: {
-                            gl.uniformMatrix4fv(
-                                starlightProgramInfo.uniformLocations.modelMatrix,
-                                false,
-                                modelMatrix,
-                            );
+                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
                                 false,
                                 modelViewMatrix,
                             );
-                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.normalMatrix,
+                                false,
+                                normalMatrix,
+                            );
                             const isStar = universe.current.isStar(i) ? 1 : 0;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
                             gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
@@ -353,7 +355,9 @@ export function Sim(props: SimProps) {
                                 universe.current.colorsB[i],
                                 1.0,
                             ]);
-                            setNumActiveUniforms(gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
+                            setNumActiveUniforms(
+                                gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                            );
                             setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
                             break;
                         }
@@ -368,7 +372,6 @@ export function Sim(props: SimProps) {
                 }
 
                 // set debug information
-                
 
                 requestAnimationFrame(render);
             }
