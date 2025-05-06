@@ -330,15 +330,12 @@ export class Universe {
     }
 
     public isStar(idx: number) {
-        return this.masses[idx] >= this.settings.starThreshold;
+        return this.bodiesActive[idx] && this.masses[idx] >= this.settings.starThreshold;
     }
 
     public getStarData(): Array<vec4> {
         const stars = new Array<vec4>();
         for (let i = 0; i < this.settings.numBodies; i++) {
-            if (!this.bodiesActive[i]) {
-                continue;
-            }
             if (this.isStar(i)) {
                 stars.push(vec4.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i], this.masses[i]));
             }
@@ -346,6 +343,16 @@ export class Universe {
 
         stars.sort((a, b) => b[3] - a[3]); // Sort by mass
         return stars;
+    }
+
+    public getNumStars(): number {
+        let numStars = 0;
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (this.isStar(i)) {
+                numStars++;
+            }
+        }
+        return numStars;
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
