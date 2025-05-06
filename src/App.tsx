@@ -83,14 +83,19 @@ export function App() {
             <Backdrop>
                 <InfoBox>
                     <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
-                    {bodyFollowed != -1 ? (
-                        <div>
-                            <button>Stop Following</button>
-                            <button>Reset Camera</button>
-                        </div>
-                    ) : (
-                        <></>
-                    )}
+                    <div>
+                        {bodyFollowed != -1 ? (
+                                <button
+                                    onClick={() => {
+                                        setBodyFollowed(-1);
+                                    }}
+                                >Stop Following</button>
+                            
+                        ) : (
+                            <></>
+                        )}
+                        <button>Reset Camera</button>
+                    </div>
                 </InfoBox>
                 <Header />
                 {debugStatsShown ? (
