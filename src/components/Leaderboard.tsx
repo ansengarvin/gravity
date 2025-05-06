@@ -304,13 +304,15 @@ function LeaderboardTabs(props: LeaderboardTabsProps) {
                 onClick={() => {
                     setLeaderboardTab(TabType.BASIC);
                 }}
+                disabled={leaderboardTab == TabType.BASIC}
             >
-                Properties
+                Stats
             </button>
             <button
                 onClick={() => {
                     setLeaderboardTab(TabType.ORBIT);
                 }}
+                disabled={leaderboardTab == TabType.ORBIT}
             >
                 Orbits
             </button>
@@ -331,10 +333,20 @@ const LeaderboardTabsStyle = styled.div`
         height: 100%;
         background: none;
         border: none;
-        background-color: #faff6f;
+        background-color: #7a7a7a;
         cursor: pointer;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+
+        :hover {
+            background-color: #9a9a9a;
+        }
+
+        :disabled {   
+            background-color: white;
+            color: black;
+            cursor: auto;
+        }
     }
 `;
 
