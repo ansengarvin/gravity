@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ProgramInfo } from "../lib/webGL/programInfo";
+import { CamlightProgramInfo, LightingMode, StarlightProgramInfo } from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel } from "../lib/gltf/model";
@@ -23,6 +23,9 @@ import { LeaderboardBody } from "./Leaderboard";
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
+const fieldOfView = (45 * Math.PI) / 180; // in radians
+const zNear = 0.1;
+const zFar = 100.0;
 
 interface SimProps {
     // debug information
@@ -36,13 +39,14 @@ interface SimProps {
 
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-    bodyFollowedRef: React.RefObject<number>;
-    updateBodyFollowed: (newBodiesFollowed: number) => void;
+    bodyFollowed: number;
+    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
+
+    lightingMode: LightingMode;
 
     // miscellaneous controls
-    resetSim: React.RefObject<boolean>;
-    pausedRef: React.RefObject<boolean>;
-    starLightRef: React.RefObject<boolean>;
+    resetSim: number;
+    paused: boolean;
 }
 
 export function Sim(props: SimProps) {
@@ -55,13 +59,14 @@ export function Sim(props: SimProps) {
         setNumActiveUniformVectors,
         setLeaderboardBodies,
         setNumStars,
-        bodyFollowedRef,
-        updateBodyFollowed,
+        bodyFollowed,
+        setBodyFollowed,
+        lightingMode,
         resetSim,
-        pausedRef,
-        starLightRef,
+        paused,
     } = props;
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    // For now, hard-code universe settings. We will eventually want these to be user-controlled.
     const settings: UniverseSettings = {
         seed: "irrelevant",
         timeStep: 1.0 / 12.0, // time step in years (1 month)
@@ -70,6 +75,9 @@ export function Sim(props: SimProps) {
         starThreshold: 0.8,
     };
 
+    /*
+        Camera and universe classes are placed inside of refs to ensure that they are not caught up in re-renders.
+    */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
     const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
         cameraRef,
@@ -77,14 +85,41 @@ export function Sim(props: SimProps) {
     );
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
 
-    const universe = useRef<Universe>(new Universe(settings, bodyFollowedRef, updateBodyFollowed));
+    const universe = useRef<Universe>(new Universe(settings));
 
-    const programInfoRef = useRef<ProgramInfo>(null);
+    /*
+        The WebGL render function doesn't have access to state variables as they update, so we need to use refs
+        and effects to update the refs. This ensures that the render function always has the latest values.
+    */
+    const pausedRef = useRef(paused);
+    useEffect(() => {
+        pausedRef.current = paused;
+    }, [paused]);
+
+    const bodyFollowedRef = useRef(bodyFollowed);
+    useEffect(() => {
+        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
+        bodyFollowedRef.current = bodyFollowed;
+    }, [bodyFollowed]);
+
+    const lightingModeRef = useRef(lightingMode);
+    useEffect(() => {
+        lightingModeRef.current = lightingMode;
+    }, [lightingMode]);
 
     useEffect(() => {
-        setLeaderboardBodies(universe.current.getActiveBodies());
-    }, [bodyFollowedRef.current]);
+        cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
+        setBodyFollowed(-1);
+        universe.current.reset();
+        setNumActiveBodies(universe.current.numActive);
+        setLeaderboardBodies(universe.current.getActiveBodies(-1));
+        setNumStars(universe.current.getNumStars());
+    }, [resetSim]);
 
+    /*
+        Set up WebGL Renderer
+    */
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) {
@@ -101,34 +136,47 @@ export function Sim(props: SimProps) {
         const initialize = async () => {
             // Set sorted universe parameters initially
             setNumActiveBodies(universe.current.numActive);
-            setLeaderboardBodies(universe.current.getActiveBodies());
+            setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
             // Set unchanging webGL debug text
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
 
-            /*****************************
-             * Initialize shader programs
-             *****************************/
-            // Initialize shader program where light is generated from stars
+            // Initialize all shader programs
+            const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
+            if (!camlightShaderProgram) {
+                console.error("Failed to initialize camera light shader");
+                return;
+            }
+            const camlightProgramInfo: CamlightProgramInfo = {
+                program: camlightShaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
+                    vertexNormal: gl.getAttribLocation(camlightShaderProgram, "aVertexNormal"),
+                },
+                uniformLocations: {
+                    projectionMatrix: gl.getUniformLocation(camlightShaderProgram, "uProjectionMatrix"),
+                    modelViewMatrix: gl.getUniformLocation(camlightShaderProgram, "uModelViewMatrix"),
+                    normalMatrix: gl.getUniformLocation(camlightShaderProgram, "uNormalMatrix"),
+                    uFragColor: gl.getUniformLocation(camlightShaderProgram, "uFragColor"),
+                },
+            };
+
             const starlightShaderProgram = initShaderProgram(gl, vertLightStars, fragLightStars);
             if (!starlightShaderProgram) {
                 console.error("Failed to initialize shader program");
                 return;
             }
-            const starlightShaderProgramInfo: ProgramInfo = {
-                name: "starlight",
+            const starlightProgramInfo: StarlightProgramInfo = {
                 program: starlightShaderProgram,
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(starlightShaderProgram, "aVertexPosition"),
-                    vertexColor: gl.getAttribLocation(starlightShaderProgram, "aVertexColor"),
                     vertexNormal: gl.getAttribLocation(starlightShaderProgram, "aVertexNormal"),
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(starlightShaderProgram, "uProjectionMatrix"),
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
-                    viewMatrix: gl.getUniformLocation(starlightShaderProgram, "uViewMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
@@ -137,36 +185,6 @@ export function Sim(props: SimProps) {
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                 },
             };
-
-            // Initialize shader program where light is generated from the camera
-            const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
-            if (!camlightShaderProgram) {
-                console.error("Failed to initialize shader program B");
-                return;
-            }
-            const camlightProgramInfo: ProgramInfo = {
-                name: "camlight",
-                program: camlightShaderProgram,
-                attribLocations: {
-                    vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
-                    vertexColor: gl.getAttribLocation(camlightShaderProgram, "aVertexColor"),
-                    vertexNormal: gl.getAttribLocation(camlightShaderProgram, "aVertexNormal"),
-                },
-                uniformLocations: {
-                    projectionMatrix: gl.getUniformLocation(camlightShaderProgram, "uProjectionMatrix"),
-                    modelMatrix: gl.getUniformLocation(camlightShaderProgram, "uModelMatrix"),
-                    viewMatrix: gl.getUniformLocation(camlightShaderProgram, "uViewMatrix"),
-                    modelViewMatrix: gl.getUniformLocation(camlightShaderProgram, "uModelViewMatrix"),
-                    normalMatrix: gl.getUniformLocation(camlightShaderProgram, "uNormalMatrix"),
-                    uFragColor: gl.getUniformLocation(camlightShaderProgram, "uFragColor"),
-                    uStarLocations: gl.getUniformLocation(camlightShaderProgram, "uStarLocations"),
-                    uNumStars: gl.getUniformLocation(camlightShaderProgram, "uNumStars"),
-                    uIsStar: gl.getUniformLocation(camlightShaderProgram, "uIsStar"),
-                },
-            };
-
-            programInfoRef.current = camlightProgramInfo;
-
             /*****************************
              * Load Model Buffers
              *****************************/
@@ -178,8 +196,9 @@ export function Sim(props: SimProps) {
             }
 
             /*
-
+                Projection matrix does not need to change every render.
             */
+
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -188,32 +207,13 @@ export function Sim(props: SimProps) {
                 then = now;
                 accumulatedTime += deltaTime;
 
-                if (starLightRef.current === true && programInfoRef.current?.name !== "starlight") {
-                    programInfoRef.current = starlightShaderProgramInfo;
-                } else if (starLightRef.current === false && programInfoRef.current?.name !== "camlight") {
-                    programInfoRef.current = camlightProgramInfo;
-                }
-
-                //
-
-                if (!programInfoRef.current) {
-                    console.error("Program info not found");
-                    return;
-                }
-
-                if (resetSim.current) {
-                    cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-                    updateBodyFollowed(-1);
-                    universe.current.reset();
-                    resetSim.current = false;
-                }
-
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
                         setNumActiveBodies(universe.current.numActive);
-                        setLeaderboardBodies(universe.current.getActiveBodies());
+                        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                        setNumStars(universe.current.getNumStars());
                     } else {
                     }
                     accumulatedTime -= secondsPerTick;
@@ -231,40 +231,15 @@ export function Sim(props: SimProps) {
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
                 gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-
-                // Clear the canvas before we start drawing on it.
-
                 gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-                // Create a perspective matrix, a special matrix that is
-                // used to simulate the distortion of perspective in a camera.
-                // Our field of view is 45 degrees, with a width/height
-                // ratio that matches the display size of the canvas
-                // and we only want to see objects between 0.1 units
-                // and 100 units away from the camera.
-
-                const fieldOfView = (45 * Math.PI) / 180; // in radians
+                // Create Projection Matrix (used by all shaders)
+                const projectionMatrix = mat4.create();
                 const canvas = gl.canvas as HTMLCanvasElement;
                 const aspect = canvas.clientWidth / canvas.clientHeight;
-                const zNear = 0.1;
-                const zFar = 100.0;
-
-                /*
-                    Binding buffers
-                */
-                // Tell WebGL how to pull out the positions from the position
-                // buffer into the vertexPosition attribute.
-                setPositionAttribute(gl, buffers, programInfoRef.current);
-                setNormalAttribute(gl, buffers, programInfoRef.current);
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
-                gl.useProgram(programInfoRef.current.program);
-
-                //Create and bind projection Matrix
-                const projectionMatrix = mat4.create();
                 mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-                gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.projectionMatrix, false, projectionMatrix);
 
-                //Create and bind view matrix
+                // Create View Matrix (used by all shaders)
                 if (bodyFollowedRef.current !== -1) {
                     cameraRef.current.setTarget(
                         universe.current.positionsX[bodyFollowedRef.current],
@@ -273,30 +248,54 @@ export function Sim(props: SimProps) {
                     );
                 }
                 const viewMatrix = cameraRef.current.getViewMatrix();
-                gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.viewMatrix, false, viewMatrix);
 
-                //Create and bind light points (from stars)
-                // Gets each of the stars' locations for the purpose of creating a lighting shader
-                const starData: Array<vec4> = universe.current.getStarData();
-                const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                switch (lightingModeRef.current) {
+                    case LightingMode.CAMLIGHT: {
+                        // Bind Buffers
+                        setPositionAttribute(gl, buffers, camlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, buffers, camlightProgramInfo.attribLocations);
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        gl.useProgram(camlightProgramInfo.program);
 
-                // const ubo = gl.createBuffer();
-                // gl.bindBuffer(gl.ARRAY_BUFFER, ubo);
-                // gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flattenedStarLocs), gl.STATIC_DRAW);
-                // gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo);
-                gl.uniform3fv(programInfoRef.current.uniformLocations.uStarLocations, flattenedStarLocs);
+                        // Bind projection matrix
+                        gl.uniformMatrix4fv(
+                            camlightProgramInfo.uniformLocations.projectionMatrix,
+                            false,
+                            projectionMatrix,
+                        );
 
-                const numStars = starData.length;
-                setNumStars(numStars); // Set for debug output
-                gl.uniform1i(programInfoRef.current.uniformLocations.uNumStars, numStars);
+                        break;
+                    }
+                    case LightingMode.STARLIGHT: {
+                        // Bind Buffers
+                        setPositionAttribute(gl, buffers, starlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, buffers, starlightProgramInfo.attribLocations);
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        gl.useProgram(starlightProgramInfo.program);
+
+                        // Bind projection matrix
+                        gl.uniformMatrix4fv(
+                            starlightProgramInfo.uniformLocations.projectionMatrix,
+                            false,
+                            projectionMatrix,
+                        );
+
+                        // Data for calculating star light
+                        const starData: Array<vec4> = universe.current.getStarData();
+                        const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
+                        const numStars = starData.length;
+                        gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
+
+                        break;
+                    }
+                }
 
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
-                    //
                     if (!universe.current.bodiesActive[i]) {
                         continue;
                     }
 
-                    // Create, transform, and bind model matrix for each sphere
                     const modelMatrix = mat4.create();
                     mat4.translate(modelMatrix, modelMatrix, [
                         universe.current.positionsX[i],
@@ -308,34 +307,63 @@ export function Sim(props: SimProps) {
                         universe.current.radii[i],
                         universe.current.radii[i],
                     ]);
-                    gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.modelMatrix, false, modelMatrix);
 
-                    //Create model view matrix for each sphere
                     const modelViewMatrix = mat4.create();
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
-                    gl.uniformMatrix4fv(
-                        programInfoRef.current.uniformLocations.modelViewMatrix,
-                        false,
-                        modelViewMatrix,
-                    );
 
-                    // Create normal matrix for each sphere
                     const normalMatrix = mat4.create();
                     mat4.invert(normalMatrix, modelViewMatrix);
                     mat4.transpose(normalMatrix, normalMatrix);
-                    gl.uniformMatrix4fv(programInfoRef.current.uniformLocations.normalMatrix, false, normalMatrix);
 
-                    // Give each sphere its color
-                    gl.uniform4fv(programInfoRef.current.uniformLocations.uFragColor, [
-                        universe.current.colorsR[i],
-                        universe.current.colorsG[i],
-                        universe.current.colorsB[i],
-                        1.0,
-                    ]);
+                    // Bind uniforms based on current lighting mode
+                    switch (lightingModeRef.current) {
+                        case LightingMode.CAMLIGHT: {
+                            gl.uniformMatrix4fv(
+                                camlightProgramInfo.uniformLocations.modelViewMatrix,
+                                false,
+                                modelViewMatrix,
+                            );
+                            gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                            gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
+                                universe.current.colorsR[i],
+                                universe.current.colorsG[i],
+                                universe.current.colorsB[i],
+                                1.0,
+                            ]);
 
-                    // Tell each sphere whether it is a star or not
-                    const isStar = universe.current.isStar(i) ? 1 : 0;
-                    gl.uniform1i(programInfoRef.current.uniformLocations.uIsStar, isStar);
+                            setNumActiveUniforms(
+                                gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                            );
+                            setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
+                            break;
+                        }
+                        case LightingMode.STARLIGHT: {
+                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.modelViewMatrix,
+                                false,
+                                modelViewMatrix,
+                            );
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.normalMatrix,
+                                false,
+                                normalMatrix,
+                            );
+                            const isStar = universe.current.isStar(i) ? 1 : 0;
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
+                            gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
+                                universe.current.colorsR[i],
+                                universe.current.colorsG[i],
+                                universe.current.colorsB[i],
+                                1.0,
+                            ]);
+                            setNumActiveUniforms(
+                                gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                            );
+                            setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
+                            break;
+                        }
+                    }
 
                     // Draw each sphere
                     {
@@ -346,8 +374,6 @@ export function Sim(props: SimProps) {
                 }
 
                 // set debug information
-                setNumActiveUniforms(gl.getProgramParameter(programInfoRef.current.program, gl.ACTIVE_UNIFORMS));
-                setNumActiveUniformVectors(calculateUniformVectors(gl, programInfoRef.current.program));
 
                 requestAnimationFrame(render);
             }

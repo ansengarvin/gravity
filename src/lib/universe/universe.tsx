@@ -1,5 +1,4 @@
 import { getRandomFloat } from "../../random/random";
-import React from "react";
 import { vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
 
@@ -36,14 +35,7 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
 
-    public updateBodyFollowed: (newBodyFollowed: number) => void;
-    private bodyFollowedRef: React.RefObject<number>;
-
-    constructor(
-        settings: UniverseSettings,
-        bodyFollowedRef: React.RefObject<number>,
-        updateBodyFollowed: (newBodyFollowed: number) => void,
-    ) {
+    constructor(settings: UniverseSettings) {
         this.settings = settings;
         this.bodiesActive = new Uint8Array(this.settings.numBodies);
         this.positionsX = new Float32Array(this.settings.numBodies);
@@ -69,8 +61,6 @@ export class Universe {
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
-        this.bodyFollowedRef = bodyFollowedRef;
-        this.updateBodyFollowed = updateBodyFollowed;
 
         this.initialize();
     }
@@ -304,22 +294,19 @@ export class Universe {
         }
     }
 
-    public distanceToFollowedBody(idx: number): number {
+    public bodyDistance(a: number, b: number): number {
         /**
          * Absolute distance to the followed body. Returns -1 if there is no followed body.
          */
-        if (this.bodyFollowedRef.current == -1) {
-            return -1;
-        }
 
-        const dTargetX = this.positionsX[idx] - this.positionsX[this.bodyFollowedRef.current];
-        const dTargetY = this.positionsY[idx] - this.positionsY[this.bodyFollowedRef.current];
-        const dTargetZ = this.positionsZ[idx] - this.positionsZ[this.bodyFollowedRef.current];
+        const dTargetX = this.positionsX[b] - this.positionsX[a];
+        const dTargetY = this.positionsY[b] - this.positionsY[a];
+        const dTargetZ = this.positionsZ[b] - this.positionsZ[a];
 
         return Math.sqrt(dTargetX ** 2 + dTargetY ** 2 + dTargetZ ** 2);
     }
 
-    public getActiveBodies(): Array<LeaderboardBody> {
+    public getActiveBodies(target: number): Array<LeaderboardBody> {
         const massRankings = new Array<LeaderboardBody>(this.settings.numBodies);
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Skip inactive bodies
@@ -332,7 +319,7 @@ export class Universe {
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
                 dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
-                dTarget: this.distanceToFollowedBody(i),
+                dTarget: target > -1 ? this.bodyDistance(target, i) : -1,
                 orbiting: this.orbitalIndices[i],
                 dOrbit: this.orbitalDistances[i],
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
@@ -343,15 +330,12 @@ export class Universe {
     }
 
     public isStar(idx: number) {
-        return this.masses[idx] >= this.settings.starThreshold;
+        return this.bodiesActive[idx] && this.masses[idx] >= this.settings.starThreshold;
     }
 
     public getStarData(): Array<vec4> {
         const stars = new Array<vec4>();
         for (let i = 0; i < this.settings.numBodies; i++) {
-            if (!this.bodiesActive[i]) {
-                continue;
-            }
             if (this.isStar(i)) {
                 stars.push(vec4.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i], this.masses[i]));
             }
@@ -359,6 +343,16 @@ export class Universe {
 
         stars.sort((a, b) => b[3] - a[3]); // Sort by mass
         return stars;
+    }
+
+    public getNumStars(): number {
+        let numStars = 0;
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (this.isStar(i)) {
+                numStars++;
+            }
+        }
+        return numStars;
     }
 
     private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {

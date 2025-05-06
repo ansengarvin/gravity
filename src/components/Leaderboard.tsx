@@ -16,11 +16,11 @@ export interface LeaderboardBody {
 export interface LeaderboardProps {
     leaderboardBodies: any[];
     bodyFollowed: number;
-    updateBodyFollowed: (newBodyFollowed: number) => void;
+    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function Leaderboard(props: LeaderboardProps) {
-    const { leaderboardBodies, bodyFollowed, updateBodyFollowed } = props;
+    const { leaderboardBodies, bodyFollowed, setBodyFollowed } = props;
     const [sortBy, setSortBy] = useState<string>("mass");
     const sortedBodies = useMemo(() => {
         return sortBodies(leaderboardBodies, sortBy);
@@ -71,7 +71,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                 <td>
                                     <button
                                         onClick={() => {
-                                            updateBodyFollowed(body.index);
+                                            setBodyFollowed(body.index);
                                         }}
                                         disabled={bodyFollowed == body.index}
                                     >

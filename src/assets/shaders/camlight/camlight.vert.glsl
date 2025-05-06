@@ -4,9 +4,9 @@ in vec4 aVertexPosition;
 in vec3 aVertexNormal;
 in vec4 aVertexColor;
 
-uniform mat4 uNormalMatrix;
-uniform mat4 uModelViewMatrix;
 uniform mat4 uProjectionMatrix;
+uniform mat4 uModelViewMatrix;
+uniform mat4 uNormalMatrix;
 
 out highp vec3 vTransformedNormal;
 out highp vec4 vPosition;

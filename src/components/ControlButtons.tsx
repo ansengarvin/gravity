@@ -8,15 +8,15 @@ import { ViewListIcon } from "../assets/icons/ViewListIcon";
 import { MenuName } from "../lib/defines/MenuName";
 
 interface ControlButtonProps {
-    pausedState: boolean;
-    updatePaused: (shouldPause: boolean) => void;
-    resetSim: React.RefObject<boolean>;
+    paused: boolean;
+    setPaused: React.Dispatch<React.SetStateAction<boolean>>;
+    setResetSim: React.Dispatch<React.SetStateAction<number>>;
     menuShown: MenuName;
     setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const { pausedState, updatePaused, resetSim, menuShown, setMenuShown } = props;
+    const { paused, setPaused, setResetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>
             <ButtonRow>
@@ -28,11 +28,11 @@ export function ControlButtons(props: ControlButtonProps) {
                 >
                     <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
                 </ControlButton>
-                {pausedState ? (
+                {paused ? (
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            updatePaused(false);
+                            setPaused(false);
                         }}
                     >
                         <PlayIcon color={"white"} dim={"50px"} filled={true} />
@@ -41,18 +41,13 @@ export function ControlButtons(props: ControlButtonProps) {
                     <ControlButton
                         dim={"50px"}
                         onClick={() => {
-                            updatePaused(true);
+                            setPaused(true);
                         }}
                     >
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                 )}
-                <ControlButton
-                    dim={"50px"}
-                    onClick={() => {
-                        resetSim.current = true;
-                    }}
-                >
+                <ControlButton dim={"50px"} onClick={() => setResetSim((prev) => prev + 1)}>
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>
                 <ControlButton

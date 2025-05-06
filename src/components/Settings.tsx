@@ -1,23 +1,26 @@
 import styled from "@emotion/styled";
 import React from "react";
+import { LightingMode } from "../lib/webGL/shaderPrograms";
 
 interface SettingsMenuProps {
     debugStatsShown: boolean;
     setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
-    starLightState: boolean;
-    updateStarLight: (starLight: boolean) => void;
+    lightingMode: LightingMode;
+    setLightingMode: React.Dispatch<React.SetStateAction<LightingMode>>;
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, starLightState, updateStarLight } = props;
+    const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode } = props;
     return (
         <SettingsStyle>
             <button
                 onClick={() => {
-                    updateStarLight(!starLightState);
+                    setLightingMode((prev) =>
+                        prev == LightingMode.CAMLIGHT ? LightingMode.STARLIGHT : LightingMode.CAMLIGHT,
+                    );
                 }}
             >
-                {starLightState ? "Disable Star Light" : "Enable Star Light"}
+                {lightingMode == LightingMode.STARLIGHT ? "Disable Star Light" : "Enable Star Light"}
             </button>
             <button
                 onClick={() => {
