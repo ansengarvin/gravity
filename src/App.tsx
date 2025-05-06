@@ -85,12 +85,13 @@ export function App() {
                     <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
                     <div>
                         {bodyFollowed != -1 ? (
-                                <button
-                                    onClick={() => {
-                                        setBodyFollowed(-1);
-                                    }}
-                                >Stop Following</button>
-                            
+                            <button
+                                onClick={() => {
+                                    setBodyFollowed(-1);
+                                }}
+                            >
+                                Stop Following
+                            </button>
                         ) : (
                             <></>
                         )}

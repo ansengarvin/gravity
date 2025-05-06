@@ -46,7 +46,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == SortType.NAME ? setSortBy(SortType.NAME_REVERSE) : setSortBy(SortType.NAME);
+                                                sortBy == SortType.NAME
+                                                    ? setSortBy(SortType.NAME_REVERSE)
+                                                    : setSortBy(SortType.NAME);
                                             }}
                                         >
                                             Name
@@ -55,7 +57,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == SortType.MASS ? setSortBy(SortType.MASS_REVERSE) : setSortBy(SortType.MASS);
+                                                sortBy == SortType.MASS
+                                                    ? setSortBy(SortType.MASS_REVERSE)
+                                                    : setSortBy(SortType.MASS);
                                             }}
                                         >
                                             Mass
@@ -127,7 +131,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == SortType.NAME ? setSortBy(SortType.NAME_REVERSE) : setSortBy(SortType.NAME);
+                                                sortBy == SortType.NAME
+                                                    ? setSortBy(SortType.NAME_REVERSE)
+                                                    : setSortBy(SortType.NAME);
                                             }}
                                         >
                                             Name
@@ -136,7 +142,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == SortType.NUM_SAT ? setSortBy(SortType.NUM_SAT_REVERSE) : setSortBy(SortType.NUM_SAT);
+                                                sortBy == SortType.NUM_SAT
+                                                    ? setSortBy(SortType.NUM_SAT_REVERSE)
+                                                    : setSortBy(SortType.NUM_SAT);
                                             }}
                                         >
                                             Sattelites
@@ -156,7 +164,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == SortType.D_ORBIT ? setSortBy(SortType.D_ORBIT_REVERSE) : setSortBy(SortType.D_ORBIT);
+                                                sortBy == SortType.D_ORBIT
+                                                    ? setSortBy(SortType.D_ORBIT_REVERSE)
+                                                    : setSortBy(SortType.D_ORBIT);
                                             }}
                                         >
                                             dOrbit
@@ -342,7 +352,7 @@ const LeaderboardTabsStyle = styled.div`
             background-color: #9a9a9a;
         }
 
-        :disabled {   
+        :disabled {
             background-color: white;
             color: black;
             cursor: auto;

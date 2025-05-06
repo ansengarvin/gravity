@@ -268,8 +268,7 @@ export class Universe {
         /*
             Handle specific orbital energy
         */
-       this.setOrbitalInformation()
-        
+        this.setOrbitalInformation();
     }
 
     private setOrbitalInformation() {
