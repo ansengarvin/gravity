@@ -125,8 +125,7 @@ export class Universe {
             this.colorsB[i] = getRandomFloat(0.1, 0.85);
         }
 
-        this.orbitalIndices.fill(-1);
-        this.orbitalDistances.fill(-1);
+        this.setOrbitalInformation();
     }
 
     private clear(): void {
@@ -266,6 +265,11 @@ export class Universe {
         /*
             Handle specific orbital energy
         */
+       this.setOrbitalInformation()
+        
+    }
+
+    private setOrbitalInformation() {
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
                 continue;
