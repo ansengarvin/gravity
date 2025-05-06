@@ -16,6 +16,7 @@ export interface LeaderboardBody {
     orbiting: number;
     dOrbit: number;
     orbitColor: string;
+    numSattelites: number;
 }
 
 export interface LeaderboardProps {
@@ -26,7 +27,7 @@ export interface LeaderboardProps {
 
 export function Leaderboard(props: LeaderboardProps) {
     const { leaderboardBodies, bodyFollowed, setBodyFollowed } = props;
-    const [sortBy, setSortBy] = useState<string>("mass");
+    const [sortBy, setSortBy] = useState<SortType>(SortType.MASS);
     const sortedBodies = useMemo(() => {
         return sortBodies(leaderboardBodies, sortBy);
     }, [sortBy, leaderboardBodies, bodyFollowed]);
@@ -45,7 +46,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
+                                                sortBy == SortType.NAME ? setSortBy(SortType.NAME_REVERSE) : setSortBy(SortType.NAME);
                                             }}
                                         >
                                             Name
@@ -54,7 +55,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
+                                                sortBy == SortType.MASS ? setSortBy(SortType.MASS_REVERSE) : setSortBy(SortType.MASS);
                                             }}
                                         >
                                             Mass
@@ -63,9 +64,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "dOrigin"
-                                                    ? setSortBy("dOriginReverse")
-                                                    : setSortBy("dOrigin");
+                                                sortBy == SortType.D_ORIGIN
+                                                    ? setSortBy(SortType.D_ORIGIN_REVERSE)
+                                                    : setSortBy(SortType.D_ORIGIN);
                                             }}
                                         >
                                             dOrigin
@@ -74,9 +75,9 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "dTarget"
-                                                    ? setSortBy("dTargetReverse")
-                                                    : setSortBy("dTarget");
+                                                sortBy == SortType.D_TARGET
+                                                    ? setSortBy(SortType.D_TARGET_REVERSE)
+                                                    : setSortBy(SortType.D_TARGET);
                                             }}
                                         >
                                             dTarget
@@ -126,7 +127,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "name" ? setSortBy("nameReverse") : setSortBy("name");
+                                                sortBy == SortType.NAME ? setSortBy(SortType.NAME_REVERSE) : setSortBy(SortType.NAME);
                                             }}
                                         >
                                             Name
@@ -135,18 +136,18 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "mass" ? setSortBy("massReverse") : setSortBy("mass");
+                                                sortBy == SortType.NUM_SAT ? setSortBy(SortType.NUM_SAT_REVERSE) : setSortBy(SortType.NUM_SAT);
                                             }}
                                         >
-                                            Mass
+                                            Sattelites
                                         </button>
                                     </th>
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "orbiting"
-                                                    ? setSortBy("orbitingReverse")
-                                                    : setSortBy("orbiting");
+                                                sortBy == SortType.ORBITING
+                                                    ? setSortBy(SortType.ORBITING_REVERSE)
+                                                    : setSortBy(SortType.ORBITING);
                                             }}
                                         >
                                             Orbiting
@@ -155,7 +156,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                     <th>
                                         <button
                                             onClick={() => {
-                                                sortBy == "dOrbit" ? setSortBy("dOrbitReverse") : setSortBy("dOrbit");
+                                                sortBy == SortType.D_ORBIT ? setSortBy(SortType.D_ORBIT_REVERSE) : setSortBy(SortType.D_ORBIT);
                                             }}
                                         >
                                             dOrbit
@@ -183,17 +184,17 @@ export function Leaderboard(props: LeaderboardProps) {
                                                     B-{body.index}
                                                 </BodySelectButton>
                                             </td>
-                                            <td>{body.mass.toFixed(2)}</td>
+                                            <td>{body.numSattelites}</td>
                                             <td>
                                                 <BodySelectButton
-                                                    selected={bodyFollowed == body.index}
+                                                    selected={bodyFollowed == body.orbiting}
                                                     bodyColor={body.orbitColor}
                                                     onClick={() => {
-                                                        setBodyFollowed(body.index);
+                                                        setBodyFollowed(body.orbiting);
                                                     }}
-                                                    disabled={bodyFollowed == body.index}
+                                                    disabled={bodyFollowed == body.orbiting}
                                                 >
-                                                    B-{body.index}
+                                                    B-{body.orbiting}
                                                 </BodySelectButton>
                                             </td>
                                             <td>{body.dOrbit.toFixed(2)}</td>
@@ -257,13 +258,11 @@ const LeaderboardContent = styled.div`
 
 const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     td {
-        background-color: ${(props) => (props.selected ? "black" : props.bodyColor)};
+        background-color: ${(props) => (props.selected ? "white" : props.bodyColor)};
         color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
         height: 40px;
-
-        border: ${(props) => (props.selected ? "3px solid " + props.bodyColor : "none")};
 
         color: black;
     }
@@ -282,14 +281,12 @@ const BodySelectButton = styled.button<{ selected: boolean; bodyColor: string }>
 
     background-color: ${(props) => (props.selected ? "black" : props.bodyColor)};
 
-    border: 3px solid ${(props) => (props.selected ? "black" : brightenColor(props.bodyColor, 0.5))};
-
     :hover {
         background-color: ${(props) => brightenColor(props.bodyColor, 1.2)};
     }
 
     :disabled {
-        background-color: black;
+        background-color: white;
         color: ${(props) => props.bodyColor};
         cursor: auto;
     }
@@ -344,41 +341,61 @@ const LeaderboardTabsStyle = styled.div`
 /*
     Helper Functions
 */
+enum SortType {
+    NAME,
+    NAME_REVERSE,
+    MASS,
+    MASS_REVERSE,
+    D_ORIGIN,
+    D_ORIGIN_REVERSE,
+    D_TARGET,
+    D_TARGET_REVERSE,
+    ORBITING,
+    ORBITING_REVERSE,
+    D_ORBIT,
+    D_ORBIT_REVERSE,
+    NUM_SAT,
+    NUM_SAT_REVERSE,
+}
 
-function sortBodies(bodies: LeaderboardBody[], sortBy: string): LeaderboardBody[] {
+function sortBodies(bodies: LeaderboardBody[], sortBy: SortType): LeaderboardBody[] {
     // copy bodies into new body array
     return bodies.sort((a, b) => {
         switch (sortBy) {
-            case "name":
+            case SortType.NAME:
                 return a.index - b.index;
-            case "nameReverse":
+            case SortType.NAME_REVERSE:
                 return b.index - a.index;
-            case "mass":
+            case SortType.MASS:
                 return b.mass - a.mass || a.index - b.index;
-            case "massReverse":
+            case SortType.MASS_REVERSE:
                 return a.mass - b.mass || a.index - b.index;
-            case "dOrigin":
+            case SortType.D_ORIGIN:
                 return b.dOrigin - a.dOrigin || a.index - b.index;
-            case "dOriginReverse":
+            case SortType.D_ORIGIN_REVERSE:
                 return a.dOrigin - b.dOrigin || a.index - b.index;
-            case "dTarget":
+            case SortType.D_TARGET:
                 return a.dTarget - b.dTarget || a.index - b.index;
-            case "dTargetReverse":
+            case SortType.D_TARGET_REVERSE:
                 return b.dTarget - a.dTarget || a.index - b.index;
-            case "orbiting":
+            case SortType.ORBITING:
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return a.orbiting - b.orbiting || a.index - b.index;
-            case "orbitingReverse":
+            case SortType.ORBITING_REVERSE:
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return b.orbiting - a.orbiting || a.index - b.index;
-            case "dOribit":
+            case SortType.D_ORBIT:
                 return a.dOrbit - b.dOrbit || a.index - b.index;
-            case "dOrbitReverse":
+            case SortType.D_ORBIT_REVERSE:
                 return b.dOrbit - a.dOrbit || a.index - b.index;
+            case SortType.NUM_SAT:
+                return a.numSattelites - b.numSattelites || a.index - b.index;
+            case SortType.NUM_SAT_REVERSE:
+                return b.numSattelites - a.numSattelites || a.index - b.index;
             default:
                 return b.mass - a.mass;
         }

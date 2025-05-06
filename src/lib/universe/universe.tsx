@@ -34,6 +34,7 @@ export class Universe {
     public numActive: number;
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
+    public numSattelites: Float32Array;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -57,8 +58,10 @@ export class Universe {
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
 
+        // Stores the index of the body that each body orbits
         this.orbitalIndices = new Float32Array(this.settings.numBodies);
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
+        this.numSattelites = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
 
@@ -270,6 +273,10 @@ export class Universe {
     }
 
     private setOrbitalInformation() {
+        /**
+         * Sets the orbital indices, orbital distances and number of sattelites for each body
+         */
+        this.numSattelites.fill(0);
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
                 continue;
@@ -289,6 +296,7 @@ export class Universe {
                 }
             }
             if (this.orbitalIndices[i] !== -1) {
+                this.numSattelites[this.orbitalIndices[i]]++;
                 this.orbitalDistances[i] = Math.sqrt(
                     (this.positionsX[i] - this.positionsX[this.orbitalIndices[i]]) ** 2 +
                         (this.positionsY[i] - this.positionsY[this.orbitalIndices[i]]) ** 2 +
@@ -327,6 +335,7 @@ export class Universe {
                 orbiting: this.orbitalIndices[i],
                 dOrbit: this.orbitalDistances[i],
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
+                numSattelites: this.numSattelites[i],
             };
         }
 
