@@ -111,7 +111,7 @@ export function Sim(props: SimProps) {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         setBodyFollowed(-1);
         universe.current.reset();
-    }, [resetSim])
+    }, [resetSim]);
 
     /*
         Set up WebGL Renderer

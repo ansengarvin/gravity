@@ -47,10 +47,7 @@ export function ControlButtons(props: ControlButtonProps) {
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                 )}
-                <ControlButton
-                    dim={"50px"}
-                    onClick={() => setResetSim(prev => prev + 1)}
-                >
+                <ControlButton dim={"50px"} onClick={() => setResetSim((prev) => prev + 1)}>
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>
                 <ControlButton
