@@ -10,13 +10,13 @@ import { MenuName } from "../lib/defines/MenuName";
 interface ControlButtonProps {
     paused: boolean;
     setPaused: React.Dispatch<React.SetStateAction<boolean>>;
-    resetSim: React.RefObject<boolean>;
+    setResetSim: React.Dispatch<React.SetStateAction<number>>;
     menuShown: MenuName;
     setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
 export function ControlButtons(props: ControlButtonProps) {
-    const { paused, setPaused, resetSim, menuShown, setMenuShown } = props;
+    const { paused, setPaused, setResetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>
             <ButtonRow>
@@ -49,9 +49,7 @@ export function ControlButtons(props: ControlButtonProps) {
                 )}
                 <ControlButton
                     dim={"50px"}
-                    onClick={() => {
-                        resetSim.current = true;
-                    }}
+                    onClick={() => setResetSim(prev => prev + 1)}
                 >
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>

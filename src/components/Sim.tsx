@@ -45,7 +45,7 @@ interface SimProps {
     lightingMode: LightingMode;
 
     // miscellaneous controls
-    resetSim: React.RefObject<boolean>;
+    resetSim: number;
     paused: boolean;
 }
 
@@ -106,6 +106,12 @@ export function Sim(props: SimProps) {
     useEffect(() => {
         lightingModeRef.current = lightingMode;
     }, [lightingMode]);
+
+    useEffect(() => {
+        cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
+        setBodyFollowed(-1);
+        universe.current.reset();
+    }, [resetSim])
 
     /*
         Set up WebGL Renderer
@@ -197,13 +203,6 @@ export function Sim(props: SimProps) {
                 const deltaTime = now - then;
                 then = now;
                 accumulatedTime += deltaTime;
-
-                if (resetSim.current) {
-                    cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-                    setBodyFollowed(-1);
-                    universe.current.reset();
-                    resetSim.current = false;
-                }
 
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
