@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 import { SettingsMenu } from "./components/Settings";
