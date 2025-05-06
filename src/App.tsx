@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "./components/Header";
 import { ControlButtons } from "./components/ControlButtons";
 import { SettingsMenu } from "./components/Settings";
@@ -62,6 +62,11 @@ export function App() {
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
     const [debugStatsShown, setDebugStatsShown] = useState<boolean>(false);
     const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE);
+
+    const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
+    if (bodyFollowed != -1 && camAtOrigin) {
+        setCamAtOrigin(false);
+    }
     return (
         <>
             <SimScreen>
@@ -97,14 +102,19 @@ export function App() {
                         ) : (
                             <></>
                         )}
-                        <button
-                            onClick={() => {
-                                setBodyFollowed(-1);
-                                setResetCam((prev) => prev + 1);
-                            }}
-                        >
-                            Reset Camera Position
-                        </button>
+                        {camAtOrigin ? (
+                            <></>
+                        ) : (
+                            <button
+                                onClick={() => {
+                                    setBodyFollowed(-1);
+                                    setResetCam((prev) => prev + 1);
+                                    setCamAtOrigin(true);
+                                }}
+                            >
+                                Reset Camera Position
+                            </button>
+                        )}
                     </div>
                 </InfoBox>
                 <Header />

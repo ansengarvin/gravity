@@ -120,7 +120,7 @@ export function Sim(props: SimProps) {
 
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
-    }, [resetCam])
+    }, [resetCam]);
 
     /*
         Set up WebGL Renderer
