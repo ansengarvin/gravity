@@ -211,6 +211,7 @@ export function Sim(props: SimProps) {
                         universe.current.updateEuler(secondsPerTick);
                         setNumActiveBodies(universe.current.numActive);
                         setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                        setNumStars(universe.current.getNumStars());
                     } else {
                     }
                     accumulatedTime -= secondsPerTick;
@@ -282,7 +283,6 @@ export function Sim(props: SimProps) {
                         const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                         const numStars = starData.length;
-                        setNumStars(numStars);
                         gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
 
                         break;
