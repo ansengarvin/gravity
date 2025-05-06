@@ -56,6 +56,7 @@ export function App() {
 
     // Toggle to reset the simulation
     const [resetSim, setResetSim] = useState<number>(0);
+    const [resetCam, setResetCam] = useState<number>(0);
 
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
@@ -77,6 +78,7 @@ export function App() {
                     bodyFollowed={bodyFollowed}
                     setBodyFollowed={setBodyFollowed}
                     resetSim={resetSim}
+                    resetCam={resetCam}
                     paused={paused}
                 />
             </SimScreen>
@@ -95,7 +97,14 @@ export function App() {
                         ) : (
                             <></>
                         )}
-                        <button>Reset Camera</button>
+                        <button
+                            onClick={() => {
+                                setBodyFollowed(-1);
+                                setResetCam((prev) => prev + 1);
+                            }}
+                        >
+                            Reset Camera Position
+                        </button>
                     </div>
                 </InfoBox>
                 <Header />

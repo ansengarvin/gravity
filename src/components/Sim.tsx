@@ -46,6 +46,7 @@ interface SimProps {
 
     // miscellaneous controls
     resetSim: number;
+    resetCam: number;
     paused: boolean;
 }
 
@@ -63,6 +64,7 @@ export function Sim(props: SimProps) {
         setBodyFollowed,
         lightingMode,
         resetSim,
+        resetCam,
         paused,
     } = props;
 
@@ -115,6 +117,10 @@ export function Sim(props: SimProps) {
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
         setNumStars(universe.current.getNumStars());
     }, [resetSim]);
+
+    useEffect(() => {
+        cameraRef.current.setTarget(0, 0, 0);
+    }, [resetCam])
 
     /*
         Set up WebGL Renderer
