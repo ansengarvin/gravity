@@ -15,7 +15,7 @@ interface ControlButtonProps {
     setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
 }
 
-export function ControlButtons(props: ControlButtonProps) {
+export function Dashboard(props: ControlButtonProps) {
     const { paused, setPaused, setResetSim, menuShown, setMenuShown } = props;
     return (
         <ButtonContainer>

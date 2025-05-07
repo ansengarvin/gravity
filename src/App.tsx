@@ -2,7 +2,7 @@ import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
 import { useState } from "react";
 import { Header } from "./components/Header";
-import { ControlButtons } from "./components/ControlButtons";
+import { Dashboard } from "./components/Dashboard";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
@@ -137,7 +137,7 @@ export function App() {
                         setBodyFollowed={setBodyFollowed}
                     />
                 ) : null}
-                <ControlButtons
+                <Dashboard
                     paused={paused}
                     setPaused={setPaused}
                     setResetSim={setResetSim}
