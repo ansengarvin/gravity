@@ -7,11 +7,7 @@ export function NoIcon(props: IconProps) {
 
     return (
         <GoogleSVG color={color} dim={dim}>
-            {filled ? (
-                <></>
-            ) : (
-                <></>
-            )}
+            {filled ? <></> : <></>}
         </GoogleSVG>
     );
 }

@@ -386,7 +386,7 @@ const LeaderboardTabsStyle = styled.div`
         border: none;
         padding-left: 10px;
         padding-right: 10px;
-        
+
         cursor: pointer;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;

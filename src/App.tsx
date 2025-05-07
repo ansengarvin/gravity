@@ -111,7 +111,7 @@ export function App() {
                                 }}
                             >
                                 Reset Camera
-                            </button>                 
+                            </button>
                         ) : (
                             <></>
                         )}
