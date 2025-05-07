@@ -108,7 +108,7 @@ export function Sim(props: SimProps) {
     useEffect(() => {
         lightingModeRef.current = lightingMode;
     }, [lightingMode]);
-
+    
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         setBodyFollowed(-1);

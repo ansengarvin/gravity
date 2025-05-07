@@ -8,7 +8,7 @@ interface googleSVGProps {
 
 // All google icon SVGs have this format.
 export function GoogleSVG(props: googleSVGProps) {
-    const { color, dim, children } = props;
+    const { color, dim = "100%", children } = props;
     return (
         <svg xmlns="http://www.w3.org/2000/svg" height={dim} viewBox="0 -960 960 960" width={dim} fill={color}>
             {children}
