@@ -99,15 +99,11 @@ export function Leaderboard(props: LeaderboardProps) {
                                         >
                                             <td>
                                                 <BodySelectButton
-                                                    selected={bodyFollowed == body.index}
+                                                    bodyIndex={body.index}
                                                     bodyColor={body.color}
-                                                    onClick={() => {
-                                                        setBodyFollowed(body.index);
-                                                    }}
-                                                    disabled={bodyFollowed == body.index}
-                                                >
-                                                    B-{body.index}
-                                                </BodySelectButton>
+                                                    bodyFollowed={bodyFollowed}
+                                                    setBodyFollowed={setBodyFollowed}
+                                                />
                                             </td>
                                             <td>{body.mass.toFixed(2)}</td>
                                             <td>{body.dOrigin.toFixed(2)}</td>
@@ -184,28 +180,20 @@ export function Leaderboard(props: LeaderboardProps) {
                                         >
                                             <td>
                                                 <BodySelectButton
-                                                    selected={bodyFollowed == body.index}
+                                                    bodyIndex={body.index}
                                                     bodyColor={body.color}
-                                                    onClick={() => {
-                                                        setBodyFollowed(body.index);
-                                                    }}
-                                                    disabled={bodyFollowed == body.index}
-                                                >
-                                                    B-{body.index}
-                                                </BodySelectButton>
+                                                    bodyFollowed={bodyFollowed}
+                                                    setBodyFollowed={setBodyFollowed}
+                                                />
                                             </td>
                                             <td>{body.numSattelites}</td>
                                             <td>
                                                 <BodySelectButton
-                                                    selected={bodyFollowed == body.orbiting}
+                                                    bodyIndex={body.orbiting}
                                                     bodyColor={body.orbitColor}
-                                                    onClick={() => {
-                                                        setBodyFollowed(body.orbiting);
-                                                    }}
-                                                    disabled={bodyFollowed == body.orbiting}
-                                                >
-                                                    B-{body.orbiting}
-                                                </BodySelectButton>
+                                                    bodyFollowed={bodyFollowed}
+                                                    setBodyFollowed={setBodyFollowed}
+                                                />
                                             </td>
                                             <td>{body.dOrbit.toFixed(2)}</td>
                                         </LeaderboardRowStyle>
@@ -278,7 +266,26 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     }
 `;
 
-const BodySelectButton = styled.button<{ selected: boolean; bodyColor: string }>`
+interface BodySelectButtonProps {
+    bodyIndex: number;
+    bodyColor: string;
+    bodyFollowed: number;
+    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
+}
+
+function BodySelectButton(props: BodySelectButtonProps) {
+    const {bodyIndex, bodyColor, bodyFollowed, setBodyFollowed} = props;
+
+    return (
+        <BodySelectButtonStyle  onClick={() => {
+            setBodyFollowed(bodyIndex);
+        }}selected={bodyIndex == bodyFollowed} bodyColor={bodyColor}>
+            B-{bodyIndex}
+        </BodySelectButtonStyle>
+    )
+}
+
+const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: string }>`
     // Remove all styling
     background: none;
     border: none;
@@ -289,7 +296,7 @@ const BodySelectButton = styled.button<{ selected: boolean; bodyColor: string }>
     width: 100%;
     height: 100%;
 
-    background-color: ${(props) => (props.selected ? "black" : props.bodyColor)};
+    background-color: ${(props) => (props.selected ? "white" : props.bodyColor)};
 
     :hover {
         background-color: ${(props) => brightenColor(props.bodyColor, 1.2)};
