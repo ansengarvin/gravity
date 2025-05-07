@@ -1,6 +1,8 @@
 import styled from "@emotion/styled";
 import { useMemo, useState } from "react";
 import { brightenColor } from "../lib/colors/brightenColor";
+import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
+import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
 
 enum TabType {
     BASIC = "basic",
@@ -43,7 +45,7 @@ export function Leaderboard(props: LeaderboardProps) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>
+                                    <th className="name">
                                         <button
                                             onClick={() => {
                                                 sortBy == SortType.NAME
@@ -107,7 +109,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                             </td>
                                             <td>{body.mass.toFixed(2)}</td>
                                             <td>{body.dOrigin.toFixed(2)}</td>
-                                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
+                                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td> 
                                         </LeaderboardRowStyle>
                                     );
                                 })}
@@ -256,7 +258,7 @@ const LeaderboardContent = styled.div`
 
 const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     td {
-        background-color: ${(props) => (props.selected ? "white" : props.bodyColor)};
+        background-color: ${props => props.bodyColor};
         color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
@@ -274,15 +276,24 @@ interface BodySelectButtonProps {
 }
 
 function BodySelectButton(props: BodySelectButtonProps) {
-    const {bodyIndex, bodyColor, bodyFollowed, setBodyFollowed} = props;
-
+    const { bodyIndex, bodyColor, bodyFollowed, setBodyFollowed } = props;
     return (
-        <BodySelectButtonStyle  onClick={() => {
-            setBodyFollowed(bodyIndex);
-        }}selected={bodyIndex == bodyFollowed} bodyColor={bodyColor}>
+        <BodySelectButtonStyle
+            onClick={() => {
+                setBodyFollowed(bodyIndex);
+            }}
+            selected={bodyIndex == bodyFollowed}
+            bodyColor={bodyColor}
+        >
+            {bodyIndex == bodyFollowed ? (
+                <RadioButtonCheckedIcon filled={false} color={"black"} dim={"1rem"} />
+            ) : (
+                <RadioButtonUncheckedIcon filled={false} color={"black"} dim={"1rem"} />
+            )}
             B-{bodyIndex}
+            
         </BodySelectButtonStyle>
-    )
+    );
 }
 
 const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: string }>`
@@ -293,10 +304,15 @@ const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: stri
     font: inherit;
     cursor: pointer;
     outline: inherit;
+    
     width: 100%;
+    min-width: 70px;
     height: 100%;
 
-    background-color: ${(props) => (props.selected ? "white" : props.bodyColor)};
+    background-color: ${props => props.bodyColor};
+
+    display: flex;
+    align-items: center;
 
     :hover {
         background-color: ${(props) => brightenColor(props.bodyColor, 1.2)};
