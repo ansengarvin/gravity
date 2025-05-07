@@ -145,7 +145,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                                     : setSortBy(SortType.NUM_SAT);
                                             }}
                                         >
-                                            Sattelites
+                                            nSats
                                         </button>
                                     </th>
                                     <th>
