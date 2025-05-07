@@ -45,7 +45,7 @@ export function Leaderboard(props: LeaderboardProps) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th className="name">
+                                    <th>
                                         <button
                                             onClick={() => {
                                                 sortBy == SortType.NAME
@@ -99,7 +99,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                             bodyColor={body.color}
                                             selected={bodyFollowed == body.index}
                                         >
-                                            <td>
+                                            <td className="name">
                                                 <BodySelectButton
                                                     bodyIndex={body.index}
                                                     bodyColor={body.color}
@@ -180,7 +180,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                             bodyColor={body.color}
                                             selected={bodyFollowed == body.index}
                                         >
-                                            <td>
+                                            <td className="name">
                                                 <BodySelectButton
                                                     bodyIndex={body.index}
                                                     bodyColor={body.color}
@@ -189,7 +189,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                                 />
                                             </td>
                                             <td>{body.numSattelites}</td>
-                                            <td>
+                                            <td className="name">
                                                 <BodySelectButton
                                                     bodyIndex={body.orbiting}
                                                     bodyColor={body.orbitColor}
@@ -266,6 +266,10 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
 
         color: black;
     }
+
+    td.name{
+        background: none;
+    }
 `;
 
 interface BodySelectButtonProps {
@@ -313,6 +317,15 @@ const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: stri
 
     display: flex;
     align-items: center;
+
+    border-radius: 5px;
+
+    box-shadow: 0px -5px 2px 1px ${props => brightenColor(props.bodyColor, 0.5)} inset;
+
+    :active {
+        box-shadow: 0px -2px 2px 1px ${props => brightenColor(props.bodyColor, 0.3)} inset;
+        transform: translateY(2px);
+    }
 
     :hover {
         background-color: ${(props) => brightenColor(props.bodyColor, 1.2)};
