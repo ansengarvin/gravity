@@ -3,6 +3,9 @@ import { useMemo, useState } from "react";
 import { brightenColor } from "../lib/colors/brightenColor";
 import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
 import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
+import { BlankIcon } from "../assets/icons/BlankIcon";
+import { ArrowDownwardIcon, } from "../assets/icons/ArrowDownwardIcon";
+import { ArrowUpwardIcon } from "../assets/icons/ArrowUpwardIcon";
 
 enum TabType {
     BASIC = "basic",
@@ -60,14 +63,14 @@ export function Leaderboard(props: LeaderboardProps) {
                                         setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
-                                        title="dOrigin"
+                                        title="dOrig"
                                         type={SortType.D_ORIGIN}
                                         defaultSortAscending={false}
                                         sortCriteria={sortCriteria}
                                         setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
-                                        title="dTarget"
+                                        title="dTarg"
                                         type={SortType.D_TARGET}
                                         defaultSortAscending={true}
                                         sortCriteria={sortCriteria}
@@ -125,7 +128,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                         setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
-                                        title="Orbiting"
+                                        title="Orbit"
                                         type={SortType.ORBITING}
                                         defaultSortAscending={true}
                                         sortCriteria={sortCriteria}
@@ -202,16 +205,12 @@ const LeaderboardContent = styled.div`
 
     border: 2px solid white;
 
+    font-size: 0.9rem;
+
     table {
         height: 100%;
         width: 100%;
         border-spacing: 5px;
-    }
-
-    th {
-        position: sticky;
-        top: 0px;
-        background-color: #010101;
     }
 
     thead {
@@ -242,6 +241,7 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     }
 
     td.name {
+        width: 70px;
         background: none;
     }
 `;
@@ -262,7 +262,7 @@ function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
     const { title, type, defaultSortAscending, sortCriteria, setSortCriteria } = props;
     props;
     return (
-        <th>
+        <LeaderboardSortHeaderStyle selected={sortCriteria.type === type}>
             <button
                 onClick={() => {
                     setSortCriteria({
@@ -272,10 +272,52 @@ function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
                 }}
             >
                 {title}
+                <div>
+                    {
+                        sortCriteria.type === type ? (
+                            sortCriteria.ascending ? (
+                                <ArrowUpwardIcon dim={"100%"}filled={false} color={"white"}/>
+                            ) : (
+                                <ArrowDownwardIcon dim={"100%"} filled={false} color={"white"}/>
+                            )
+                        ) : (
+                            <BlankIcon />
+                        )
+                    }
+                </div>
             </button>
-        </th>
+        </LeaderboardSortHeaderStyle>
     );
 }
+
+const LeaderboardSortHeaderStyle = styled.th<{selected: boolean}>`
+    position: sticky;
+    top: 0px;
+    background-color: #010101;
+
+    font-weight: normal;
+
+    text-decoration: ${(props) => (props.selected ? "underline" : "none")};
+
+    margin: 0;
+
+
+    button {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        div {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            height: 1rem;
+            width: 1rem;
+        }
+    }
+`
 
 interface BodySelectButtonProps {
     bodyIndex: number;
@@ -313,8 +355,7 @@ const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: stri
     cursor: pointer;
     outline: inherit;
 
-    width: 100%;
-    min-width: 70px;
+    width: 70px;
     height: 100%;
 
     background-color: ${(props) => props.bodyColor};

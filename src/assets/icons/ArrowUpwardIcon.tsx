@@ -2,12 +2,12 @@ import { IconProps } from "./common/IconProps";
 import { GoogleSVG } from "./common/GoogleSVG";
 
 // Alternate List
-export function AltListIcon(props: IconProps) {
-    const { color, dim, filled } = props;
+export function ArrowUpwardIcon(props: IconProps) {
+    const { color, dim} = props;
 
     return (
         <GoogleSVG color={color} dim={dim}>
-            {filled ? <path d="m280-400 200-200 200 200H280Z" /> : <path d="m280-400 200-200 200 200H280Z" />}
+            <path d="M440-240v-368L296-464l-56-56 240-240 240 240-56 56-144-144v368h-80Z"/>
         </GoogleSVG>
     );
 }
