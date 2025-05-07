@@ -288,6 +288,11 @@ export class Universe {
                     continue;
                 }
 
+                // As a simplification, bodies cannot be consider to "orbit" bodies which are sufficiently
+                if (this.masses[j] < this.masses[i] / 5.0) {
+                    continue;
+                }
+
                 const energy = this.getSpecificOrbitalEnergy(i, j);
                 if (energy < lowestEnergy) {
                     lowestEnergy = energy;
