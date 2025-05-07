@@ -4,7 +4,7 @@ import { brightenColor } from "../lib/colors/brightenColor";
 import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
 import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
 import { BlankIcon } from "../assets/icons/BlankIcon";
-import { ArrowDownwardIcon, } from "../assets/icons/ArrowDownwardIcon";
+import { ArrowDownwardIcon } from "../assets/icons/ArrowDownwardIcon";
 import { ArrowUpwardIcon } from "../assets/icons/ArrowUpwardIcon";
 
 enum TabType {
@@ -273,24 +273,22 @@ function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
             >
                 {title}
                 <div>
-                    {
-                        sortCriteria.type === type ? (
-                            sortCriteria.ascending ? (
-                                <ArrowUpwardIcon dim={"100%"}filled={false} color={"white"}/>
-                            ) : (
-                                <ArrowDownwardIcon dim={"100%"} filled={false} color={"white"}/>
-                            )
+                    {sortCriteria.type === type ? (
+                        sortCriteria.ascending ? (
+                            <ArrowUpwardIcon dim={"100%"} filled={false} color={"white"} />
                         ) : (
-                            <BlankIcon />
+                            <ArrowDownwardIcon dim={"100%"} filled={false} color={"white"} />
                         )
-                    }
+                    ) : (
+                        <BlankIcon />
+                    )}
                 </div>
             </button>
         </LeaderboardSortHeaderStyle>
     );
 }
 
-const LeaderboardSortHeaderStyle = styled.th<{selected: boolean}>`
+const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
     position: sticky;
     top: 0px;
     background-color: #010101;
@@ -300,7 +298,6 @@ const LeaderboardSortHeaderStyle = styled.th<{selected: boolean}>`
     text-decoration: ${(props) => (props.selected ? "underline" : "none")};
 
     margin: 0;
-
 
     button {
         position: relative;
@@ -317,7 +314,7 @@ const LeaderboardSortHeaderStyle = styled.th<{selected: boolean}>`
             width: 1rem;
         }
     }
-`
+`;
 
 interface BodySelectButtonProps {
     bodyIndex: number;
