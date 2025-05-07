@@ -17,7 +17,7 @@ const Backdrop = styled.div`
         "empty"
         "menus"
         "buttons";
-    grid-template-rows: 50px 50px 1fr 200px min-content;
+    grid-template-rows: 50px 75px 1fr 200px min-content;
     grid-template-columns: 1fr;
     height: 100%;
     width: 100%;
@@ -90,7 +90,7 @@ export function App() {
             <Backdrop>
                 <InfoBox>
                     <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
-                    <div>
+                    <div className="buttonContainer">
                         {bodyFollowed != -1 ? (
                             <button
                                 onClick={() => {
@@ -102,9 +102,7 @@ export function App() {
                         ) : (
                             <></>
                         )}
-                        {camAtOrigin ? (
-                            <></>
-                        ) : (
+                        {!camAtOrigin && bodyFollowed == -1 ? (
                             <button
                                 onClick={() => {
                                     setBodyFollowed(-1);
@@ -112,8 +110,10 @@ export function App() {
                                     setCamAtOrigin(true);
                                 }}
                             >
-                                Reset Camera Position
-                            </button>
+                                Reset Camera
+                            </button>                 
+                        ) : (
+                            <></>
                         )}
                     </div>
                 </InfoBox>
@@ -164,6 +164,33 @@ const InfoBox = styled.div`
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 5px;
+    padding-top: 5px;
 
     font-size: 1.2rem;
+
+    .buttonContainer {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        height: 50px;
+    }
+
+    button {
+        background: none;
+        border: none;
+        width: 150px;
+
+        border: 2px solid white;
+        color: white;
+        height: 35px;
+        font-size: 1.1rem;
+
+        :hover {
+            background-color: white;
+            color: black;
+        }
+    }
 `;

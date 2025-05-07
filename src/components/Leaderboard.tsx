@@ -378,7 +378,7 @@ const LeaderboardTabsStyle = styled.div`
     flex-direction: row;
     justify-content: left;
     align-items: center;
-    gap: 1px;
+    gap: 3px;
 
     button {
         height: 100%;
