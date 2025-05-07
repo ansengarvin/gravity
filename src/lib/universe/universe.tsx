@@ -34,6 +34,7 @@ export class Universe {
     public numActive: number;
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
+    public numSattelites: Float32Array;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -57,8 +58,10 @@ export class Universe {
         this.colorsG = new Float32Array(this.settings.numBodies);
         this.colorsB = new Float32Array(this.settings.numBodies);
 
+        // Stores the index of the body that each body orbits
         this.orbitalIndices = new Float32Array(this.settings.numBodies);
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
+        this.numSattelites = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
 
@@ -120,13 +123,12 @@ export class Universe {
 
         // Set colors
         for (let i = 0; i < this.settings.numBodies; i++) {
-            this.colorsR[i] = getRandomFloat(0.1, 0.85);
-            this.colorsG[i] = getRandomFloat(0.1, 0.85);
-            this.colorsB[i] = getRandomFloat(0.1, 0.85);
+            this.colorsR[i] = getRandomFloat(0.2, 0.85);
+            this.colorsG[i] = getRandomFloat(0.2, 0.85);
+            this.colorsB[i] = getRandomFloat(0.2, 0.85);
         }
 
-        this.orbitalIndices.fill(-1);
-        this.orbitalDistances.fill(-1);
+        this.setOrbitalInformation();
     }
 
     private clear(): void {
@@ -266,6 +268,14 @@ export class Universe {
         /*
             Handle specific orbital energy
         */
+        this.setOrbitalInformation();
+    }
+
+    private setOrbitalInformation() {
+        /**
+         * Sets the orbital indices, orbital distances and number of sattelites for each body
+         */
+        this.numSattelites.fill(0);
         for (let i = 0; i < this.settings.numBodies; i++) {
             if (!this.bodiesActive[i]) {
                 continue;
@@ -278,6 +288,11 @@ export class Universe {
                     continue;
                 }
 
+                // As a simplification, bodies cannot be consider to "orbit" bodies which are sufficiently
+                if (this.masses[j] < this.masses[i] / 5.0) {
+                    continue;
+                }
+
                 const energy = this.getSpecificOrbitalEnergy(i, j);
                 if (energy < lowestEnergy) {
                     lowestEnergy = energy;
@@ -285,6 +300,7 @@ export class Universe {
                 }
             }
             if (this.orbitalIndices[i] !== -1) {
+                this.numSattelites[this.orbitalIndices[i]]++;
                 this.orbitalDistances[i] = Math.sqrt(
                     (this.positionsX[i] - this.positionsX[this.orbitalIndices[i]]) ** 2 +
                         (this.positionsY[i] - this.positionsY[this.orbitalIndices[i]]) ** 2 +
@@ -323,6 +339,7 @@ export class Universe {
                 orbiting: this.orbitalIndices[i],
                 dOrbit: this.orbitalDistances[i],
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
+                numSattelites: this.numSattelites[i],
             };
         }
 
