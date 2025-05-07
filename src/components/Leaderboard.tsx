@@ -232,6 +232,8 @@ const LeaderboardContent = styled.div`
     overflow-y: auto;
     height: 85%;
 
+    border: 2px solid white;
+
     table {
         height: 100%;
         width: 100%;
@@ -382,10 +384,17 @@ const LeaderboardTabsStyle = styled.div`
         height: 100%;
         background: none;
         border: none;
-        background-color: #7a7a7a;
+        padding-left: 10px;
+        padding-right: 10px;
+        
         cursor: pointer;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+
+        border: 2px solid white;
+        border-bottom: none;
+        background-color: black;
+        color: white;
 
         :hover {
             background-color: #9a9a9a;
