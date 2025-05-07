@@ -29,10 +29,10 @@ export interface LeaderboardProps {
 
 export function Leaderboard(props: LeaderboardProps) {
     const { leaderboardBodies, bodyFollowed, setBodyFollowed } = props;
-    const [sortBy, setSortBy] = useState<SortType>(SortType.MASS);
+    const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
     const sortedBodies = useMemo(() => {
-        return sortBodies(leaderboardBodies, sortBy);
-    }, [sortBy, leaderboardBodies, bodyFollowed]);
+        return sortBodies(leaderboardBodies, sortCriteria);
+    }, [sortCriteria, leaderboardBodies, bodyFollowed]);
 
     const [leaderboardTab, setLeaderboardTab] = useState<TabType>(TabType.BASIC);
 
@@ -47,31 +47,31 @@ export function Leaderboard(props: LeaderboardProps) {
                                 <tr>
                                     <LeaderboardSortHeader
                                         title="Name"
-                                        initialSort={SortType.NAME}
-                                        secondSort={SortType.NAME_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.NAME}
+                                        defaultSortAscending={true}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
                                         title="Mass"
-                                        initialSort={SortType.MASS}
-                                        secondSort={SortType.MASS_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.MASS}
+                                        defaultSortAscending={false}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
                                         title="dOrigin"
-                                        initialSort={SortType.D_ORIGIN}
-                                        secondSort={SortType.D_ORIGIN_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.D_ORIGIN}
+                                        defaultSortAscending={false}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
                                         title="dTarget"
-                                        initialSort={SortType.D_TARGET}
-                                        secondSort={SortType.D_TARGET_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.D_TARGET}
+                                        defaultSortAscending={true}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                 </tr>
                             </thead>
@@ -112,31 +112,31 @@ export function Leaderboard(props: LeaderboardProps) {
                                 <tr>
                                     <LeaderboardSortHeader
                                         title="Name"
-                                        initialSort={SortType.NAME}
-                                        secondSort={SortType.NAME_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.NAME}
+                                        defaultSortAscending={true}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
-                                        title="nSats"
-                                        initialSort={SortType.NUM_SAT}
-                                        secondSort={SortType.NUM_SAT_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        title="nSat"
+                                        type={SortType.NUM_SAT}
+                                        defaultSortAscending={false}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
                                         title="Orbiting"
-                                        initialSort={SortType.ORBITING}
-                                        secondSort={SortType.ORBITING_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.ORBITING}
+                                        defaultSortAscending={true}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                     <LeaderboardSortHeader
                                         title="dOrbit"
-                                        initialSort={SortType.D_ORBIT}
-                                        secondSort={SortType.D_ORBIT_REVERSE}
-                                        sortBy={sortBy}
-                                        setSortBy={setSortBy}
+                                        type={SortType.D_ORBIT}
+                                        defaultSortAscending={true}
+                                        sortCriteria={sortCriteria}
+                                        setSortCriteria={setSortCriteria}
                                     />
                                 </tr>
                             </thead>
@@ -252,27 +252,29 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
 
 interface LeaderboardSortHeaderProps {
     title: string;
-    initialSort: SortType
-    secondSort: SortType
-    sortBy: SortType
-    setSortBy: React.Dispatch<React.SetStateAction<SortType>>;
+    type: SortType;
+    defaultSortAscending: boolean;
+    sortCriteria: SortCriteria;
+    setSortCriteria: React.Dispatch<React.SetStateAction<SortCriteria>>;
 }
 
 function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
-    const { title, initialSort, secondSort, sortBy, setSortBy } = props;
+    const { title, type, defaultSortAscending, sortCriteria, setSortCriteria } = props;
+    props;
     return (
         <th>
             <button
                 onClick={() => {
-                    sortBy != initialSort
-                        ? setSortBy(initialSort)
-                        : setSortBy(secondSort);
+                    setSortCriteria({
+                        type: type,
+                        ascending: sortCriteria.type === type ? !sortCriteria.ascending : defaultSortAscending,
+                    });
                 }}
             >
                 {title}
             </button>
         </th>
-    )
+    );
 }
 
 interface BodySelectButtonProps {
@@ -281,7 +283,6 @@ interface BodySelectButtonProps {
     bodyFollowed: number;
     setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
-
 
 function BodySelectButton(props: BodySelectButtonProps) {
     const { bodyIndex, bodyColor, bodyFollowed, setBodyFollowed } = props;
@@ -411,61 +412,56 @@ const LeaderboardTabsStyle = styled.div`
 */
 enum SortType {
     NAME,
-    NAME_REVERSE,
     MASS,
-    MASS_REVERSE,
     D_ORIGIN,
-    D_ORIGIN_REVERSE,
     D_TARGET,
-    D_TARGET_REVERSE,
     ORBITING,
-    ORBITING_REVERSE,
     D_ORBIT,
-    D_ORBIT_REVERSE,
     NUM_SAT,
-    NUM_SAT_REVERSE,
 }
 
-function sortBodies(bodies: LeaderboardBody[], sortBy: SortType): LeaderboardBody[] {
-    // copy bodies into new body array
+interface SortCriteria {
+    type: SortType;
+    ascending: boolean;
+}
+
+function sortBodies(bodies: LeaderboardBody[], criteria: SortCriteria): LeaderboardBody[] {
     return bodies.sort((a, b) => {
-        switch (sortBy) {
-            case SortType.NAME:
-                return a.index - b.index;
-            case SortType.NAME_REVERSE:
-                return b.index - a.index;
-            case SortType.MASS:
-                return b.mass - a.mass || a.index - b.index;
-            case SortType.MASS_REVERSE:
-                return a.mass - b.mass || a.index - b.index;
-            case SortType.D_ORIGIN:
-                return b.dOrigin - a.dOrigin || a.index - b.index;
-            case SortType.D_ORIGIN_REVERSE:
-                return a.dOrigin - b.dOrigin || a.index - b.index;
-            case SortType.D_TARGET:
-                return a.dTarget - b.dTarget || a.index - b.index;
-            case SortType.D_TARGET_REVERSE:
-                return b.dTarget - a.dTarget || a.index - b.index;
-            case SortType.ORBITING:
+        if (criteria.type === SortType.NAME) {
+            return criteria.ascending ? a.index - b.index : b.index - a.index;
+        } else if (criteria.type === SortType.MASS) {
+            return criteria.ascending ? a.mass - b.mass || a.index - b.index : b.mass - a.mass || a.index - b.index;
+        } else if (criteria.type === SortType.D_ORIGIN) {
+            return criteria.ascending
+                ? a.dOrigin - b.dOrigin || a.index - b.index
+                : b.dOrigin - a.dOrigin || a.index - b.index;
+        } else if (criteria.type === SortType.D_TARGET) {
+            return criteria.ascending
+                ? a.dTarget - b.dTarget || a.index - b.index
+                : b.dTarget - a.dTarget || a.index - b.index;
+        } else if (criteria.type === SortType.ORBITING) {
+            if (criteria.ascending) {
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return a.orbiting - b.orbiting || a.index - b.index;
-            case SortType.ORBITING_REVERSE:
+            } else {
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
                 if (a.orbiting === -1) return 1;
                 if (b.orbiting === -1) return -1;
                 return b.orbiting - a.orbiting || a.index - b.index;
-            case SortType.D_ORBIT:
-                return a.dOrbit - b.dOrbit || a.index - b.index;
-            case SortType.D_ORBIT_REVERSE:
-                return b.dOrbit - a.dOrbit || a.index - b.index;
-            case SortType.NUM_SAT:
-                return b.numSattelites - a.numSattelites || a.index - b.index;
-            case SortType.NUM_SAT_REVERSE:
-                return a.numSattelites - b.numSattelites || a.index - b.index;
-            default:
-                return b.mass - a.mass;
+            }
+        } else if (criteria.type === SortType.D_ORBIT) {
+            return criteria.ascending
+                ? a.dOrbit - b.dOrbit || a.index - b.index
+                : b.dOrbit - a.dOrbit || a.index - b.index;
+        } else if (criteria.type === SortType.NUM_SAT) {
+            return criteria.ascending
+                ? a.numSattelites - b.numSattelites || a.index - b.index
+                : b.numSattelites - a.numSattelites || a.index - b.index;
+        } else {
+            // Default case for MASS in descending order
+            return b.mass - a.mass;
         }
     });
 }
