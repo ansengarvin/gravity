@@ -123,9 +123,9 @@ export class Universe {
 
         // Set colors
         for (let i = 0; i < this.settings.numBodies; i++) {
-            this.colorsR[i] = getRandomFloat(0.1, 0.85);
-            this.colorsG[i] = getRandomFloat(0.1, 0.85);
-            this.colorsB[i] = getRandomFloat(0.1, 0.85);
+            this.colorsR[i] = getRandomFloat(0.2, 0.85);
+            this.colorsG[i] = getRandomFloat(0.2, 0.85);
+            this.colorsB[i] = getRandomFloat(0.2, 0.85);
         }
 
         this.setOrbitalInformation();
