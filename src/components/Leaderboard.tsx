@@ -45,50 +45,34 @@ export function Leaderboard(props: LeaderboardProps) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.NAME
-                                                    ? setSortBy(SortType.NAME_REVERSE)
-                                                    : setSortBy(SortType.NAME);
-                                            }}
-                                        >
-                                            Name
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.MASS
-                                                    ? setSortBy(SortType.MASS_REVERSE)
-                                                    : setSortBy(SortType.MASS);
-                                            }}
-                                        >
-                                            Mass
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.D_ORIGIN
-                                                    ? setSortBy(SortType.D_ORIGIN_REVERSE)
-                                                    : setSortBy(SortType.D_ORIGIN);
-                                            }}
-                                        >
-                                            dOrigin
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.D_TARGET
-                                                    ? setSortBy(SortType.D_TARGET_REVERSE)
-                                                    : setSortBy(SortType.D_TARGET);
-                                            }}
-                                        >
-                                            dTarget
-                                        </button>
-                                    </th>
+                                    <LeaderboardSortHeader
+                                        title="Name"
+                                        initialSort={SortType.NAME}
+                                        secondSort={SortType.NAME_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="Mass"
+                                        initialSort={SortType.MASS}
+                                        secondSort={SortType.MASS_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="dOrigin"
+                                        initialSort={SortType.D_ORIGIN}
+                                        secondSort={SortType.D_ORIGIN_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="dTarget"
+                                        initialSort={SortType.D_TARGET}
+                                        secondSort={SortType.D_TARGET_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
                                 </tr>
                             </thead>
                             <tbody>
@@ -126,50 +110,34 @@ export function Leaderboard(props: LeaderboardProps) {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.NAME
-                                                    ? setSortBy(SortType.NAME_REVERSE)
-                                                    : setSortBy(SortType.NAME);
-                                            }}
-                                        >
-                                            Name
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.NUM_SAT
-                                                    ? setSortBy(SortType.NUM_SAT_REVERSE)
-                                                    : setSortBy(SortType.NUM_SAT);
-                                            }}
-                                        >
-                                            nSats
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.ORBITING
-                                                    ? setSortBy(SortType.ORBITING_REVERSE)
-                                                    : setSortBy(SortType.ORBITING);
-                                            }}
-                                        >
-                                            Orbiting
-                                        </button>
-                                    </th>
-                                    <th>
-                                        <button
-                                            onClick={() => {
-                                                sortBy == SortType.D_ORBIT
-                                                    ? setSortBy(SortType.D_ORBIT_REVERSE)
-                                                    : setSortBy(SortType.D_ORBIT);
-                                            }}
-                                        >
-                                            dOrbit
-                                        </button>
-                                    </th>
+                                    <LeaderboardSortHeader
+                                        title="Name"
+                                        initialSort={SortType.NAME}
+                                        secondSort={SortType.NAME_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="nSats"
+                                        initialSort={SortType.NUM_SAT}
+                                        secondSort={SortType.NUM_SAT_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="Orbiting"
+                                        initialSort={SortType.ORBITING}
+                                        secondSort={SortType.ORBITING_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
+                                    <LeaderboardSortHeader
+                                        title="dOrbit"
+                                        initialSort={SortType.D_ORBIT}
+                                        secondSort={SortType.D_ORBIT_REVERSE}
+                                        sortBy={sortBy}
+                                        setSortBy={setSortBy}
+                                    />
                                 </tr>
                             </thead>
                             <tbody>
@@ -278,12 +246,42 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     }
 `;
 
+/*
+    Local Components
+*/
+
+interface LeaderboardSortHeaderProps {
+    title: string;
+    initialSort: SortType
+    secondSort: SortType
+    sortBy: SortType
+    setSortBy: React.Dispatch<React.SetStateAction<SortType>>;
+}
+
+function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
+    const { title, initialSort, secondSort, sortBy, setSortBy } = props;
+    return (
+        <th>
+            <button
+                onClick={() => {
+                    sortBy != initialSort
+                        ? setSortBy(initialSort)
+                        : setSortBy(secondSort);
+                }}
+            >
+                {title}
+            </button>
+        </th>
+    )
+}
+
 interface BodySelectButtonProps {
     bodyIndex: number;
     bodyColor: string;
     bodyFollowed: number;
     setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
+
 
 function BodySelectButton(props: BodySelectButtonProps) {
     const { bodyIndex, bodyColor, bodyFollowed, setBodyFollowed } = props;
