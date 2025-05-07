@@ -109,7 +109,7 @@ export function Leaderboard(props: LeaderboardProps) {
                                             </td>
                                             <td>{body.mass.toFixed(2)}</td>
                                             <td>{body.dOrigin.toFixed(2)}</td>
-                                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td> 
+                                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
                                         </LeaderboardRowStyle>
                                     );
                                 })}
@@ -190,27 +190,18 @@ export function Leaderboard(props: LeaderboardProps) {
                                             </td>
                                             <td>{body.numSattelites}</td>
                                             <td className={body.orbiting != -1 ? "name" : ""}>
-                                                {
-                                                    body.orbiting != -1 ? (
-                                                        <BodySelectButton
-                                                            bodyIndex={body.orbiting}
-                                                            bodyColor={body.orbitColor}
-                                                            bodyFollowed={bodyFollowed}
-                                                            setBodyFollowed={setBodyFollowed}
-                                                        />
-                                                    ) : (
-                                                        <>None</>
-                                                    )
-                                                }
-                                                
-                                            </td>
-                                            <td>
                                                 {body.orbiting != -1 ? (
-                                                    body.dOrbit.toFixed(2)
+                                                    <BodySelectButton
+                                                        bodyIndex={body.orbiting}
+                                                        bodyColor={body.orbitColor}
+                                                        bodyFollowed={bodyFollowed}
+                                                        setBodyFollowed={setBodyFollowed}
+                                                    />
                                                 ) : (
-                                                    <>--</>
+                                                    <>None</>
                                                 )}
                                             </td>
+                                            <td>{body.orbiting != -1 ? body.dOrbit.toFixed(2) : <>--</>}</td>
                                         </LeaderboardRowStyle>
                                     );
                                 })}
@@ -271,7 +262,7 @@ const LeaderboardContent = styled.div`
 
 const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     td {
-        background-color: ${props => props.bodyColor};
+        background-color: ${(props) => props.bodyColor};
         color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
@@ -280,7 +271,7 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
         color: black;
     }
 
-    td.name{
+    td.name {
         background: none;
     }
 `;
@@ -308,7 +299,6 @@ function BodySelectButton(props: BodySelectButtonProps) {
                 <RadioButtonUncheckedIcon filled={false} color={"black"} dim={"1rem"} />
             )}
             B-{bodyIndex}
-            
         </BodySelectButtonStyle>
     );
 }
@@ -321,22 +311,22 @@ const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: stri
     font: inherit;
     cursor: pointer;
     outline: inherit;
-    
+
     width: 100%;
     min-width: 70px;
     height: 100%;
 
-    background-color: ${props => props.bodyColor};
+    background-color: ${(props) => props.bodyColor};
 
     display: flex;
     align-items: center;
 
     border-radius: 5px;
 
-    box-shadow: 0px -5px 2px 1px ${props => brightenColor(props.bodyColor, 0.5)} inset;
+    box-shadow: 0px -5px 2px 1px ${(props) => brightenColor(props.bodyColor, 0.5)} inset;
 
     :active {
-        box-shadow: 0px -2px 2px 1px ${props => brightenColor(props.bodyColor, 0.3)} inset;
+        box-shadow: 0px -2px 2px 1px ${(props) => brightenColor(props.bodyColor, 0.3)} inset;
         transform: translateY(2px);
     }
 
