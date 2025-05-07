@@ -188,6 +188,8 @@ const InfoBox = styled.div`
         height: 35px;
         font-size: 1.1rem;
 
+        border-radius: 5px;
+
         :hover {
             background-color: white;
             color: black;
