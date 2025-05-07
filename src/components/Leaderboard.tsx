@@ -222,7 +222,7 @@ const LeaderboardStyle = styled.div`
     grid-area: menus;
     margin-left: auto;
     margin-right: auto;
-    width: 95%;
+    width: 310px;
     height: 100%;
 
     background-color: black;
