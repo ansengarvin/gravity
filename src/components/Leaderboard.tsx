@@ -189,15 +189,28 @@ export function Leaderboard(props: LeaderboardProps) {
                                                 />
                                             </td>
                                             <td>{body.numSattelites}</td>
-                                            <td className="name">
-                                                <BodySelectButton
-                                                    bodyIndex={body.orbiting}
-                                                    bodyColor={body.orbitColor}
-                                                    bodyFollowed={bodyFollowed}
-                                                    setBodyFollowed={setBodyFollowed}
-                                                />
+                                            <td className={body.orbiting != -1 ? "name" : ""}>
+                                                {
+                                                    body.orbiting != -1 ? (
+                                                        <BodySelectButton
+                                                            bodyIndex={body.orbiting}
+                                                            bodyColor={body.orbitColor}
+                                                            bodyFollowed={bodyFollowed}
+                                                            setBodyFollowed={setBodyFollowed}
+                                                        />
+                                                    ) : (
+                                                        <>None</>
+                                                    )
+                                                }
+                                                
                                             </td>
-                                            <td>{body.dOrbit.toFixed(2)}</td>
+                                            <td>
+                                                {body.orbiting != -1 ? (
+                                                    body.dOrbit.toFixed(2)
+                                                ) : (
+                                                    <>--</>
+                                                )}
+                                            </td>
                                         </LeaderboardRowStyle>
                                     );
                                 })}
