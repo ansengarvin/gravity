@@ -105,6 +105,8 @@ const InfoBoxStyle = styled.div`
         height: 35px;
         width: 110px;
 
+        background-color: black;
+
         @media screen and (max-width: 400px) {
             font-size: 0.7rem;
             width: 80px
