@@ -227,7 +227,7 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
         color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
-        height: 30px;
+        height: 35px;
 
         color: black;
     }
@@ -290,6 +290,7 @@ const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
     text-decoration: ${(props) => (props.selected ? "underline" : "none")};
 
     margin: 0;
+    height: 25px;
 
     button {
         color: white;
@@ -412,7 +413,7 @@ function LeaderboardTabs(props: LeaderboardTabsProps) {
 }
 
 const LeaderboardTabsStyle = styled.div`
-    height: 20px;
+    height: 25px;
     width: 100%;
     display: flex;
     flex-direction: row;

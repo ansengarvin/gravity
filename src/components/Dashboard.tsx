@@ -21,7 +21,6 @@ export function Dashboard(props: ControlButtonProps) {
         <ButtonContainer>
             <ButtonRow>
                 <ControlButton
-                    dim={"50px"}
                     onClick={() => {
                         setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS);
                     }}
@@ -30,7 +29,6 @@ export function Dashboard(props: ControlButtonProps) {
                 </ControlButton>
                 {paused ? (
                     <ControlButton
-                        dim={"50px"}
                         onClick={() => {
                             setPaused(false);
                         }}
@@ -39,7 +37,6 @@ export function Dashboard(props: ControlButtonProps) {
                     </ControlButton>
                 ) : (
                     <ControlButton
-                        dim={"50px"}
                         onClick={() => {
                             setPaused(true);
                         }}
@@ -47,11 +44,10 @@ export function Dashboard(props: ControlButtonProps) {
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                 )}
-                <ControlButton dim={"50px"} onClick={() => setResetSim((prev) => prev + 1)}>
+                <ControlButton onClick={() => setResetSim((prev) => prev + 1)}>
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>
                 <ControlButton
-                    dim={"50px"}
                     onClick={() => {
                         setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD);
                     }}
@@ -70,13 +66,18 @@ const ButtonContainer = styled.div`
     padding-top: 10px;
     padding-bottom: 10px;
 
+    @media screen and (max-width: 500px) {
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
 
     width: 320px;
-    height: 100%;
+    height: min-content;
 `;
 
 const ButtonRow = styled.div`
@@ -87,7 +88,7 @@ const ButtonRow = styled.div`
     gap: 25px;
 `;
 
-const ControlButton = styled.button<{ dim: string }>`
+const ControlButton = styled.button`
     // Clear all effects
     border: none;
     background: none;
@@ -97,8 +98,13 @@ const ControlButton = styled.button<{ dim: string }>`
     outline: none;
     cursor: pointer;
 
-    height: ${(props) => props.dim};
-    width: ${(props) => props.dim};
+    height: 50px;
+    width: 50px;
+
+    @media screen and (max-height: 500px) {
+        height: 40px;
+        width: 40px;
+    }
 
     display: flex;
     justify-content: center;

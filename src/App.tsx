@@ -17,7 +17,7 @@ const Backdrop = styled.div`
         "empty"
         "menus"
         "buttons";
-    grid-template-rows: 50px 75px 1fr 185px min-content;
+    grid-template-rows: 50px 75px 1fr min-content min-content;
     grid-template-columns: 1fr;
 
     height: 100%;
@@ -91,32 +91,30 @@ export function App() {
             <Backdrop>
                 <InfoBox>
                     <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
-                    <div className="buttonContainer">
-                        {bodyFollowed != -1 ? (
-                            <button
-                                onClick={() => {
-                                    setBodyFollowed(-1);
-                                }}
-                            >
-                                Stop Following
-                            </button>
-                        ) : (
-                            <></>
-                        )}
-                        {!camAtOrigin && bodyFollowed == -1 ? (
-                            <button
-                                onClick={() => {
-                                    setBodyFollowed(-1);
-                                    setResetCam((prev) => prev + 1);
-                                    setCamAtOrigin(true);
-                                }}
-                            >
-                                Reset Camera
-                            </button>
-                        ) : (
-                            <></>
-                        )}
-                    </div>
+                    {bodyFollowed != -1 ? (
+                        <button
+                            onClick={() => {
+                                setBodyFollowed(-1);
+                            }}
+                        >
+                            Stop Following
+                        </button>
+                    ) : (
+                        <></>
+                    )}
+                    {!camAtOrigin && bodyFollowed == -1 ? (
+                        <button
+                            onClick={() => {
+                                setBodyFollowed(-1);
+                                setResetCam((prev) => prev + 1);
+                                setCamAtOrigin(true);
+                            }}
+                        >
+                            Reset Camera
+                        </button>
+                    ) : (
+                        <></>
+                    )}
                 </InfoBox>
                 <Header />
                 {debugStatsShown ? (
@@ -162,7 +160,7 @@ const InfoBox = styled.div`
     grid-area: info;
 
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     gap: 5px;
@@ -170,26 +168,28 @@ const InfoBox = styled.div`
 
     font-size: 1.2rem;
 
-    .buttonContainer {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        height: 50px;
+    @media screen and (max-height: 500px) {
+        font-size: 1rem;
     }
 
     button {
         background: none;
         border: none;
-        width: 150px;
+        
 
         border: 2px solid white;
         color: white;
         height: 35px;
-        font-size: 1.1rem;
-
+        
         border-radius: 5px;
+
+        font-size: 1.1rem;
+        width: 150px;
+        @media screen and (max-height: 500px) {
+            font-size: 0.8rem;
+            height: 30px;
+            width: 125px;
+        }
 
         :hover {
             background-color: white;
