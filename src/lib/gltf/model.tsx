@@ -5,6 +5,7 @@ export interface Model {
     indices: Uint16Array;
     indexCount: number;
     normals: Float32Array;
+    texCoords?: Float32Array;
 }
 
 export async function getModel(model: string): Promise<Model> {
@@ -23,6 +24,7 @@ export async function getModel(model: string): Promise<Model> {
     const positions = primitive.getAttribute("POSITION")?.getArray();
     const normals = primitive.getAttribute("NORMAL")?.getArray();
     const indices = primitive.getIndices()?.getArray();
+    const texCoords = primitive.getAttribute("TEXCOORD_0")?.getArray();
 
     // Check vertex count is a multiple of 3
     if (positions && positions.length % 3 !== 0) {
@@ -34,5 +36,6 @@ export async function getModel(model: string): Promise<Model> {
         vertices: positions ? new Float32Array(positions) : new Float32Array(),
         indices: indices ? new Uint16Array(indices) : new Uint16Array(),
         normals: normals ? new Float32Array(normals) : new Float32Array(),
+        texCoords: texCoords ? new Float32Array(texCoords) : undefined,
     };
 }

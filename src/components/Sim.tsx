@@ -200,12 +200,11 @@ export function Sim(props: SimProps) {
              * Load Model Buffers
              *****************************/
             const sphere = await getModel("uvSphereSmooth.glb");
-            const buffers = initBuffers(gl, sphere);
-            if (!buffers) {
+            const sphereBuffers = initBuffers(gl, sphere);
+            if (!sphereBuffers) {
                 console.error("Failed to initialize buffers");
                 return;
             }
-
 
             /*
                 Framebuffer Configuration
@@ -281,9 +280,9 @@ export function Sim(props: SimProps) {
                 switch (lightingModeRef.current) {
                     case LightingMode.CAMLIGHT: {
                         // Bind Buffers
-                        setPositionAttribute(gl, buffers, camlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, buffers, camlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
                         gl.useProgram(camlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -297,9 +296,9 @@ export function Sim(props: SimProps) {
                     }
                     case LightingMode.STARLIGHT: {
                         // Bind Buffers
-                        setPositionAttribute(gl, buffers, starlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, buffers, starlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
