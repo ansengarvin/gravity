@@ -149,7 +149,9 @@ export function Sim(props: SimProps) {
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
 
-            // Initialize all shader programs
+            /*
+                Initialize all shader programs
+            */
             const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
             if (!camlightShaderProgram) {
                 console.error("Failed to initialize camera light shader");
@@ -160,6 +162,7 @@ export function Sim(props: SimProps) {
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
                     vertexNormal: gl.getAttribLocation(camlightShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(camlightShaderProgram, "aTexCoords"),
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(camlightShaderProgram, "uProjectionMatrix"),
@@ -179,6 +182,7 @@ export function Sim(props: SimProps) {
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(starlightShaderProgram, "aVertexPosition"),
                     vertexNormal: gl.getAttribLocation(starlightShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(starlightShaderProgram, "aTexCoords"),
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(starlightShaderProgram, "uProjectionMatrix"),
@@ -191,6 +195,7 @@ export function Sim(props: SimProps) {
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                 },
             };
+
             /*****************************
              * Load Model Buffers
              *****************************/
@@ -201,10 +206,34 @@ export function Sim(props: SimProps) {
                 return;
             }
 
-            /*
-                Projection matrix does not need to change every render.
-            */
 
+            /*
+                Framebuffer Configuration
+            */
+            const framebuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+
+            // Create a color attachment texture
+            const textureColorBuffer = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                canvas.width,
+                canvas.height,
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                null,
+            );
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
+            /*
+                Render Program
+            */
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -232,12 +261,6 @@ export function Sim(props: SimProps) {
                     console.error("WebGL context not found");
                     return;
                 }
-
-                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-                gl.clearDepth(1.0); // Clear everything
-                gl.enable(gl.DEPTH_TEST); // Enable depth testing
-                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 // Create Projection Matrix (used by all shaders)
                 const projectionMatrix = mat4.create();
@@ -297,6 +320,18 @@ export function Sim(props: SimProps) {
                     }
                 }
 
+                // First framebuffer pass
+                //gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+                gl.clearDepth(1.0); // Clear everything
+                gl.enable(gl.DEPTH_TEST); // Enable depth testing
+                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                /*
+                    Draw Scene
+                */
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
                     if (!universe.current.bodiesActive[i]) {
                         continue;
@@ -379,7 +414,12 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-                // set debug information
+                /*
+                    Second Pass
+                */
+                // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                // gl.clearColor(1.0, 1.0, 1.0, 1.0); // Clear to white, fully opaque
+                // gl.clear(gl.COLOR_BUFFER_BIT)
 
                 requestAnimationFrame(render);
             }

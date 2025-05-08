@@ -6,6 +6,7 @@ export enum LightingMode {
 export interface AttribLocations {
     vertexPosition: GLint;
     vertexNormal: GLint;
+    texCoords: GLint;
 }
 
 export interface CamlightProgramInfo {
@@ -32,4 +33,12 @@ export interface StarlightProgramInfo {
         uNumStars: WebGLUniformLocation | null;
         uIsStar: WebGLUniformLocation | null;
     };
+}
+
+export interface SceneTexProgramInfo {
+    program: WebGLProgram;
+    attribLocations: AttribLocations;
+    uniformLocations: {
+        uScreenTex: WebGLUniformLocation | null;
+    }
 }
