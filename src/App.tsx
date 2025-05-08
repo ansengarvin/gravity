@@ -20,7 +20,6 @@ const Backdrop = styled.div`
     grid-template-rows: 50px 75px 1fr 185px min-content;
     grid-template-columns: 1fr;
 
-    
     height: 100%;
     width: 100%;
     z-index: 1;

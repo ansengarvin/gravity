@@ -419,7 +419,6 @@ const LeaderboardTabsStyle = styled.div`
     justify-content: left;
     align-items: center;
     gap: 3px;
-    
 
     button {
         height: 100%;
