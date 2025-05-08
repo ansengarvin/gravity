@@ -12,10 +12,8 @@ export function InfoBox(props: InfoBoxProps) {
     const { bodyFollowed, setBodyFollowed, setResetCam, camAtOrigin, setCamAtOrigin } = props;
     return (
         <InfoBoxStyle>
-            <div className="lt"/>
-            <div className="text">
-                Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}
-            </div>
+            <div className="lt" />
+            <div className="text">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
             <div className="rt">
                 {bodyFollowed != -1 ? (
                     <button
@@ -42,9 +40,8 @@ export function InfoBox(props: InfoBoxProps) {
                     <></>
                 )}
             </div>
-            
         </InfoBoxStyle>
-    )
+    );
 }
 
 const InfoBoxStyle = styled.div`
@@ -57,7 +54,7 @@ const InfoBoxStyle = styled.div`
     grid-template-rows: 1fr;
 
     font-size: 1.2rem;
-    
+
     @media screen and (max-height: 500px) {
         font-size: 1rem;
     }
@@ -96,10 +93,10 @@ const InfoBoxStyle = styled.div`
         border: none;
 
         grid-area: right;
-        
+
         border: 2px solid white;
         color: white;
-        
+
         border-radius: 5px;
         font-size: 0.9rem;
         height: 35px;
@@ -109,7 +106,7 @@ const InfoBoxStyle = styled.div`
 
         @media screen and (max-width: 400px) {
             font-size: 0.7rem;
-            width: 80px
+            width: 80px;
         }
 
         :hover {
