@@ -193,39 +193,31 @@ const LeaderboardStyle = styled.div`
     grid-area: menus;
     margin-left: auto;
     margin-right: auto;
+    margin-top: auto;
     width: 310px;
-    height: 100%;
+    height: min-content;
 
-    background-color: black;
+    background: none;
 `;
 
 const LeaderboardContent = styled.div`
     overflow-y: auto;
-    height: 85%;
+    height: 160px;
+
+    @media screen and (max-height: 500px) {
+        height: 120px;
+    }
 
     border: 2px solid white;
 
     font-size: 0.9rem;
 
+    background-color: black;
+
     table {
         height: 100%;
         width: 100%;
         border-spacing: 5px;
-    }
-
-    thead {
-        button {
-            color: white;
-            height: 100%;
-            width: 100%;
-
-            // remove all default button styling
-            background: none;
-            border: none;
-            color: inherit;
-            font: inherit;
-            cursor: pointer;
-        }
     }
 `;
 
@@ -235,7 +227,7 @@ const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
         color: ${(props) => (props.selected ? props.bodyColor : "white")};
         padding: 0;
         text-align: center;
-        height: 40px;
+        height: 35px;
 
         color: black;
     }
@@ -298,8 +290,20 @@ const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
     text-decoration: ${(props) => (props.selected ? "underline" : "none")};
 
     margin: 0;
+    height: 25px;
 
     button {
+        color: white;
+        height: 100%;
+        width: 100%;
+
+        // remove all default button styling
+        background: none;
+        border: none;
+        color: inherit;
+        font: inherit;
+        cursor: pointer;
+
         position: relative;
         display: flex;
         flex-direction: row;
@@ -409,7 +413,7 @@ function LeaderboardTabs(props: LeaderboardTabsProps) {
 }
 
 const LeaderboardTabsStyle = styled.div`
-    height: 15%;
+    height: 25px;
     width: 100%;
     display: flex;
     flex-direction: row;
