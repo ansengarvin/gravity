@@ -8,6 +8,7 @@ import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { MenuName } from "./lib/defines/MenuName";
 import { LightingMode } from "./lib/webGL/shaderPrograms";
+import { InfoBox } from "./components/InfoBox";
 
 const Backdrop = styled.div`
     display: grid;
@@ -17,7 +18,7 @@ const Backdrop = styled.div`
         "empty"
         "menus"
         "buttons";
-    grid-template-rows: 50px 75px 1fr min-content min-content;
+    grid-template-rows: 50px 50px 1fr min-content min-content;
     grid-template-columns: 1fr;
 
     height: 100%;
@@ -89,33 +90,13 @@ export function App() {
                 />
             </SimScreen>
             <Backdrop>
-                <InfoBox>
-                    <div>Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
-                    {bodyFollowed != -1 ? (
-                        <button
-                            onClick={() => {
-                                setBodyFollowed(-1);
-                            }}
-                        >
-                            Stop Following
-                        </button>
-                    ) : (
-                        <></>
-                    )}
-                    {!camAtOrigin && bodyFollowed == -1 ? (
-                        <button
-                            onClick={() => {
-                                setBodyFollowed(-1);
-                                setResetCam((prev) => prev + 1);
-                                setCamAtOrigin(true);
-                            }}
-                        >
-                            Reset Camera
-                        </button>
-                    ) : (
-                        <></>
-                    )}
-                </InfoBox>
+                <InfoBox
+                    bodyFollowed={bodyFollowed}
+                    setBodyFollowed={setBodyFollowed}
+                    setResetCam={setResetCam}
+                    camAtOrigin={camAtOrigin}
+                    setCamAtOrigin={setCamAtOrigin}
+                />
                 <Header />
                 {debugStatsShown ? (
                     <DebugStats
@@ -155,45 +136,3 @@ export function App() {
         </>
     );
 }
-
-const InfoBox = styled.div`
-    grid-area: info;
-
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    padding-top: 5px;
-
-    font-size: 1.2rem;
-
-    @media screen and (max-height: 500px) {
-        font-size: 1rem;
-    }
-
-    button {
-        background: none;
-        border: none;
-        
-
-        border: 2px solid white;
-        color: white;
-        height: 35px;
-        
-        border-radius: 5px;
-
-        font-size: 1.1rem;
-        width: 150px;
-        @media screen and (max-height: 500px) {
-            font-size: 0.8rem;
-            height: 30px;
-            width: 125px;
-        }
-
-        :hover {
-            background-color: white;
-            color: black;
-        }
-    }
-`;
