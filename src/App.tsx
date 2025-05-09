@@ -50,6 +50,7 @@ export function App() {
     const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
     const [maxUniformBufferBindingPoints, setMaxUniformBufferBindingPoints] = useState(0);
     const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
+    const [maxSamples, setMaxSamples] = useState(0);
 
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
@@ -83,6 +84,7 @@ export function App() {
                     setNumActiveUniforms={setNumActiveUniforms}
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
+                    setMaxSamples={setMaxSamples}
                     setNumStars={setNumStars}
                     lightingMode={lightingMode}
                     bodyFollowed={bodyFollowed}
@@ -111,6 +113,7 @@ export function App() {
                         maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
                         numActiveUniforms={numActiveUniforms}
                         numActiveUniformVectors={numActiveUniformVectors}
+                        maxSamples={maxSamples}
                     />
                 ) : null}
 

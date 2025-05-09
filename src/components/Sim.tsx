@@ -44,6 +44,7 @@ interface SimProps {
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
+    setMaxSamples: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
@@ -68,6 +69,7 @@ export function Sim(props: SimProps) {
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
         setMaxUniformBufferBindingPoints,
+        setMaxSamples,
         setNumActiveBodies,
         setNumActiveUniforms,
         setNumActiveUniformVectors,
@@ -167,6 +169,7 @@ export function Sim(props: SimProps) {
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
+            setMaxSamples(gl.getParameter(gl.MAX_SAMPLES));
 
             /*
                 Initialize all shader programs

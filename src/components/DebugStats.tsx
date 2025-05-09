@@ -8,6 +8,7 @@ export interface DebugStatsProps {
     maxUniformBufferBindingPoints: number;
     numActiveUniforms: number;
     numActiveUniformVectors: number;
+    maxSamples: number;
 }
 
 export function DebugStats(props: DebugStatsProps) {
@@ -19,6 +20,7 @@ export function DebugStats(props: DebugStatsProps) {
         maxFragmentUniformVectors,
         maxUniformBufferBindingPoints,
         numActiveUniformVectors,
+        maxSamples,
     } = props;
 
     return (
@@ -31,6 +33,7 @@ export function DebugStats(props: DebugStatsProps) {
             <div>Max Vertex Uniform Vectors: {maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {maxFragmentUniformVectors}</div>
             <div>Max Uniform Buffer Binding Points: {maxUniformBufferBindingPoints}</div>
+            <div>Max Antialiasing Samples: {maxSamples}</div>
             <div>Active Uniforms: {numActiveUniforms}</div>
             <div>Active Uniform Vectors: {numActiveUniformVectors}</div>
         </DebugStatsStyle>
