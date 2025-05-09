@@ -256,8 +256,8 @@ export function Sim(props: SimProps) {
                     texCoords: gl.getAttribLocation(gaussianBlurShaderProgram, "aTexCoords"),
                 },
                 uniformLocations: {
-                    image: gl.getUniformLocation(gaussianBlurShaderProgram, "uImage"),
-                    horizontal: gl.getUniformLocation(gaussianBlurShaderProgram, "uHorizontal"),
+                    uImage: gl.getUniformLocation(gaussianBlurShaderProgram, "uImage"),
+                    uHorizontal: gl.getUniformLocation(gaussianBlurShaderProgram, "uHorizontal"),
                 },
             };
 
@@ -704,12 +704,13 @@ export function Sim(props: SimProps) {
                         for (let i = 0; i < blurAmount; i++) {
                             gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
                             // Set horizontal int to horizontal
-                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.horizontal, horizontal);
+                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
                             // Set texture to read from
-                            horizontal = horizontal === 0 ? 1 : 0;
-                            gl.bindTexture(gl.TEXTURE_2D, first_iteration ? starExtractBuffer : bloomTextures[horizontal]);
+                            gl.bindTexture(gl.TEXTURE_2D, first_iteration ? starExtractBuffer : bloomTextures[1 - horizontal]);
                             gl.drawArrays(gl.TRIANGLES, 0, 6);
                             // Bind the next framebuffer
+
+                            horizontal = 1 - horizontal;
                             if (first_iteration) {
                                 first_iteration = false;
                             }

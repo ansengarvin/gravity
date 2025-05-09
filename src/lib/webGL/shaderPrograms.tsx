@@ -47,8 +47,8 @@ export interface GaussianBlurProgramInfo {
     program: WebGLProgram;
     attribLocations: AttribLocations;
     uniformLocations: {
-        image: WebGLUniformLocation | null;
-        horizontal: WebGLUniformLocation | null;
+        uImage: WebGLUniformLocation | null;
+        uHorizontal: WebGLUniformLocation | null;
     }
 }
 
