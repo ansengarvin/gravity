@@ -258,6 +258,7 @@ export function Sim(props: SimProps) {
             }
             const quadBuffers = initBuffers(gl, quadModel);
 
+
             /*
                 Custom framebuffer intitialization
             */
@@ -281,6 +282,28 @@ export function Sim(props: SimProps) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
+
+            /*
+                Create a test texture
+            */
+            const texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            // Fill the texture with testTex.jpg from public
+            const image = new Image();
+            image.src = "testTex.jpg";
+            image.addEventListener("load", () => {
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texImage2D(
+                    gl.TEXTURE_2D,
+                    0,
+                    gl.RGBA,
+                    gl.RGBA,
+                    gl.UNSIGNED_BYTE,
+                    image,
+                );
+                gl.generateMipmap(gl.TEXTURE_2D);
+            });
 
             /*
                 Render Program
@@ -508,7 +531,7 @@ export function Sim(props: SimProps) {
                 // // Bind position attributes to shader
                 // setPositionAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
                 // setNormalAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
-                
+
                 setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
                 setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
                 console.log(texQuadProgramInfo.attribLocations.vertexPosition); // Should not be -1
