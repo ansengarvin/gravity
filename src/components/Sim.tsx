@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { CamlightProgramInfo, LightingMode, StarlightProgramInfo } from "../lib/webGL/shaderPrograms";
+import { CamlightProgramInfo, LightingMode, StarlightProgramInfo, TexQuadProgramInfo } from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
@@ -12,9 +12,11 @@ import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
 import vertLightGlobal from "../assets/shaders/camlight/camlight.vert.glsl?raw";
 import fragLightStars from "../assets/shaders/starlight/starlight.frag.glsl?raw";
 import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw";
+import fragTexQuad from "../assets/shaders/texQuad/texQuad.frag.glsl?raw";
+import vertTexQuad from "../assets/shaders/texQuad/texQuad.vert.glsl?raw";
 
 import { mat4, vec4 } from "gl-matrix";
-import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
+import { setNormalAttribute, setPositionAttribute, setPositionAttribute2D, setTexCoordAttribute } from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
@@ -196,6 +198,24 @@ export function Sim(props: SimProps) {
                 },
             };
 
+            // Initialize texture shader for simple texture quad
+            const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
+            if (!texQuadShaderProgram) {
+                console.error("Failed to initialize texture shader program");
+                return;
+            }
+            const texQuadProgramInfo: TexQuadProgramInfo = {
+                program: texQuadShaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(texQuadShaderProgram, "aVertexPosition"),
+                    vertexNormal: gl.getAttribLocation(texQuadShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(texQuadShaderProgram, "aTexCoords"),
+                },
+                uniformLocations: {
+                    uScreenTex: gl.getUniformLocation(texQuadShaderProgram, "uScreenTex"),
+                },
+            }
+
             /*****************************
              * Load Model Buffers
              *****************************/
@@ -208,13 +228,21 @@ export function Sim(props: SimProps) {
 
             // Create a simple quad
             const quadModel: Model = {
+                // positions: new Float32Array([
+                //     -1.0, 1.0, 0.0,
+                //     -1.0, -1.0, 0.0,
+                //     1.0, -1.0, 0.0,
+                //     -1.0, 1.0, 0.0,
+                //     1.0, -1.0, 0.0,
+                //     1.0, 1.0, 0.0
+                // ]),
                 positions: new Float32Array([
-                    -1.0, 1.0, 0.0,
-                    -1.0, -1.0, 0.0,
-                    1.0, -1.0, 0.0,
-                    -1.0, 1.0, 0.0,
-                    1.0, -1.0, 0.0,
-                    1.0, 1.0, 0.0
+                    -1.0, 1.0,
+                    -1.0, -1.0,
+                    1.0, -1.0,
+                    -1.0, 1.0,
+                    1.0, -1.0,
+                    1.0, 1.0,
                 ]),
                 texCoords: new Float32Array ([
                     0.0, 1.0,
@@ -447,35 +475,44 @@ export function Sim(props: SimProps) {
 
                 // Draw a sphere at the origin
                 // Clear all uniforms
-                gl.useProgram(camlightProgramInfo.program);
-                const modelMatrix = mat4.create();
-                mat4.translate(modelMatrix, modelMatrix, [
-                    0,
-                    0,
-                    0,
-                ]);
-                mat4.scale(modelMatrix, modelMatrix, [
-                    1.0,
-                    1.0,
-                    1.0
-                ]);
+                // gl.useProgram(camlightProgramInfo.program);
+                // const modelMatrix = mat4.create();
+                // mat4.translate(modelMatrix, modelMatrix, [
+                //     0,
+                //     0,
+                //     0,
+                // ]);
+                // mat4.scale(modelMatrix, modelMatrix, [
+                //     1.0,
+                //     1.0,
+                //     1.0
+                // ]);
 
-                const modelViewMatrix = mat4.create();
-                mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+                // const modelViewMatrix = mat4.create();
+                // mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
-                const normalMatrix = mat4.create();
-                mat4.invert(normalMatrix, modelViewMatrix);
-                mat4.transpose(normalMatrix, normalMatrix);
+                // const normalMatrix = mat4.create();
+                // mat4.invert(normalMatrix, modelViewMatrix);
+                // mat4.transpose(normalMatrix, normalMatrix);
 
-                // Bind model matrix
-                gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+                // // Bind model matrix
+                // gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
                 // Bind quad buffer
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
 
-                // Bind position attributes to shader
-                setPositionAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
-                setNormalAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
+                // Switch shader program
+                gl.useProgram(texQuadProgramInfo.program);
+
+
+                // // Bind position attributes to shader
+                // setPositionAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
+                // setNormalAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
+                
+                setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                console.log(texQuadProgramInfo.attribLocations.vertexPosition); // Should not be -1
+
 
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
 

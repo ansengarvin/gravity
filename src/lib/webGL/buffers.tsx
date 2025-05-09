@@ -4,17 +4,21 @@ export interface Buffers {
     position: WebGLBuffer;
     indices: WebGLBuffer;
     normal: WebGLBuffer;
+    texCoord?: WebGLBuffer;
 }
 
 export function initBuffers(gl: WebGL2RenderingContext, model: Model) {
     const positionBuffer = initPositionBuffer(gl, model.positions);
     const indexBuffer = initIndexBuffer(gl, model.indices);
     const normalBuffer = initNormalBuffer(gl, model.normals);
+    const texCoordBuffer = initTexCoordBuffer(gl, model.texCoords)
+
 
     return {
         position: positionBuffer,
         indices: indexBuffer,
         normal: normalBuffer,
+        texCoord: texCoordBuffer,
     };
 }
 
@@ -56,4 +60,16 @@ function initNormalBuffer(gl: WebGL2RenderingContext, normals: Float32Array): We
     gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
 
     return normalBuffer;
+}
+
+function initTexCoordBuffer(gl: WebGL2RenderingContext, texCoords?: Float32Array): WebGLBuffer | undefined {
+    if (!texCoords) {
+        return undefined;
+    }
+    const texCoordBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, texCoordBuffer);
+
+    gl.bufferData(gl.ARRAY_BUFFER, texCoords, gl.STATIC_DRAW);
+
+    return texCoordBuffer;
 }

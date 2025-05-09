@@ -35,7 +35,7 @@ export interface StarlightProgramInfo {
     };
 }
 
-export interface SceneTexProgramInfo {
+export interface TexQuadProgramInfo {
     program: WebGLProgram;
     attribLocations: AttribLocations;
     uniformLocations: {
