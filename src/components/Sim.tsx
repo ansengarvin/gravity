@@ -152,7 +152,7 @@ export function Sim(props: SimProps) {
             return;
         }
 
-        const gl = canvas.getContext("webgl2", {antialias: false});
+        const gl = canvas.getContext("webgl2", { antialias: false });
         if (!gl) {
             alert("Unable to initialize WebGL.");
             return;
@@ -264,7 +264,6 @@ export function Sim(props: SimProps) {
             /*
                 Custom framebuffer intitialization
             */
-            
 
             // Create a color attachment texture
             // Below code does not MSAA properly
@@ -296,8 +295,6 @@ export function Sim(props: SimProps) {
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
             const texWidth = canvas.width;
             const texHeight = canvas.height;
-            
-            
 
             // Define buffers
             const depthRenderBuffer = gl.createRenderbuffer();
@@ -311,8 +308,8 @@ export function Sim(props: SimProps) {
                 gl.getParameter(gl.MAX_SAMPLES),
                 gl.DEPTH_COMPONENT24,
                 texWidth,
-                texHeight
-            )
+                texHeight,
+            );
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
@@ -320,33 +317,16 @@ export function Sim(props: SimProps) {
                 gl.getParameter(gl.MAX_SAMPLES),
                 gl.RGBA8,
                 texWidth,
-                texHeight
-            )
+                texHeight,
+            );
 
             // Attach depth and color render buffer to the scene frame buffer
             gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-            gl.framebufferRenderbuffer(
-                gl.FRAMEBUFFER,
-                gl.COLOR_ATTACHMENT0,
-                gl.RENDERBUFFER,
-                colorRenderBuffer,
-            )
-            gl.framebufferRenderbuffer(
-                gl.FRAMEBUFFER,
-                gl.DEPTH_ATTACHMENT,
-                gl.RENDERBUFFER,
-                depthRenderBuffer,
-            )
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderBuffer);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
 
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
-            gl.framebufferTexture2D(
-                gl.FRAMEBUFFER,
-                gl.COLOR_ATTACHMENT0,
-                gl.TEXTURE_2D,
-                textureColorBuffer,
-                0,
-            )
-
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
 
             // Finish binding texture
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -358,8 +338,6 @@ export function Sim(props: SimProps) {
             if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
                 console.error("Framebuffer is not complete");
             }
-
-
 
             /*
                 Create a test texture
@@ -573,15 +551,11 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-
-                
-                
                 if (renderToTextureRef.current) {
                     /*
                         Antialiasing Pass
                     */
 
-                    
                     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
                     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
                     gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
@@ -595,7 +569,7 @@ export function Sim(props: SimProps) {
                         texWidth,
                         texHeight,
                         gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR
+                        gl.LINEAR,
                     );
                     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
 
@@ -604,10 +578,16 @@ export function Sim(props: SimProps) {
                     gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
 
                     gl.blitFramebuffer(
-                        0, 0, canvas.width, canvas.height,
-                        0, 0, canvas.width, canvas.height,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
                         gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR
+                        gl.LINEAR,
                     );
 
                     if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {

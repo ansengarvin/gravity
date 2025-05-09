@@ -37,11 +37,11 @@ export function SettingsMenu(props: SettingsMenuProps) {
                 <button
                     onClick={() => {
                         setRenderToTexture(!renderToTexture);
-                    }}>
+                    }}
+                >
                     {renderToTexture ? "DISABLE" : "ENABLE"}
                 </button>
             </div>
-            
         </SettingsStyle>
     );
 }
