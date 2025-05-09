@@ -11,8 +11,7 @@ export function initBuffers(gl: WebGL2RenderingContext, model: Model) {
     const positionBuffer = initPositionBuffer(gl, model.positions);
     const indexBuffer = initIndexBuffer(gl, model.indices);
     const normalBuffer = initNormalBuffer(gl, model.normals);
-    const texCoordBuffer = initTexCoordBuffer(gl, model.texCoords)
-
+    const texCoordBuffer = initTexCoordBuffer(gl, model.texCoords);
 
     return {
         position: positionBuffer,

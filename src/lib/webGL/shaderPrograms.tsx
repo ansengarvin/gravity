@@ -40,5 +40,5 @@ export interface TexQuadProgramInfo {
     attribLocations: AttribLocations;
     uniformLocations: {
         uScreenTex: WebGLUniformLocation | null;
-    }
+    };
 }

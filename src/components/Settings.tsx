@@ -7,10 +7,13 @@ interface SettingsMenuProps {
     setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
     lightingMode: LightingMode;
     setLightingMode: React.Dispatch<React.SetStateAction<LightingMode>>;
+    renderToTexture: boolean;
+    setRenderToTexture: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode } = props;
+    const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode, renderToTexture, setRenderToTexture } =
+        props;
     return (
         <SettingsStyle>
             <button
@@ -29,6 +32,16 @@ export function SettingsMenu(props: SettingsMenuProps) {
             >
                 {debugStatsShown ? "Hide Debug Stats" : "Show Debug Stats"}
             </button>
+            <div>
+                Render to Texture
+                <button
+                    onClick={() => {
+                        setRenderToTexture(!renderToTexture);
+                    }}>
+                    {renderToTexture ? "DISABLE" : "ENABLE"}
+                </button>
+            </div>
+            
         </SettingsStyle>
     );
 }

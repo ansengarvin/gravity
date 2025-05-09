@@ -1,5 +1,10 @@
 import { useEffect, useRef } from "react";
-import { CamlightProgramInfo, LightingMode, StarlightProgramInfo, TexQuadProgramInfo } from "../lib/webGL/shaderPrograms";
+import {
+    CamlightProgramInfo,
+    LightingMode,
+    StarlightProgramInfo,
+    TexQuadProgramInfo,
+} from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
@@ -16,7 +21,12 @@ import fragTexQuad from "../assets/shaders/texQuad/texQuad.frag.glsl?raw";
 import vertTexQuad from "../assets/shaders/texQuad/texQuad.vert.glsl?raw";
 
 import { mat4, vec4 } from "gl-matrix";
-import { setNormalAttribute, setPositionAttribute, setPositionAttribute2D, setTexCoordAttribute } from "../lib/webGL/attributes";
+import {
+    setNormalAttribute,
+    setPositionAttribute,
+    setPositionAttribute2D,
+    setTexCoordAttribute,
+} from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
@@ -50,6 +60,7 @@ interface SimProps {
     resetSim: number;
     resetCam: number;
     paused: boolean;
+    renderToTexture: boolean;
 }
 
 export function Sim(props: SimProps) {
@@ -68,6 +79,7 @@ export function Sim(props: SimProps) {
         resetSim,
         resetCam,
         paused,
+        renderToTexture,
     } = props;
 
     // For now, hard-code universe settings. We will eventually want these to be user-controlled.
@@ -123,6 +135,11 @@ export function Sim(props: SimProps) {
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
+
+    const renderToTextureRef = useRef(renderToTexture);
+    useEffect(() => {
+        renderToTextureRef.current = renderToTexture;
+    }, [renderToTexture]);
 
     /*
         Set up WebGL Renderer
@@ -214,7 +231,7 @@ export function Sim(props: SimProps) {
                 uniformLocations: {
                     uScreenTex: gl.getUniformLocation(texQuadShaderProgram, "uScreenTex"),
                 },
-            }
+            };
 
             /*****************************
              * Load Model Buffers
@@ -236,53 +253,37 @@ export function Sim(props: SimProps) {
                 //     1.0, -1.0, 0.0,
                 //     1.0, 1.0, 0.0
                 // ]),
-                positions: new Float32Array([
-                    -1.0, 1.0,
-                    -1.0, -1.0,
-                    1.0, -1.0,
-                    -1.0, 1.0,
-                    1.0, -1.0,
-                    1.0, 1.0,
-                ]),
-                texCoords: new Float32Array ([
-                    0.0, 1.0,
-                    0.0, 0.0,
-                    1.0, 0.0,
-                    0.0, 1.0,
-                    1.0, 0.0,
-                    1.0, 1.0,
-                ]),
+                positions: new Float32Array([-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
+                texCoords: new Float32Array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
                 indices: new Uint16Array(),
                 normals: new Float32Array(),
                 indexCount: 0,
-            }
+            };
             const quadBuffers = initBuffers(gl, quadModel);
-
 
             /*
                 Custom framebuffer intitialization
             */
-            const framebuffer = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            const sceneFrameBuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
 
             // Create a color attachment texture
             const textureColorBuffer = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                gl.RGBA,
-                canvas.width,
-                canvas.height,
-                0,
-                gl.RGBA,
-                gl.UNSIGNED_BYTE,
-                null,
-            );
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
 
+            // Create a depth buffer attachment texture
+            const depthRenderBuffer = gl.createRenderbuffer();
+            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+            // Check if the framebuffer is complete
+            if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                console.error("Framebuffer is not complete");
+            }
 
             /*
                 Create a test texture
@@ -362,7 +363,7 @@ export function Sim(props: SimProps) {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-                        
+
                         gl.useProgram(camlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -399,8 +400,12 @@ export function Sim(props: SimProps) {
                 }
 
                 // First framebuffer pass
-                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+                if (renderToTextureRef.current) {
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+                } else {
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                }
                 gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -496,51 +501,20 @@ export function Sim(props: SimProps) {
                     Second Pass
                 */
 
-                // Draw a sphere at the origin
-                // Clear all uniforms
-                // gl.useProgram(camlightProgramInfo.program);
-                // const modelMatrix = mat4.create();
-                // mat4.translate(modelMatrix, modelMatrix, [
-                //     0,
-                //     0,
-                //     0,
-                // ]);
-                // mat4.scale(modelMatrix, modelMatrix, [
-                //     1.0,
-                //     1.0,
-                //     1.0
-                // ]);
+                if (renderToTextureRef.current) {
+                    // Bind null frame buffer to render quad-scene-texture
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    // Bind quad buffer
+                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                    // Switch shader program
+                    gl.useProgram(texQuadProgramInfo.program);
+                    // // Bind position attributes to shader
 
-                // const modelViewMatrix = mat4.create();
-                // mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+                    setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
 
-                // const normalMatrix = mat4.create();
-                // mat4.invert(normalMatrix, modelViewMatrix);
-                // mat4.transpose(normalMatrix, normalMatrix);
-
-                // // Bind model matrix
-                // gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
-
-                // Bind null frame buffer to render quad-scene-texture
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-                // Bind quad buffer
-                gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
-
-                // Switch shader program
-                gl.useProgram(texQuadProgramInfo.program);
-
-
-                // // Bind position attributes to shader
-                // setPositionAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
-                // setNormalAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
-
-                setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-
-
-                gl.drawArrays(gl.TRIANGLES, 0, 6);
-
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                }
 
                 requestAnimationFrame(render);
             }

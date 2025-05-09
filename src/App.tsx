@@ -69,6 +69,9 @@ export function App() {
     if (bodyFollowed != -1 && camAtOrigin) {
         setCamAtOrigin(false);
     }
+
+    // Toggle render to texture
+    const [renderToTexture, setRenderToTexture] = useState<boolean>(false);
     return (
         <>
             <SimScreen>
@@ -87,6 +90,7 @@ export function App() {
                     resetSim={resetSim}
                     resetCam={resetCam}
                     paused={paused}
+                    renderToTexture={renderToTexture}
                 />
             </SimScreen>
             <Backdrop>
@@ -130,6 +134,8 @@ export function App() {
                         setDebugStatsShown={setDebugStatsShown}
                         lightingMode={lightingMode}
                         setLightingMode={setLightingMode}
+                        renderToTexture={renderToTexture}
+                        setRenderToTexture={setRenderToTexture}
                     />
                 ) : null}
             </Backdrop>
