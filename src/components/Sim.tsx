@@ -400,7 +400,7 @@ export function Sim(props: SimProps) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, starExtractBuffer, 0)
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, starExtractBuffer, 0);
 
             /*
                 Create bloom framebuffers
@@ -408,24 +408,18 @@ export function Sim(props: SimProps) {
             const bloomFrameBuffer: Array<WebGLFramebuffer> = [
                 gl.createFramebuffer() as WebGLFramebuffer,
                 gl.createFramebuffer() as WebGLFramebuffer,
-            ]
+            ];
             const bloomTextures: Array<WebGLTexture> = [
                 gl.createTexture() as WebGLTexture,
                 gl.createTexture() as WebGLTexture,
-            ]
+            ];
             for (let i = 0; i < bloomFrameBuffer.length; i++) {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[i]);
                 gl.bindTexture(gl.TEXTURE_2D, bloomTextures[i]);
                 gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.framebufferTexture2D(
-                    gl.FRAMEBUFFER,
-                    gl.COLOR_ATTACHMENT0,
-                    gl.TEXTURE_2D,
-                    bloomTextures[i],
-                    0,
-                );
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, bloomTextures[i], 0);
             }
 
             // Check if the framebuffer is complete
@@ -664,7 +658,7 @@ export function Sim(props: SimProps) {
                         texHeight,
                         gl.COLOR_BUFFER_BIT,
                         gl.LINEAR,
-                    )
+                    );
                     // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
 
                     // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
@@ -706,7 +700,10 @@ export function Sim(props: SimProps) {
                             // Set horizontal int to horizontal
                             gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
                             // Set texture to read from
-                            gl.bindTexture(gl.TEXTURE_2D, first_iteration ? starExtractBuffer : bloomTextures[1 - horizontal]);
+                            gl.bindTexture(
+                                gl.TEXTURE_2D,
+                                first_iteration ? starExtractBuffer : bloomTextures[1 - horizontal],
+                            );
                             gl.drawArrays(gl.TRIANGLES, 0, 6);
                             // Bind the next framebuffer
 
@@ -715,7 +712,6 @@ export function Sim(props: SimProps) {
                                 first_iteration = false;
                             }
                         }
-
 
                         gl.useProgram(bloomProgramInfo.program);
 
@@ -730,7 +726,7 @@ export function Sim(props: SimProps) {
                         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                         gl.drawArrays(gl.TRIANGLES, 0, 6);
                     } else {
-                        gl.useProgram(texQuadProgramInfo.program)
+                        gl.useProgram(texQuadProgramInfo.program);
                         gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
                         setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
                         setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
@@ -738,15 +734,11 @@ export function Sim(props: SimProps) {
                         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                         gl.drawArrays(gl.TRIANGLES, 0, 6);
                     }
-                    
-                
-                    
 
                     /*
                         Render scene texture to quad
                     */
                     // Bind null frame buffer to render quad-scene-texture
-                    
                 }
 
                 requestAnimationFrame(render);

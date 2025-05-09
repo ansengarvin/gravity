@@ -49,7 +49,7 @@ export interface GaussianBlurProgramInfo {
     uniformLocations: {
         uImage: WebGLUniformLocation | null;
         uHorizontal: WebGLUniformLocation | null;
-    }
+    };
 }
 
 export interface BloomProgramInfo {
@@ -58,5 +58,5 @@ export interface BloomProgramInfo {
     uniformLocations: {
         uScene: WebGLUniformLocation | null;
         uBloom: WebGLUniformLocation | null;
-    }
+    };
 }
