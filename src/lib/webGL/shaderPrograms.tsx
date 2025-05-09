@@ -42,3 +42,21 @@ export interface TexQuadProgramInfo {
         uScreenTex: WebGLUniformLocation | null;
     };
 }
+
+export interface GaussianBlurProgramInfo {
+    program: WebGLProgram;
+    attribLocations: AttribLocations;
+    uniformLocations: {
+        uImage: WebGLUniformLocation | null;
+        uHorizontal: WebGLUniformLocation | null;
+    };
+}
+
+export interface BloomProgramInfo {
+    program: WebGLProgram;
+    attribLocations: AttribLocations;
+    uniformLocations: {
+        uScene: WebGLUniformLocation | null;
+        uBloom: WebGLUniformLocation | null;
+    };
+}

@@ -55,7 +55,7 @@ export function App() {
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
     const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
-    const [lightingMode, setLightingMode] = useState<LightingMode>(LightingMode.CAMLIGHT);
+    const [lightingMode, setLightingMode] = useState<LightingMode>(LightingMode.STARLIGHT);
 
     // Toggle to reset the simulation
     const [resetSim, setResetSim] = useState<number>(0);
