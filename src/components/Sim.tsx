@@ -264,13 +264,19 @@ export function Sim(props: SimProps) {
             /*
                 Custom framebuffer intitialization
             */
+            
+
+            // Create a color attachment texture
+            // Below code does not MSAA properly
+            /*
             const sceneFrameBuffer = gl.createFramebuffer();
             gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
 
-            // Create a color attachment texture
             const textureColorBuffer = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, canvas.width, canvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            const texWidth = canvas.width;
+            const texHeight = canvas.height;
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
@@ -280,10 +286,80 @@ export function Sim(props: SimProps) {
             gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
             gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+            */
+
+            // Scene to texture with multisampling from the following source:
+            // https://stackoverflow.com/questions/47934444/webgl-framebuffer-multisampling
+
+            // Define texture
+            const textureColorBuffer = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            const texWidth = canvas.width;
+            const texHeight = canvas.height;
+            
+            
+
+            // Define buffers
+            const depthRenderBuffer = gl.createRenderbuffer();
+            const sceneFrameBuffer = gl.createFramebuffer();
+            const colorFrameBuffer = gl.createFramebuffer();
+            const colorRenderBuffer = gl.createRenderbuffer();
+
+            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+            gl.renderbufferStorageMultisample(
+                gl.RENDERBUFFER,
+                gl.getParameter(gl.MAX_SAMPLES),
+                gl.DEPTH_COMPONENT24,
+                texWidth,
+                texHeight
+            )
+
+            gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
+            gl.renderbufferStorageMultisample(
+                gl.RENDERBUFFER,
+                gl.getParameter(gl.MAX_SAMPLES),
+                gl.RGBA8,
+                texWidth,
+                texHeight
+            )
+
+            // Attach depth and color render buffer to the scene frame buffer
+            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+            gl.framebufferRenderbuffer(
+                gl.FRAMEBUFFER,
+                gl.COLOR_ATTACHMENT0,
+                gl.RENDERBUFFER,
+                colorRenderBuffer,
+            )
+            gl.framebufferRenderbuffer(
+                gl.FRAMEBUFFER,
+                gl.DEPTH_ATTACHMENT,
+                gl.RENDERBUFFER,
+                depthRenderBuffer,
+            )
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
+            gl.framebufferTexture2D(
+                gl.FRAMEBUFFER,
+                gl.COLOR_ATTACHMENT0,
+                gl.TEXTURE_2D,
+                textureColorBuffer,
+                0,
+            )
+
+
+            // Finish binding texture
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
             // Check if the framebuffer is complete
             if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
                 console.error("Framebuffer is not complete");
             }
+
+
 
             /*
                 Create a test texture
@@ -497,13 +573,53 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-                /*
-                    Second Pass
-                */
 
+                
+                
                 if (renderToTextureRef.current) {
+                    /*
+                        Antialiasing Pass
+                    */
+
+                    
+                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
+                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                    gl.blitFramebuffer(
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR
+                    );
+                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+
+                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+
+                    gl.blitFramebuffer(
+                        0, 0, canvas.width, canvas.height,
+                        0, 0, canvas.width, canvas.height,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR
+                    );
+
+                    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                        console.error("Framebuffer is not complete");
+                    }
+
+                    /*
+                        Second Pass
+                    */
+
                     // Bind null frame buffer to render quad-scene-texture
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                     // Bind quad buffer
                     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
                     // Switch shader program
