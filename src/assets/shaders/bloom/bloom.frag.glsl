@@ -25,7 +25,7 @@ void main() {
 
     result = pow(result, vec3(1.0 / gamma));
     //result = sceneColor;
-    result = bloomColor;
+    //result = bloomColor;
     
     FragColor = vec4(result, 1.0);
 }

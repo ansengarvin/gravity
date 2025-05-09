@@ -344,7 +344,9 @@ export function Sim(props: SimProps) {
             const depthRenderBuffer = gl.createRenderbuffer();
             const sceneFrameBuffer = gl.createFramebuffer();
             const colorFrameBuffer = gl.createFramebuffer();
+            const extractFrameBuffer = gl.createFramebuffer();
             const colorRenderBuffer = gl.createRenderbuffer();
+            const starExtractRenderBuffer = gl.createRenderbuffer();
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
             gl.renderbufferStorageMultisample(
@@ -364,14 +366,24 @@ export function Sim(props: SimProps) {
                 texHeight,
             );
 
+            gl.bindRenderbuffer(gl.RENDERBUFFER, starExtractRenderBuffer);
+            gl.renderbufferStorageMultisample(
+                gl.RENDERBUFFER,
+                gl.getParameter(gl.MAX_SAMPLES),
+                gl.RGBA8,
+                texWidth,
+                texHeight,
+            );
+
             // Attach depth and color render buffer to the scene frame buffer
             gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]); // enable MRT
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderBuffer);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.RENDERBUFFER, starExtractRenderBuffer);
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
 
             // Attach textures to color frame buffer
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
-
             const textureColorBuffer = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -380,6 +392,7 @@ export function Sim(props: SimProps) {
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
 
             // Texture to extract star colors to for bloom
+            gl.bindFramebuffer(gl.FRAMEBUFFER, extractFrameBuffer);
             const starExtractBuffer = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, starExtractBuffer);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
@@ -387,10 +400,7 @@ export function Sim(props: SimProps) {
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, starExtractBuffer, 0);
-
-            // Enable MRT (Multiple Render Targets)
-            gl.drawBuffers([gl.COLOR_ATTACHMENT0, gl.COLOR_ATTACHMENT1]);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, starExtractBuffer, 0)
 
             /*
                 Create bloom framebuffers
@@ -624,6 +634,7 @@ export function Sim(props: SimProps) {
                     /*
                         Antialiasing Pass
                     */
+                    gl.readBuffer(gl.COLOR_ATTACHMENT0);
                     gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
                     gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
                     gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
@@ -639,24 +650,39 @@ export function Sim(props: SimProps) {
                         gl.COLOR_BUFFER_BIT,
                         gl.LINEAR,
                     );
-                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
 
-                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-
-                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-
+                    gl.readBuffer(gl.COLOR_ATTACHMENT1);
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
                     gl.blitFramebuffer(
                         0,
                         0,
-                        canvas.width,
-                        canvas.height,
+                        texWidth,
+                        texHeight,
                         0,
                         0,
-                        canvas.width,
-                        canvas.height,
+                        texWidth,
+                        texHeight,
                         gl.COLOR_BUFFER_BIT,
                         gl.LINEAR,
-                    );
+                    )
+                    // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+
+                    // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+
+                    // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+
+                    // gl.blitFramebuffer(
+                    //     0,
+                    //     0,
+                    //     canvas.width,
+                    //     canvas.height,
+                    //     0,
+                    //     0,
+                    //     canvas.width,
+                    //     canvas.height,
+                    //     gl.COLOR_BUFFER_BIT,
+                    //     gl.LINEAR,
+                    // );
 
                     if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
                         console.error("Framebuffer is not complete");
@@ -698,6 +724,11 @@ export function Sim(props: SimProps) {
                     gl.activeTexture(gl.TEXTURE1);
                     gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
                     gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 1);
+                
+                    // gl.useProgram(texQuadProgramInfo.program)
+                    // gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    // setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    // setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
 
                     /*
                         Render scene texture to quad
