@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { CamlightProgramInfo, LightingMode, StarlightProgramInfo } from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
-import { getModel } from "../lib/gltf/model";
+import { getModel, Model } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
@@ -206,8 +206,32 @@ export function Sim(props: SimProps) {
                 return;
             }
 
+            // Create a simple quad
+            const quadModel: Model = {
+                positions: new Float32Array([
+                    -1.0, 1.0, 0.0,
+                    -1.0, -1.0, 0.0,
+                    1.0, -1.0, 0.0,
+                    -1.0, 1.0, 0.0,
+                    1.0, -1.0, 0.0,
+                    1.0, 1.0, 0.0
+                ]),
+                texCoords: new Float32Array ([
+                    0.0, 1.0,
+                    0.0, 0.0,
+                    1.0, 0.0,
+                    0.0, 1.0,
+                    1.0, 0.0,
+                    1.0, 1.0,
+                ]),
+                indices: new Uint16Array(),
+                normals: new Float32Array(),
+                indexCount: 0,
+            }
+            const quadBuffers = initBuffers(gl, quadModel);
+
             /*
-                Framebuffer Configuration
+                Custom framebuffer intitialization
             */
             const framebuffer = gl.createFramebuffer();
             gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
@@ -277,12 +301,17 @@ export function Sim(props: SimProps) {
                 }
                 const viewMatrix = cameraRef.current.getViewMatrix();
 
+                // Bind sphere buffers
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
+                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
+                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
+
                 switch (lightingModeRef.current) {
                     case LightingMode.CAMLIGHT: {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
+                        
                         gl.useProgram(camlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -298,7 +327,6 @@ export function Sim(props: SimProps) {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -416,9 +444,41 @@ export function Sim(props: SimProps) {
                 /*
                     Second Pass
                 */
-                // gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                // gl.clearColor(1.0, 1.0, 1.0, 1.0); // Clear to white, fully opaque
-                // gl.clear(gl.COLOR_BUFFER_BIT)
+
+                // Draw a sphere at the origin
+                // Clear all uniforms
+                gl.useProgram(camlightProgramInfo.program);
+                const modelMatrix = mat4.create();
+                mat4.translate(modelMatrix, modelMatrix, [
+                    0,
+                    0,
+                    0,
+                ]);
+                mat4.scale(modelMatrix, modelMatrix, [
+                    1.0,
+                    1.0,
+                    1.0
+                ]);
+
+                const modelViewMatrix = mat4.create();
+                mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+
+                const normalMatrix = mat4.create();
+                mat4.invert(normalMatrix, modelViewMatrix);
+                mat4.transpose(normalMatrix, normalMatrix);
+
+                // Bind model matrix
+                gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
+
+                // Bind quad buffer
+                gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+
+                // Bind position attributes to shader
+                setPositionAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
+                setNormalAttribute(gl, quadBuffers, camlightProgramInfo.attribLocations);
+
+                gl.drawArrays(gl.TRIANGLES, 0, 6);
+
 
                 requestAnimationFrame(render);
             }
