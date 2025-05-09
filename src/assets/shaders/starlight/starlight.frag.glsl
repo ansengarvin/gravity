@@ -21,7 +21,7 @@ layout(location=0) out highp vec4 fragColor;
 layout(location=1) out highp vec4 brightColor;
 
 void main(void) {
-    highp vec3 ambient = vec3(0.05, 0.05, 0.05);
+    highp vec3 ambient = vec3(0.005, 0.005, 0.005);
     
     highp vec3 normal = normalize(vNormal);
 
