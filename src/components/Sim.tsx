@@ -1,8 +1,13 @@
 import { useEffect, useRef } from "react";
-import { CamlightProgramInfo, LightingMode, StarlightProgramInfo } from "../lib/webGL/shaderPrograms";
+import {
+    CamlightProgramInfo,
+    LightingMode,
+    StarlightProgramInfo,
+    TexQuadProgramInfo,
+} from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
-import { getModel } from "../lib/gltf/model";
+import { getModel, Model } from "../lib/gltf/model";
 import { Universe, UniverseSettings } from "../lib/universe/universe";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
@@ -12,9 +17,16 @@ import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
 import vertLightGlobal from "../assets/shaders/camlight/camlight.vert.glsl?raw";
 import fragLightStars from "../assets/shaders/starlight/starlight.frag.glsl?raw";
 import vertLightStars from "../assets/shaders/starlight/starlight.vert.glsl?raw";
+import fragTexQuad from "../assets/shaders/texQuad/texQuad.frag.glsl?raw";
+import vertTexQuad from "../assets/shaders/texQuad/texQuad.vert.glsl?raw";
 
 import { mat4, vec4 } from "gl-matrix";
-import { setNormalAttribute, setPositionAttribute } from "../lib/webGL/attributes";
+import {
+    setNormalAttribute,
+    setPositionAttribute,
+    setPositionAttribute2D,
+    setTexCoordAttribute,
+} from "../lib/webGL/attributes";
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
@@ -32,6 +44,7 @@ interface SimProps {
     setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
     setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
+    setMaxSamples: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
     setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
@@ -48,6 +61,7 @@ interface SimProps {
     resetSim: number;
     resetCam: number;
     paused: boolean;
+    renderToTexture: boolean;
 }
 
 export function Sim(props: SimProps) {
@@ -55,6 +69,7 @@ export function Sim(props: SimProps) {
         setMaxVertexUniformVectors,
         setMaxFragmentUniformVectors,
         setMaxUniformBufferBindingPoints,
+        setMaxSamples,
         setNumActiveBodies,
         setNumActiveUniforms,
         setNumActiveUniformVectors,
@@ -66,6 +81,7 @@ export function Sim(props: SimProps) {
         resetSim,
         resetCam,
         paused,
+        renderToTexture,
     } = props;
 
     // For now, hard-code universe settings. We will eventually want these to be user-controlled.
@@ -122,6 +138,11 @@ export function Sim(props: SimProps) {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
 
+    const renderToTextureRef = useRef(renderToTexture);
+    useEffect(() => {
+        renderToTextureRef.current = renderToTexture;
+    }, [renderToTexture]);
+
     /*
         Set up WebGL Renderer
     */
@@ -133,7 +154,7 @@ export function Sim(props: SimProps) {
             return;
         }
 
-        const gl = canvas.getContext("webgl2");
+        const gl = canvas.getContext("webgl2", { antialias: false });
         if (!gl) {
             alert("Unable to initialize WebGL.");
             return;
@@ -148,8 +169,11 @@ export function Sim(props: SimProps) {
             setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
             setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
+            setMaxSamples(gl.getParameter(gl.MAX_SAMPLES));
 
-            // Initialize all shader programs
+            /*
+                Initialize all shader programs
+            */
             const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
             if (!camlightShaderProgram) {
                 console.error("Failed to initialize camera light shader");
@@ -160,6 +184,7 @@ export function Sim(props: SimProps) {
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(camlightShaderProgram, "aVertexPosition"),
                     vertexNormal: gl.getAttribLocation(camlightShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(camlightShaderProgram, "aTexCoords"),
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(camlightShaderProgram, "uProjectionMatrix"),
@@ -179,6 +204,7 @@ export function Sim(props: SimProps) {
                 attribLocations: {
                     vertexPosition: gl.getAttribLocation(starlightShaderProgram, "aVertexPosition"),
                     vertexNormal: gl.getAttribLocation(starlightShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(starlightShaderProgram, "aTexCoords"),
                 },
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(starlightShaderProgram, "uProjectionMatrix"),
@@ -191,20 +217,134 @@ export function Sim(props: SimProps) {
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                 },
             };
+
+            // Initialize texture shader for simple texture quad
+            const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
+            if (!texQuadShaderProgram) {
+                console.error("Failed to initialize texture shader program");
+                return;
+            }
+            const texQuadProgramInfo: TexQuadProgramInfo = {
+                program: texQuadShaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(texQuadShaderProgram, "aVertexPosition"),
+                    vertexNormal: gl.getAttribLocation(texQuadShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(texQuadShaderProgram, "aTexCoords"),
+                },
+                uniformLocations: {
+                    uScreenTex: gl.getUniformLocation(texQuadShaderProgram, "uScreenTex"),
+                },
+            };
+
             /*****************************
              * Load Model Buffers
              *****************************/
             const sphere = await getModel("uvSphereSmooth.glb");
-            const buffers = initBuffers(gl, sphere);
-            if (!buffers) {
+            const sphereBuffers = initBuffers(gl, sphere);
+            if (!sphereBuffers) {
                 console.error("Failed to initialize buffers");
                 return;
             }
 
+            // Create a simple quad
+            const quadModel: Model = {
+                // positions: new Float32Array([
+                //     -1.0, 1.0, 0.0,
+                //     -1.0, -1.0, 0.0,
+                //     1.0, -1.0, 0.0,
+                //     -1.0, 1.0, 0.0,
+                //     1.0, -1.0, 0.0,
+                //     1.0, 1.0, 0.0
+                // ]),
+                positions: new Float32Array([-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
+                texCoords: new Float32Array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
+                indices: new Uint16Array(),
+                normals: new Float32Array(),
+                indexCount: 0,
+            };
+            const quadBuffers = initBuffers(gl, quadModel);
+
             /*
-                Projection matrix does not need to change every render.
+                Custom framebuffer intitialization
             */
 
+            // Create a color attachment texture
+            // Below code does not MSAA properly
+            /*
+            const sceneFrameBuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+
+            const textureColorBuffer = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            const texWidth = canvas.width;
+            const texHeight = canvas.height;
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
+            // Create a depth buffer attachment texture
+            const depthRenderBuffer = gl.createRenderbuffer();
+            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+            */
+
+            // Scene to texture with multisampling from the following source:
+            // https://stackoverflow.com/questions/47934444/webgl-framebuffer-multisampling
+
+            // Define texture
+            const textureColorBuffer = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            const texWidth = canvas.width;
+            const texHeight = canvas.height;
+
+            // Define buffers
+            const depthRenderBuffer = gl.createRenderbuffer();
+            const sceneFrameBuffer = gl.createFramebuffer();
+            const colorFrameBuffer = gl.createFramebuffer();
+            const colorRenderBuffer = gl.createRenderbuffer();
+
+            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
+            gl.renderbufferStorageMultisample(
+                gl.RENDERBUFFER,
+                gl.getParameter(gl.MAX_SAMPLES),
+                gl.DEPTH_COMPONENT24,
+                texWidth,
+                texHeight,
+            );
+
+            gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
+            gl.renderbufferStorageMultisample(
+                gl.RENDERBUFFER,
+                gl.getParameter(gl.MAX_SAMPLES),
+                gl.RGBA8,
+                texWidth,
+                texHeight,
+            );
+
+            // Attach depth and color render buffer to the scene frame buffer
+            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderBuffer);
+            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
+            // Finish binding texture
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+
+            // Check if the framebuffer is complete
+            if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                console.error("Framebuffer is not complete");
+            }
+
+            /*
+                Render Program
+            */
             let then = 0;
             let accumulatedTime = 0;
             function render(now: number) {
@@ -233,12 +373,6 @@ export function Sim(props: SimProps) {
                     return;
                 }
 
-                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-                gl.clearDepth(1.0); // Clear everything
-                gl.enable(gl.DEPTH_TEST); // Enable depth testing
-                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
                 // Create Projection Matrix (used by all shaders)
                 const projectionMatrix = mat4.create();
                 const canvas = gl.canvas as HTMLCanvasElement;
@@ -255,12 +389,17 @@ export function Sim(props: SimProps) {
                 }
                 const viewMatrix = cameraRef.current.getViewMatrix();
 
+                // Bind sphere buffers
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
+                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
+                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
+
                 switch (lightingModeRef.current) {
                     case LightingMode.CAMLIGHT: {
                         // Bind Buffers
-                        setPositionAttribute(gl, buffers, camlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, buffers, camlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+
                         gl.useProgram(camlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -274,9 +413,8 @@ export function Sim(props: SimProps) {
                     }
                     case LightingMode.STARLIGHT: {
                         // Bind Buffers
-                        setPositionAttribute(gl, buffers, starlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, buffers, starlightProgramInfo.attribLocations);
-                        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, buffers.indices);
+                        setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -297,6 +435,22 @@ export function Sim(props: SimProps) {
                     }
                 }
 
+                // First framebuffer pass
+
+                if (renderToTextureRef.current) {
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+                } else {
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                }
+                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+                gl.clearDepth(1.0); // Clear everything
+                gl.enable(gl.DEPTH_TEST); // Enable depth testing
+                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                /*
+                    Draw Scene
+                */
                 for (let i = 0; i < universe.current.settings.numBodies; i++) {
                     if (!universe.current.bodiesActive[i]) {
                         continue;
@@ -379,7 +533,66 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-                // set debug information
+                if (renderToTextureRef.current) {
+                    /*
+                        Antialiasing Pass
+                    */
+
+                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
+                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                    gl.blitFramebuffer(
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR,
+                    );
+                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+
+                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+
+                    gl.blitFramebuffer(
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR,
+                    );
+
+                    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                        console.error("Framebuffer is not complete");
+                    }
+
+                    /*
+                        Second Pass
+                    */
+
+                    // Bind null frame buffer to render quad-scene-texture
+                    //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    // Bind quad buffer
+                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                    // Switch shader program
+                    gl.useProgram(texQuadProgramInfo.program);
+                    // // Bind position attributes to shader
+
+                    setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                }
 
                 requestAnimationFrame(render);
             }

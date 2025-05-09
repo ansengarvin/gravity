@@ -50,6 +50,7 @@ export function App() {
     const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
     const [maxUniformBufferBindingPoints, setMaxUniformBufferBindingPoints] = useState(0);
     const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
+    const [maxSamples, setMaxSamples] = useState(0);
 
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
@@ -69,6 +70,9 @@ export function App() {
     if (bodyFollowed != -1 && camAtOrigin) {
         setCamAtOrigin(false);
     }
+
+    // Toggle render to texture
+    const [renderToTexture, setRenderToTexture] = useState<boolean>(true);
     return (
         <>
             <SimScreen>
@@ -80,6 +84,7 @@ export function App() {
                     setNumActiveUniforms={setNumActiveUniforms}
                     setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
+                    setMaxSamples={setMaxSamples}
                     setNumStars={setNumStars}
                     lightingMode={lightingMode}
                     bodyFollowed={bodyFollowed}
@@ -87,6 +92,7 @@ export function App() {
                     resetSim={resetSim}
                     resetCam={resetCam}
                     paused={paused}
+                    renderToTexture={renderToTexture}
                 />
             </SimScreen>
             <Backdrop>
@@ -107,6 +113,7 @@ export function App() {
                         maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
                         numActiveUniforms={numActiveUniforms}
                         numActiveUniformVectors={numActiveUniformVectors}
+                        maxSamples={maxSamples}
                     />
                 ) : null}
 
@@ -130,6 +137,8 @@ export function App() {
                         setDebugStatsShown={setDebugStatsShown}
                         lightingMode={lightingMode}
                         setLightingMode={setLightingMode}
+                        renderToTexture={renderToTexture}
+                        setRenderToTexture={setRenderToTexture}
                     />
                 ) : null}
             </Backdrop>
