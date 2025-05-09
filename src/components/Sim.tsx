@@ -691,52 +691,61 @@ export function Sim(props: SimProps) {
                     /*
                         Bloom Blur
                     */
-                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
 
-                    gl.useProgram(gaussianBlurProgramInfo.program);
-                    setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-                    setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+                    if (lightingModeRef.current == LightingMode.STARLIGHT) {
+                        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                        gl.useProgram(gaussianBlurProgramInfo.program);
+                        setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
 
-                    const blurAmount = 10;
-                    let horizontal = 0;
-                    let first_iteration = true;
-                    for (let i = 0; i < blurAmount; i++) {
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
-                        // Set horizontal int to horizontal
-                        gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.horizontal, horizontal);
-                        // Set texture to read from
-                        horizontal = horizontal === 0 ? 1 : 0;
-                        gl.bindTexture(gl.TEXTURE_2D, first_iteration ? starExtractBuffer : bloomTextures[horizontal]);
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                        // Bind the next framebuffer
-                        if (first_iteration) {
-                            first_iteration = false;
+                        const blurAmount = 10;
+                        let horizontal = 0;
+                        let first_iteration = true;
+                        for (let i = 0; i < blurAmount; i++) {
+                            gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
+                            // Set horizontal int to horizontal
+                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.horizontal, horizontal);
+                            // Set texture to read from
+                            horizontal = horizontal === 0 ? 1 : 0;
+                            gl.bindTexture(gl.TEXTURE_2D, first_iteration ? starExtractBuffer : bloomTextures[horizontal]);
+                            gl.drawArrays(gl.TRIANGLES, 0, 6);
+                            // Bind the next framebuffer
+                            if (first_iteration) {
+                                first_iteration = false;
+                            }
                         }
+
+
+                        gl.useProgram(bloomProgramInfo.program);
+
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, bloomTextures[horizontal]);
+                        gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 0);
+
+                        gl.activeTexture(gl.TEXTURE1);
+                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                        gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 1);
+
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    } else {
+                        gl.useProgram(texQuadProgramInfo.program)
+                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                        setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
                     }
-
-
-                    gl.useProgram(bloomProgramInfo.program);
-
-                    gl.activeTexture(gl.TEXTURE0);
-                    gl.bindTexture(gl.TEXTURE_2D, bloomTextures[horizontal]);
-                    gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 0);
-
-                    gl.activeTexture(gl.TEXTURE1);
-                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                    gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 1);
+                    
                 
-                    // gl.useProgram(texQuadProgramInfo.program)
-                    // gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                    // setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                    // setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    
 
                     /*
                         Render scene texture to quad
                     */
                     // Bind null frame buffer to render quad-scene-texture
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-
-                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    
                 }
 
                 requestAnimationFrame(render);

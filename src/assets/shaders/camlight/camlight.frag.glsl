@@ -4,7 +4,8 @@ uniform highp vec4 uFragColor;
 
 in highp vec3 vTransformedNormal;
 
-out highp vec4 fragColor;
+layout(location=0) out highp vec4 fragColor;
+layout(location=1) out highp vec4 brightColor;
 
 void main(void) {
     highp vec3 ambientLight = vec3(0.3, 0.3, 0.3);
@@ -15,4 +16,5 @@ void main(void) {
 
     highp vec3 lighting = ambientLight + (directional);
     fragColor = vec4(uFragColor.rgb * lighting, uFragColor.a);
+    brightColor = fragColor;
 }
