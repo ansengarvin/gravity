@@ -293,11 +293,27 @@ export function Sim(props: SimProps) {
             // Scene to texture with multisampling from the following source:
             // https://stackoverflow.com/questions/47934444/webgl-framebuffer-multisampling
 
-            // Define texture
-            const textureColorBuffer = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            // Define textures
             const texWidth = canvas.width;
             const texHeight = canvas.height;
+
+            const textureColorBuffer = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+            // const textureBloomBuffer = gl.createTexture();
+            // gl.bindTexture(gl.TEXTURE_2D, textureBloomBuffer);
+            // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+
+
+            
 
             // Define buffers
             const depthRenderBuffer = gl.createRenderbuffer();
@@ -328,14 +344,11 @@ export function Sim(props: SimProps) {
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.RENDERBUFFER, colorRenderBuffer);
             gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
 
+            // Attach textures to color frame buffer
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
 
-            // Finish binding texture
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
+            //gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT1, gl.TEXTURE_2D, textureBloomBuffer, 0);
 
             // Check if the framebuffer is complete
             if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
@@ -426,10 +439,15 @@ export function Sim(props: SimProps) {
 
                         // Data for calculating star light
                         const starData: Array<vec4> = universe.current.getStarData();
-                        const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                         const numStars = starData.length;
                         gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
+
+                        if (numStars > 0) {
+                            const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                            gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
+                        }
+                        
+                        
 
                         break;
                     }
