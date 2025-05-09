@@ -71,7 +71,7 @@ export function App() {
     }
 
     // Toggle render to texture
-    const [renderToTexture, setRenderToTexture] = useState<boolean>(false);
+    const [renderToTexture, setRenderToTexture] = useState<boolean>(true);
     return (
         <>
             <SimScreen>

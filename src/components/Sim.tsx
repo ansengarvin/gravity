@@ -152,7 +152,7 @@ export function Sim(props: SimProps) {
             return;
         }
 
-        const gl = canvas.getContext("webgl2");
+        const gl = canvas.getContext("webgl2", {antialias: false});
         if (!gl) {
             alert("Unable to initialize WebGL.");
             return;
