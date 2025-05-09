@@ -287,23 +287,23 @@ export function Sim(props: SimProps) {
             /*
                 Create a test texture
             */
-            const texture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            // Fill the texture with testTex.jpg from public
-            const image = new Image();
-            image.src = "testTex.jpg";
-            image.addEventListener("load", () => {
-                gl.bindTexture(gl.TEXTURE_2D, texture);
-                gl.texImage2D(
-                    gl.TEXTURE_2D,
-                    0,
-                    gl.RGBA,
-                    gl.RGBA,
-                    gl.UNSIGNED_BYTE,
-                    image,
-                );
-                gl.generateMipmap(gl.TEXTURE_2D);
-            });
+            // const texture = gl.createTexture();
+            // gl.bindTexture(gl.TEXTURE_2D, texture);
+            // // Fill the texture with testTex.jpg from public
+            // const image = new Image();
+            // image.src = "testTex.jpg";
+            // image.addEventListener("load", () => {
+            //     gl.bindTexture(gl.TEXTURE_2D, texture);
+            //     gl.texImage2D(
+            //         gl.TEXTURE_2D,
+            //         0,
+            //         gl.RGBA,
+            //         gl.RGBA,
+            //         gl.UNSIGNED_BYTE,
+            //         image,
+            //     );
+            //     gl.generateMipmap(gl.TEXTURE_2D);
+            // });
 
             /*
                 Render Program
@@ -399,8 +399,8 @@ export function Sim(props: SimProps) {
                 }
 
                 // First framebuffer pass
-                //gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
-                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+                //gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                 gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -521,6 +521,9 @@ export function Sim(props: SimProps) {
                 // // Bind model matrix
                 // gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.modelViewMatrix, false, modelViewMatrix);
 
+                // Bind null frame buffer to render quad-scene-texture
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
                 // Bind quad buffer
                 gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
 
@@ -534,7 +537,6 @@ export function Sim(props: SimProps) {
 
                 setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
                 setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                console.log(texQuadProgramInfo.attribLocations.vertexPosition); // Should not be -1
 
 
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
