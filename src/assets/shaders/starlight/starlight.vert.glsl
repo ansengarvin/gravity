@@ -15,5 +15,5 @@ out highp vec3 vFragPosition;
 void main(void) {
     gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
     vFragPosition = vec3(uModelMatrix * aVertexPosition);
-    vNormal = aVertexNormal; 
+    vNormal = normalize(mat3(uNormalMatrix) * aVertexNormal);
 }

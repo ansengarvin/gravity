@@ -562,13 +562,13 @@ export function Sim(props: SimProps) {
                     const modelViewMatrix = mat4.create();
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
-                    const normalMatrix = mat4.create();
-                    mat4.invert(normalMatrix, modelViewMatrix);
-                    mat4.transpose(normalMatrix, normalMatrix);
-
                     // Bind uniforms based on current lighting mode
                     switch (lightingModeRef.current) {
                         case LightingMode.CAMLIGHT: {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelViewMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+
                             gl.uniformMatrix4fv(
                                 camlightProgramInfo.uniformLocations.modelViewMatrix,
                                 false,
@@ -589,6 +589,10 @@ export function Sim(props: SimProps) {
                             break;
                         }
                         case LightingMode.STARLIGHT: {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+                            
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
