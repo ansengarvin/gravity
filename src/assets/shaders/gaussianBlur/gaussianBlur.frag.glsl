@@ -12,6 +12,7 @@ in highp vec2 TexCoords;
 
 uniform sampler2D uImage;
 uniform highp int uHorizontal; // 1 for horizontal blur, 0 for vertical blur
+uniform highp float uAspectRatio;
 
 highp float weight[5] = float[] (0.227027, 0.1945946, 0.1216216, 0.054054, 0.016216);
 

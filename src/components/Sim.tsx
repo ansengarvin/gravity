@@ -258,6 +258,7 @@ export function Sim(props: SimProps) {
                 uniformLocations: {
                     uImage: gl.getUniformLocation(gaussianBlurShaderProgram, "uImage"),
                     uHorizontal: gl.getUniformLocation(gaussianBlurShaderProgram, "uHorizontal"),
+                    uAspectRatio: gl.getUniformLocation(gaussianBlurShaderProgram, "uAspectRatio"),
                 },
             };
 
@@ -592,7 +593,7 @@ export function Sim(props: SimProps) {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelMatrix);
                             mat4.transpose(normalMatrix, normalMatrix);
-                            
+
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
@@ -703,6 +704,8 @@ export function Sim(props: SimProps) {
                             gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
                             // Set horizontal int to horizontal
                             gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
+                            const aspectRatio = texWidth / texHeight;
+                            gl.uniform1f(gaussianBlurProgramInfo.uniformLocations.uAspectRatio, aspectRatio)
                             // Set texture to read from
                             gl.bindTexture(
                                 gl.TEXTURE_2D,
@@ -729,6 +732,7 @@ export function Sim(props: SimProps) {
 
                         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                         gl.drawArrays(gl.TRIANGLES, 0, 6);
+
                     } else {
                         gl.useProgram(texQuadProgramInfo.program);
                         gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
