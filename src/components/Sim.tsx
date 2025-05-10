@@ -700,12 +700,13 @@ export function Sim(props: SimProps) {
                         const blurAmount = 10;
                         let horizontal = 0;
                         let first_iteration = true;
+                        const aspectRatio = texWidth / texHeight;
+                        gl.uniform1f(gaussianBlurProgramInfo.uniformLocations.uAspectRatio, aspectRatio);
                         for (let i = 0; i < blurAmount; i++) {
                             gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
                             // Set horizontal int to horizontal
                             gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
-                            const aspectRatio = texWidth / texHeight;
-                            gl.uniform1f(gaussianBlurProgramInfo.uniformLocations.uAspectRatio, aspectRatio)
+
                             // Set texture to read from
                             gl.bindTexture(
                                 gl.TEXTURE_2D,
@@ -732,7 +733,6 @@ export function Sim(props: SimProps) {
 
                         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                         gl.drawArrays(gl.TRIANGLES, 0, 6);
-
                     } else {
                         gl.useProgram(texQuadProgramInfo.program);
                         gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
