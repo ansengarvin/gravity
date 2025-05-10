@@ -258,6 +258,7 @@ export function Sim(props: SimProps) {
                 uniformLocations: {
                     uImage: gl.getUniformLocation(gaussianBlurShaderProgram, "uImage"),
                     uHorizontal: gl.getUniformLocation(gaussianBlurShaderProgram, "uHorizontal"),
+                    uAspectRatio: gl.getUniformLocation(gaussianBlurShaderProgram, "uAspectRatio"),
                 },
             };
 
@@ -562,13 +563,13 @@ export function Sim(props: SimProps) {
                     const modelViewMatrix = mat4.create();
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
-                    const normalMatrix = mat4.create();
-                    mat4.invert(normalMatrix, modelViewMatrix);
-                    mat4.transpose(normalMatrix, normalMatrix);
-
                     // Bind uniforms based on current lighting mode
                     switch (lightingModeRef.current) {
                         case LightingMode.CAMLIGHT: {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelViewMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+
                             gl.uniformMatrix4fv(
                                 camlightProgramInfo.uniformLocations.modelViewMatrix,
                                 false,
@@ -589,6 +590,10 @@ export function Sim(props: SimProps) {
                             break;
                         }
                         case LightingMode.STARLIGHT: {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
@@ -695,10 +700,13 @@ export function Sim(props: SimProps) {
                         const blurAmount = 10;
                         let horizontal = 0;
                         let first_iteration = true;
+                        const aspectRatio = texWidth / texHeight;
+                        gl.uniform1f(gaussianBlurProgramInfo.uniformLocations.uAspectRatio, aspectRatio);
                         for (let i = 0; i < blurAmount; i++) {
                             gl.bindFramebuffer(gl.FRAMEBUFFER, bloomFrameBuffer[horizontal]);
                             // Set horizontal int to horizontal
                             gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
+
                             // Set texture to read from
                             gl.bindTexture(
                                 gl.TEXTURE_2D,
