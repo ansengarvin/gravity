@@ -109,15 +109,14 @@ export function Sim(props: SimProps) {
 
     const universe = useRef<Universe>(new Universe(settings));
 
-
     /*
         Graphics Settings
     */
-    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings)
-    const starLightRef = useRef(graphicsSettings.starLight)
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
+    const starLightRef = useRef(graphicsSettings.starLight);
     useEffect(() => {
-        starLightRef.current = graphicsSettings.starLight
-    }, [graphicsSettings.starLight])
+        starLightRef.current = graphicsSettings.starLight;
+    }, [graphicsSettings.starLight]);
 
     /*
         The WebGL render function doesn't have access to state variables as they update, so we need to use refs
@@ -516,11 +515,7 @@ export function Sim(props: SimProps) {
                     gl.useProgram(camlightProgramInfo.program);
 
                     // Bind projection matrix
-                    gl.uniformMatrix4fv(
-                        camlightProgramInfo.uniformLocations.projectionMatrix,
-                        false,
-                        projectionMatrix,
-                    );
+                    gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
                 }
                 // First framebuffer pass
 
@@ -571,11 +566,7 @@ export function Sim(props: SimProps) {
                             false,
                             modelViewMatrix,
                         );
-                        gl.uniformMatrix4fv(
-                            starlightProgramInfo.uniformLocations.normalMatrix,
-                            false,
-                            normalMatrix,
-                        );
+                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
                         const isStar = universe.current.isStar(i) ? 1 : 0;
                         gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
                         gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
@@ -584,9 +575,7 @@ export function Sim(props: SimProps) {
                             universe.current.colorsB[i],
                             1.0,
                         ]);
-                        setNumActiveUniforms(
-                            gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                        );
+                        setNumActiveUniforms(gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
                         setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
                     } else {
                         const normalMatrix = mat4.create();
@@ -606,9 +595,7 @@ export function Sim(props: SimProps) {
                             1.0,
                         ]);
 
-                        setNumActiveUniforms(
-                            gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                        );
+                        setNumActiveUniforms(gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
                         setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
                     }
 

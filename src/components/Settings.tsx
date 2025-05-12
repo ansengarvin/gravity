@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import React from "react";
-import {useSelector, useDispatch} from 'react-redux'
+import { useSelector, useDispatch } from "react-redux";
 import { LightingMode } from "../lib/webGL/shaderPrograms";
 import { RootState } from "../redux/store";
 
@@ -14,11 +14,10 @@ interface SettingsMenuProps {
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, renderToTexture, setRenderToTexture } =
-        props;
-    
-    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings)
-    const dispatch = useDispatch()
+    const { debugStatsShown, setDebugStatsShown, renderToTexture, setRenderToTexture } = props;
+
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
+    const dispatch = useDispatch();
 
     return (
         <SettingsStyle>
@@ -32,7 +31,9 @@ export function SettingsMenu(props: SettingsMenuProps) {
             </button>
             Graphics
             <button
-                onClick={() => {dispatch({type: 'settings/toggleStarLight'})}}
+                onClick={() => {
+                    dispatch({ type: "settings/toggleStarLight" });
+                }}
             >
                 {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
             </button>
