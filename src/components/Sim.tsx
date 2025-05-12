@@ -83,7 +83,7 @@ export function Sim(props: SimProps) {
         setBodyFollowed,
         resetSim,
         resetCam,
-        paused
+        paused,
     } = props;
 
     // For now, hard-code universe settings. We will eventually want these to be user-controlled.
@@ -509,7 +509,7 @@ export function Sim(props: SimProps) {
                     // Bind projection matrix
                     gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
                 }
-                
+
                 // First framebuffer pass
                 gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
 

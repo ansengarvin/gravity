@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 
 export function SettingsMenu() {
-
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
     const dispatch = useDispatch();

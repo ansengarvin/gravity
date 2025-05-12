@@ -128,9 +128,7 @@ export function App() {
                     menuShown={menuShown}
                     setMenuShown={setMenuShown}
                 />
-                {menuShown == MenuName.SETTINGS ? (
-                    <SettingsMenu/>
-                ) : null}
+                {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
             </Backdrop>
         </>
     );
