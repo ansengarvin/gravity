@@ -68,6 +68,27 @@ export class Universe {
         //return 1;
     }
 
+    public radius_from_mass_B(mass: number): number {
+        const earthMassInSolarMasses = 3.003e-6;
+        const jupiterMassInSolarMasses = 0.0009543;
+        const earthRadiusAU = 4.2635e-5;
+        const jupiterRadiusAU = 0.0004778945;
+        const sunRadiusAU = 0.00465047;
+
+        if (mass < 0.003) {
+            const massInEarthMasses = mass / earthMassInSolarMasses;
+            const radiusInEarthRadii = Math.pow(massInEarthMasses, 0.28);
+            return radiusInEarthRadii * earthRadiusAU * 2.5; // mild exaggeration
+        } else if (mass < 0.08) {
+            const massInJupiterMasses = mass / jupiterMassInSolarMasses;
+            const radiusInJupiterRadii = 1.0 - 0.035 * Math.log10(massInJupiterMasses);
+            return radiusInJupiterRadii * jupiterRadiusAU * 2; // slight boost
+        } else {
+            const radiusInSolarRadii = Math.pow(mass, 0.8);
+            return radiusInSolarRadii * sunRadiusAU * 1.25; // subtle boost
+        }
+    }
+
     public initialize(): void {
         this.numActive = this.settings.numBodies;
         // Seed the random number generator with the provided seed
