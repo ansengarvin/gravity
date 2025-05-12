@@ -6,11 +6,7 @@ import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIc
 import { BlankIcon } from "../assets/icons/BlankIcon";
 import { ArrowDownwardIcon } from "../assets/icons/ArrowDownwardIcon";
 import { ArrowUpwardIcon } from "../assets/icons/ArrowUpwardIcon";
-
-enum TabType {
-    BASIC = "basic",
-    ORBIT = "orbit",
-}
+import { Menu, TabType } from "./Menu";
 
 export interface LeaderboardBody {
     index: number;
@@ -42,8 +38,7 @@ export function Leaderboard(props: LeaderboardProps) {
     switch (leaderboardTab) {
         case TabType.BASIC:
             return (
-                <LeaderboardStyle>
-                    <LeaderboardTabs leaderboardTab={leaderboardTab} setLeaderboardTab={setLeaderboardTab} />
+                <Menu tab={leaderboardTab} setTab={setLeaderboardTab}>
                     <LeaderboardContent>
                         <table>
                             <thead>
@@ -103,12 +98,11 @@ export function Leaderboard(props: LeaderboardProps) {
                             </tbody>
                         </table>
                     </LeaderboardContent>
-                </LeaderboardStyle>
+                </Menu>
             );
         case TabType.ORBIT:
             return (
-                <LeaderboardStyle>
-                    <LeaderboardTabs leaderboardTab={leaderboardTab} setLeaderboardTab={setLeaderboardTab} />
+                <Menu tab={leaderboardTab} setTab={setLeaderboardTab}>
                     <LeaderboardContent>
                         <table>
                             <thead>
@@ -179,7 +173,7 @@ export function Leaderboard(props: LeaderboardProps) {
                             </tbody>
                         </table>
                     </LeaderboardContent>
-                </LeaderboardStyle>
+                </Menu>
             );
         default:
             <></>;
@@ -189,16 +183,7 @@ export function Leaderboard(props: LeaderboardProps) {
 /*
     Styled Components
 */
-const LeaderboardStyle = styled.div`
-    grid-area: menus;
-    margin-left: auto;
-    margin-right: auto;
-    margin-top: auto;
-    width: 310px;
-    height: min-content;
 
-    background: none;
-`;
 
 const LeaderboardContent = styled.div`
     overflow-y: auto;
@@ -381,71 +366,6 @@ const BodySelectButtonStyle = styled.button<{ selected: boolean; bodyColor: stri
         background-color: white;
         color: ${(props) => props.bodyColor};
         cursor: auto;
-    }
-`;
-
-interface LeaderboardTabsProps {
-    leaderboardTab: TabType;
-    setLeaderboardTab: React.Dispatch<React.SetStateAction<TabType>>;
-}
-function LeaderboardTabs(props: LeaderboardTabsProps) {
-    const { leaderboardTab, setLeaderboardTab } = props;
-    return (
-        <LeaderboardTabsStyle>
-            <button
-                onClick={() => {
-                    setLeaderboardTab(TabType.BASIC);
-                }}
-                disabled={leaderboardTab == TabType.BASIC}
-            >
-                Stats
-            </button>
-            <button
-                onClick={() => {
-                    setLeaderboardTab(TabType.ORBIT);
-                }}
-                disabled={leaderboardTab == TabType.ORBIT}
-            >
-                Orbits
-            </button>
-        </LeaderboardTabsStyle>
-    );
-}
-
-const LeaderboardTabsStyle = styled.div`
-    height: 25px;
-    width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: left;
-    align-items: center;
-    gap: 3px;
-
-    button {
-        height: 100%;
-        background: none;
-        border: none;
-        padding-left: 10px;
-        padding-right: 10px;
-
-        cursor: pointer;
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
-
-        border: 2px solid white;
-        border-bottom: none;
-        background-color: black;
-        color: white;
-
-        :hover {
-            background-color: #9a9a9a;
-        }
-
-        :disabled {
-            background-color: white;
-            color: black;
-            cursor: auto;
-        }
     }
 `;
 

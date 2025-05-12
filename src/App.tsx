@@ -1,6 +1,6 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
-import { useState } from "react";
+import { Profiler, useState } from "react";
 import { Header } from "./components/Header";
 import { Dashboard } from "./components/Dashboard";
 import { SettingsMenu } from "./components/Settings";
@@ -113,7 +113,7 @@ export function App() {
                         maxSamples={maxSamples}
                     />
                 ) : null}
-
+                <Profiler id="app" onRender={() => {}}>
                 {menuShown == MenuName.LEADERBOARD ? (
                     <Leaderboard
                         leaderboardBodies={leaderboardBodies}
@@ -121,6 +121,7 @@ export function App() {
                         setBodyFollowed={setBodyFollowed}
                     />
                 ) : null}
+                </Profiler>
                 <Dashboard
                     paused={paused}
                     setPaused={setPaused}
