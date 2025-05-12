@@ -49,17 +49,10 @@ const zFar = 100.0;
 interface SimProps {
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
-
-    // miscellaneous controls
-    resetSim: number;
-    resetCam: number;
-    paused: boolean;
 }
 
 export function Sim(props: SimProps) {
-    const { setLeaderboardBodies, bodyFollowed, setBodyFollowed, resetSim, resetCam, paused } = props;
+    const { setLeaderboardBodies } = props;
 
     const settings = useSelector((state: RootState) => state.universeSettings);
     const dispatch = useDispatch();
@@ -76,23 +69,28 @@ export function Sim(props: SimProps) {
     const universe = useRef<Universe>(new Universe(settings));
 
     /*
-        Graphics Settings
+        The WebGL renderer cannot access a redux selector's most recent variable, because it lives outside of the react render lifecycle.
+        We must convert all of them to a ref.
     */
+    // User-set graphics settings
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const starLightRef = useRef(graphicsSettings.starLight);
     useEffect(() => {
         starLightRef.current = graphicsSettings.starLight;
     }, [graphicsSettings.starLight]);
 
-    /*
-        The WebGL render function doesn't have access to state variables as they update, so we need to use refs
-        and effects to update the refs. This ensures that the render function always has the latest values.
-    */
+    // User controls
+
+    const resetSim = useSelector((state: RootState) => state.controls.resetSim);
+    const resetCam = useSelector((state: RootState) => state.controls.resetCam);
+
+    const paused = useSelector((state: RootState) => state.controls.paused);
     const pausedRef = useRef(paused);
     useEffect(() => {
         pausedRef.current = paused;
     }, [paused]);
 
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
     const bodyFollowedRef = useRef(bodyFollowed);
     useEffect(() => {
         setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
@@ -105,7 +103,7 @@ export function Sim(props: SimProps) {
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-        setBodyFollowed(-1);
+        dispatch({ type: "debugInfo/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
         dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });

@@ -1,15 +1,15 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
-import { Profiler, useState } from "react";
+import { useState } from "react";
 import { Header } from "./components/Header";
 import { Dashboard } from "./components/Dashboard";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
-import { MenuName } from "./lib/defines/MenuName";
 import { InfoBox } from "./components/InfoBox";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
+import { MenuName } from "./redux/controlsSlice";
 
 const Backdrop = styled.div`
     display: grid;
@@ -43,61 +43,30 @@ const SimScreen = styled.div`
 export function App() {
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
-    const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
-
-    // Toggle to reset the simulation
-    const [resetSim, setResetSim] = useState<number>(0);
-    const [resetCam, setResetCam] = useState<number>(0);
 
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-    const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE);
-
-    const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
-    if (bodyFollowed != -1 && camAtOrigin) {
-        setCamAtOrigin(false);
-    }
 
     const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
+    const menuShown = useSelector((state: RootState) => state.controls.menuShown);
 
     return (
         <>
             <SimScreen>
-                <Sim
-                    setLeaderboardBodies={setLeaderboardBodies}
-                    bodyFollowed={bodyFollowed}
-                    setBodyFollowed={setBodyFollowed}
-                    resetSim={resetSim}
-                    resetCam={resetCam}
-                    paused={paused}
-                />
+                <Sim setLeaderboardBodies={setLeaderboardBodies} />
             </SimScreen>
             <Backdrop>
-                <InfoBox
-                    bodyFollowed={bodyFollowed}
-                    setBodyFollowed={setBodyFollowed}
-                    setResetCam={setResetCam}
-                    camAtOrigin={camAtOrigin}
-                    setCamAtOrigin={setCamAtOrigin}
-                />
+                <InfoBox />
                 <Header />
                 {showDebug ? <DebugStats /> : null}
-                <Profiler id="app" onRender={() => {}}>
-                    {menuShown == MenuName.LEADERBOARD ? (
-                        <Leaderboard
-                            leaderboardBodies={leaderboardBodies}
-                            bodyFollowed={bodyFollowed}
-                            setBodyFollowed={setBodyFollowed}
-                        />
-                    ) : null}
-                </Profiler>
-                <Dashboard
-                    paused={paused}
-                    setPaused={setPaused}
-                    setResetSim={setResetSim}
-                    menuShown={menuShown}
-                    setMenuShown={setMenuShown}
-                />
+                {menuShown == MenuName.LEADERBOARD ? (
+                    <Leaderboard
+                        leaderboardBodies={leaderboardBodies}
+                        bodyFollowed={bodyFollowed}
+                        setBodyFollowed={setBodyFollowed}
+                    />
+                ) : null}
+                <Dashboard />
                 {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
             </Backdrop>
         </>

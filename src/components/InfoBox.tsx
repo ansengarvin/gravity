@@ -1,15 +1,17 @@
 import styled from "@emotion/styled";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { useState } from "react";
 
-interface InfoBoxProps {
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
-    setResetCam: React.Dispatch<React.SetStateAction<number>>;
-    camAtOrigin: boolean;
-    setCamAtOrigin: React.Dispatch<React.SetStateAction<boolean>>;
-}
+export function InfoBox() {
+    const dispatch = useDispatch();
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
 
-export function InfoBox(props: InfoBoxProps) {
-    const { bodyFollowed, setBodyFollowed, setResetCam, camAtOrigin, setCamAtOrigin } = props;
+    const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
+    if (bodyFollowed != -1 && camAtOrigin) {
+        setCamAtOrigin(false);
+    }
+
     return (
         <InfoBoxStyle>
             <div className="lt" />
@@ -18,7 +20,7 @@ export function InfoBox(props: InfoBoxProps) {
                 {bodyFollowed != -1 ? (
                     <button
                         onClick={() => {
-                            setBodyFollowed(-1);
+                            dispatch({ type: "controls/setBodyFollowed", payload: -1 });
                         }}
                     >
                         Stop Following
@@ -29,8 +31,8 @@ export function InfoBox(props: InfoBoxProps) {
                 {!camAtOrigin && bodyFollowed == -1 ? (
                     <button
                         onClick={() => {
-                            setBodyFollowed(-1);
-                            setResetCam((prev) => prev + 1);
+                            dispatch({ type: "controls/setBodyFollowed", payload: -1 });
+                            dispatch({ type: "controls/resetCam" });
                             setCamAtOrigin(true);
                         }}
                     >

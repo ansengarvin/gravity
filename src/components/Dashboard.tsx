@@ -5,32 +5,29 @@ import { RestartIcon } from "../assets/icons/RestartIcon";
 import { PlayIcon } from "../assets/icons/PlayIcon";
 import { SettingsIcon } from "../assets/icons/SettingsIcon";
 import { ViewListIcon } from "../assets/icons/ViewListIcon";
-import { MenuName } from "../lib/defines/MenuName";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { MenuName } from "../redux/controlsSlice";
 
-interface ControlButtonProps {
-    paused: boolean;
-    setPaused: React.Dispatch<React.SetStateAction<boolean>>;
-    setResetSim: React.Dispatch<React.SetStateAction<number>>;
-    menuShown: MenuName;
-    setMenuShown: React.Dispatch<React.SetStateAction<MenuName>>;
-}
-
-export function Dashboard(props: ControlButtonProps) {
-    const { paused, setPaused, setResetSim, menuShown, setMenuShown } = props;
+export function Dashboard() {
+    const controls = useSelector((state: RootState) => state.controls);
+    const dispatch = useDispatch();
     return (
         <ButtonContainer>
             <ButtonRow>
                 <ControlButton
                     onClick={() => {
-                        setMenuShown(menuShown == MenuName.SETTINGS ? MenuName.NONE : MenuName.SETTINGS);
+                        controls.menuShown == MenuName.SETTINGS
+                            ? dispatch({ type: "controls/hideMenu" })
+                            : dispatch({ type: "controls/setMenuShown", payload: MenuName.SETTINGS });
                     }}
                 >
-                    <SettingsIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.SETTINGS} />
+                    <SettingsIcon color={"white"} dim={"50px"} filled={controls.menuShown != MenuName.SETTINGS} />
                 </ControlButton>
-                {paused ? (
+                {controls.paused ? (
                     <ControlButton
                         onClick={() => {
-                            setPaused(false);
+                            dispatch({ type: "controls/togglePaused" });
                         }}
                     >
                         <PlayIcon color={"white"} dim={"50px"} filled={true} />
@@ -38,21 +35,23 @@ export function Dashboard(props: ControlButtonProps) {
                 ) : (
                     <ControlButton
                         onClick={() => {
-                            setPaused(true);
+                            dispatch({ type: "controls/togglePaused" });
                         }}
                     >
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                 )}
-                <ControlButton onClick={() => setResetSim((prev) => prev + 1)}>
+                <ControlButton onClick={() => dispatch({ type: "controls/resetSim" })}>
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>
                 <ControlButton
                     onClick={() => {
-                        setMenuShown(menuShown == MenuName.LEADERBOARD ? MenuName.NONE : MenuName.LEADERBOARD);
+                        controls.menuShown == MenuName.LEADERBOARD
+                            ? dispatch({ type: "controls/hideMenu" })
+                            : dispatch({ type: "controls/setMenuShown", payload: MenuName.LEADERBOARD });
                     }}
                 >
-                    <ViewListIcon color={"white"} dim={"50px"} filled={menuShown != MenuName.LEADERBOARD} />
+                    <ViewListIcon color={"white"} dim={"50px"} filled={controls.menuShown != MenuName.LEADERBOARD} />
                 </ControlButton>
             </ButtonRow>
         </ButtonContainer>
