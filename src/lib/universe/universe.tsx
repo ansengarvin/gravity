@@ -1,19 +1,12 @@
 import { getRandomFloat } from "../../random/random";
 import { vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
+import { UniverseSettings } from "../../redux/universeSettingsSlice";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
-export interface UniverseSettings {
-    seed: string;
-    timeStep: number;
-    numBodies: number; // THe number of starting bodies in the universe
-    size: number; // The size of the universe in astronomical units
-    starThreshold: number;
-}
-
 export class Universe {
-    public settings: UniverseSettings;
+    public settings: UniverseSettings
 
     // Uint8Array and Float32Array are guaranteed to be contiguous in memory, which makes them more performant (cache locality).
     public bodiesActive: Uint8Array;

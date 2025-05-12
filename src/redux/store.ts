@@ -3,11 +3,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import graphicsSettingsReducer from "./graphicsSettingsSlice";
 import debugMenuReducer from "./debugSlice";
+import universeSettingsReducer from "./universeSettingsSlice";
 
 export const store = configureStore({
     reducer: {
-        graphicsSettings: graphicsSettingsReducer,
         debugMenu: debugMenuReducer,
+        graphicsSettings: graphicsSettingsReducer,
+        universeSettings: universeSettingsReducer
     },
 });
 

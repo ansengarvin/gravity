@@ -9,7 +9,7 @@ const initialState: GraphicsSettingsState = {
 };
 
 export const graphicsSettingsSlice = createSlice({
-    name: "settings",
+    name: "graphicsSettings",
     initialState,
     reducers: {
         toggleStarLight: (state) => {

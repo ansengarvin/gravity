@@ -9,7 +9,7 @@ import {
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
-import { Universe, UniverseSettings } from "../lib/universe/universe";
+import { Universe } from "../lib/universe/universe";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 
@@ -38,6 +38,7 @@ import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { UniverseSettings } from "../redux/universeSettingsSlice";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -86,14 +87,8 @@ export function Sim(props: SimProps) {
         paused,
     } = props;
 
-    // For now, hard-code universe settings. We will eventually want these to be user-controlled.
-    const settings: UniverseSettings = {
-        seed: "irrelevant",
-        timeStep: 1.0 / 12.0, // time step in years (1 month)
-        numBodies: 500,
-        size: 20, // The size of the universe in astronomical units
-        starThreshold: 0.8,
-    };
+    
+    const settings = useSelector((state: RootState) => state.universeSettings);
 
     /*
         Camera and universe classes are placed inside of refs to ensure that they are not caught up in re-renders.
