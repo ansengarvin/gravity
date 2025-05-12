@@ -50,6 +50,7 @@ export interface GaussianBlurProgramInfo {
         uImage: WebGLUniformLocation | null;
         uHorizontal: WebGLUniformLocation | null;
         uAspectRatio: WebGLUniformLocation | null;
+        uViewportSize: WebGLUniformLocation | null;
     };
 }
 
