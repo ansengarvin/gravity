@@ -6,7 +6,7 @@ import { useState } from "react";
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const universeSettings = useSelector((state: RootState) => state.universeSettings);
-    const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
+    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
     const dispatch = useDispatch();
 
     const [seed, setSeed] = useState(universeSettings.seed);
@@ -19,7 +19,7 @@ export function SettingsMenu() {
             General
             <button
                 onClick={() => {
-                    dispatch({ type: "debugMenu/toggleDebug" });
+                    dispatch({ type: "debugInfo/toggleDebug" });
                 }}
             >
                 {showDebug ? "Hide Debug" : "Show Debug"}

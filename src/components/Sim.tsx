@@ -36,7 +36,7 @@ import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
 const ticksPerSecond = 60;
@@ -47,16 +47,6 @@ const zNear = 0.1;
 const zFar = 100.0;
 
 interface SimProps {
-    // debug information
-    setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
-    setMaxSamples: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setNumStars: React.Dispatch<React.SetStateAction<number>>;
-
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
     bodyFollowed: number;
@@ -69,25 +59,10 @@ interface SimProps {
 }
 
 export function Sim(props: SimProps) {
-    const {
-        setMaxVertexUniformVectors,
-        setMaxFragmentUniformVectors,
-        setMaxUniformBufferBindingPoints,
-        setMaxSamples,
-        setNumActiveBodies,
-        setNumActiveUniforms,
-        setNumActiveUniformVectors,
-        setLeaderboardBodies,
-        setNumStars,
-        bodyFollowed,
-        setBodyFollowed,
-        resetSim,
-        resetCam,
-        paused,
-    } = props;
+    const { setLeaderboardBodies, bodyFollowed, setBodyFollowed, resetSim, resetCam, paused } = props;
 
     const settings = useSelector((state: RootState) => state.universeSettings);
-
+    const dispatch = useDispatch();
     /*
         Camera and universe classes are placed inside of refs to ensure that they are not caught up in re-renders.
     */
@@ -132,9 +107,9 @@ export function Sim(props: SimProps) {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         setBodyFollowed(-1);
         universe.current.reset();
-        setNumActiveBodies(universe.current.numActive);
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
-        setNumStars(universe.current.getNumStars());
+        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
     }, [resetSim]);
 
     useEffect(() => {
@@ -159,14 +134,23 @@ export function Sim(props: SimProps) {
 
         const initialize = async () => {
             // Set sorted universe parameters initially
-            setNumActiveBodies(universe.current.numActive);
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
             // Set unchanging webGL debug text
-            setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
-            setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
-            setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
-            setMaxSamples(gl.getParameter(gl.MAX_SAMPLES));
+            dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+            dispatch({
+                type: "debugInfo/setMaxVertexUniformVectors",
+                payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
+            });
+            dispatch({
+                type: "debugInfo/setMaxFragmentUniformVectors",
+                payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
+            });
+            dispatch({
+                type: "debugInfo/setMaxUniformBufferBindingPoints",
+                payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
+            });
+            dispatch({ type: "debugInfo/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
 
             /*
                 Initialize all shader programs
@@ -436,9 +420,9 @@ export function Sim(props: SimProps) {
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
-                        setNumActiveBodies(universe.current.numActive);
                         setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
-                        setNumStars(universe.current.getNumStars());
+                        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+                        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
                     } else {
                     }
                     accumulatedTime -= secondsPerTick;
@@ -561,8 +545,14 @@ export function Sim(props: SimProps) {
                             universe.current.colorsB[i],
                             1.0,
                         ]);
-                        setNumActiveUniforms(gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
-                        setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
+                        dispatch({
+                            type: "debugInfo/setNumActiveUniforms",
+                            payload: gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                        });
+                        dispatch({
+                            type: "debugInfo/setNumActiveUniformVectors",
+                            payload: calculateUniformVectors(gl, starlightProgramInfo.program),
+                        });
                     } else {
                         const normalMatrix = mat4.create();
                         mat4.invert(normalMatrix, modelViewMatrix);
@@ -581,8 +571,14 @@ export function Sim(props: SimProps) {
                             1.0,
                         ]);
 
-                        setNumActiveUniforms(gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS));
-                        setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
+                        dispatch({
+                            type: "debugInfo/setNumActiveUniforms",
+                            payload: gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                        });
+                        dispatch({
+                            type: "debugInfo/setNumActiveUniformVectors",
+                            payload: calculateUniformVectors(gl, camlightProgramInfo.program),
+                        });
                     }
 
                     // Draw each sphere

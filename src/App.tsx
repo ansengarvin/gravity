@@ -41,18 +41,6 @@ const SimScreen = styled.div`
 `;
 
 export function App() {
-    /*
-        Set Debug States
-    */
-    const [numActiveBodies, setNumActiveBodies] = useState(0);
-    const [numStars, setNumStars] = useState(0);
-    const [numActiveUniforms, setNumActiveUniforms] = useState(0);
-    const [maxVertexUniformVectors, setMaxVertexUniformVectors] = useState(0);
-    const [maxFragmentUniformVectors, setMaxFragmentUniformVectors] = useState(0);
-    const [maxUniformBufferBindingPoints, setMaxUniformBufferBindingPoints] = useState(0);
-    const [numActiveUniformVectors, setNumActiveUniformVectors] = useState(0);
-    const [maxSamples, setMaxSamples] = useState(0);
-
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
     const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
@@ -70,21 +58,13 @@ export function App() {
         setCamAtOrigin(false);
     }
 
-    const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
+    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
 
     return (
         <>
             <SimScreen>
                 <Sim
-                    setMaxVertexUniformVectors={setMaxVertexUniformVectors}
-                    setMaxFragmentUniformVectors={setMaxFragmentUniformVectors}
-                    setMaxUniformBufferBindingPoints={setMaxUniformBufferBindingPoints}
-                    setNumActiveBodies={setNumActiveBodies}
-                    setNumActiveUniforms={setNumActiveUniforms}
-                    setNumActiveUniformVectors={setNumActiveUniformVectors}
                     setLeaderboardBodies={setLeaderboardBodies}
-                    setMaxSamples={setMaxSamples}
-                    setNumStars={setNumStars}
                     bodyFollowed={bodyFollowed}
                     setBodyFollowed={setBodyFollowed}
                     resetSim={resetSim}
@@ -101,18 +81,7 @@ export function App() {
                     setCamAtOrigin={setCamAtOrigin}
                 />
                 <Header />
-                {showDebug ? (
-                    <DebugStats
-                        numActiveBodies={numActiveBodies}
-                        numStars={numStars}
-                        maxVertexUniformVectors={maxVertexUniformVectors}
-                        maxFragmentUniformVectors={maxFragmentUniformVectors}
-                        maxUniformBufferBindingPoints={maxUniformBufferBindingPoints}
-                        numActiveUniforms={numActiveUniforms}
-                        numActiveUniformVectors={numActiveUniformVectors}
-                        maxSamples={maxSamples}
-                    />
-                ) : null}
+                {showDebug ? <DebugStats /> : null}
                 <Profiler id="app" onRender={() => {}}>
                     {menuShown == MenuName.LEADERBOARD ? (
                         <Leaderboard

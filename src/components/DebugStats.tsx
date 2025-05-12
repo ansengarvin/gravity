@@ -1,41 +1,23 @@
 import styled from "@emotion/styled";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
-export interface DebugStatsProps {
-    numActiveBodies: number;
-    numStars: number;
-    maxVertexUniformVectors: number;
-    maxFragmentUniformVectors: number;
-    maxUniformBufferBindingPoints: number;
-    numActiveUniforms: number;
-    numActiveUniformVectors: number;
-    maxSamples: number;
-}
-
-export function DebugStats(props: DebugStatsProps) {
-    const {
-        numActiveBodies,
-        numStars,
-        numActiveUniforms,
-        maxVertexUniformVectors,
-        maxFragmentUniformVectors,
-        maxUniformBufferBindingPoints,
-        numActiveUniformVectors,
-        maxSamples,
-    } = props;
+export function DebugStats() {
+    const debug = useSelector((state: RootState) => state.debugInfo);
 
     return (
         <DebugStatsStyle>
             <h2>Debug Stats</h2>
             <h3>Simulation</h3>
-            <div>Number of Bodies: {numActiveBodies}</div>
-            <div>Number of Stars: {numStars}</div>
+            <div>Number of Bodies: {debug.numActiveBodies}</div>
+            <div>Number of Stars: {debug.numStars}</div>
             <h3>OpenGL</h3>
-            <div>Max Vertex Uniform Vectors: {maxVertexUniformVectors}</div>
-            <div>Max Fragment Uniform Vectors: {maxFragmentUniformVectors}</div>
-            <div>Max Uniform Buffer Binding Points: {maxUniformBufferBindingPoints}</div>
-            <div>Max Antialiasing Samples: {maxSamples}</div>
-            <div>Active Uniforms: {numActiveUniforms}</div>
-            <div>Active Uniform Vectors: {numActiveUniformVectors}</div>
+            <div>Max Vertex Uniform Vectors: {debug.maxVertexUniformVectors}</div>
+            <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
+            <div>Max Uniform Buffer Binding Points: {debug.maxUniformBufferBindingPoints}</div>
+            <div>Max Antialiasing Samples: {debug.maxSamples}</div>
+            <div>Active Uniforms: {debug.numActiveUniforms}</div>
+            <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
         </DebugStatsStyle>
     );
 }
