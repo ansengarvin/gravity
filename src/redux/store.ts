@@ -2,10 +2,12 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import graphicsSettingsReducer from "./graphicsSettingsSlice";
+import debugMenuReducer from "./debugSlice";
 
 export const store = configureStore({
     reducer: {
         graphicsSettings: graphicsSettingsReducer,
+        debugMenu: debugMenuReducer
     },
 });
 

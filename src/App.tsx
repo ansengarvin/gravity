@@ -9,6 +9,8 @@ import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { MenuName } from "./lib/defines/MenuName";
 import { LightingMode } from "./lib/webGL/shaderPrograms";
 import { InfoBox } from "./components/InfoBox";
+import { useSelector } from "react-redux";
+import { RootState } from "./redux/store";
 
 const Backdrop = styled.div`
     display: grid;
@@ -63,13 +65,14 @@ export function App() {
 
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-    const [debugStatsShown, setDebugStatsShown] = useState<boolean>(false);
     const [menuShown, setMenuShown] = useState<MenuName>(MenuName.NONE);
 
     const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
     if (bodyFollowed != -1 && camAtOrigin) {
         setCamAtOrigin(false);
     }
+
+    const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
 
     // Toggle render to texture
     const [renderToTexture, setRenderToTexture] = useState<boolean>(true);
@@ -103,7 +106,7 @@ export function App() {
                     setCamAtOrigin={setCamAtOrigin}
                 />
                 <Header />
-                {debugStatsShown ? (
+                {showDebug ? (
                     <DebugStats
                         numActiveBodies={numActiveBodies}
                         numStars={numStars}
@@ -132,8 +135,6 @@ export function App() {
                 />
                 {menuShown == MenuName.SETTINGS ? (
                     <SettingsMenu
-                        debugStatsShown={debugStatsShown}
-                        setDebugStatsShown={setDebugStatsShown}
                         lightingMode={lightingMode}
                         setLightingMode={setLightingMode}
                         renderToTexture={renderToTexture}

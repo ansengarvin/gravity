@@ -5,8 +5,6 @@ import { LightingMode } from "../lib/webGL/shaderPrograms";
 import { RootState } from "../redux/store";
 
 interface SettingsMenuProps {
-    debugStatsShown: boolean;
-    setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
     lightingMode: LightingMode;
     setLightingMode: React.Dispatch<React.SetStateAction<LightingMode>>;
     renderToTexture: boolean;
@@ -14,20 +12,17 @@ interface SettingsMenuProps {
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, renderToTexture, setRenderToTexture } = props;
+    const {renderToTexture, setRenderToTexture } = props;
 
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
+    const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
     const dispatch = useDispatch();
 
     return (
         <SettingsStyle>
             General
-            <button
-                onClick={() => {
-                    setDebugStatsShown(!debugStatsShown);
-                }}
-            >
-                {debugStatsShown ? "Hide Debug Stats" : "Show Debug Stats"}
+            <button onClick={() => {dispatch({type: "debugMenu/toggleDebug"})}}>
+                {showDebug ? "Hide Debug" : "Show Debug"}
             </button>
             Graphics
             <button
