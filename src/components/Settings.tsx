@@ -1,18 +1,15 @@
 import styled from "@emotion/styled";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { LightingMode } from "../lib/webGL/shaderPrograms";
 import { RootState } from "../redux/store";
 
 interface SettingsMenuProps {
-    lightingMode: LightingMode;
-    setLightingMode: React.Dispatch<React.SetStateAction<LightingMode>>;
     renderToTexture: boolean;
     setRenderToTexture: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const {renderToTexture, setRenderToTexture } = props;
+    const { renderToTexture, setRenderToTexture } = props;
 
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
@@ -21,7 +18,11 @@ export function SettingsMenu(props: SettingsMenuProps) {
     return (
         <SettingsStyle>
             General
-            <button onClick={() => {dispatch({type: "debugMenu/toggleDebug"})}}>
+            <button
+                onClick={() => {
+                    dispatch({ type: "debugMenu/toggleDebug" });
+                }}
+            >
                 {showDebug ? "Hide Debug" : "Show Debug"}
             </button>
             Graphics

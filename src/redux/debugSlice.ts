@@ -6,7 +6,7 @@ export interface DebugStatsState {
 
 const initialState: DebugStatsState = {
     showDebug: false,
-}
+};
 
 export const debugMenuSlice = createSlice({
     name: "debugMenu",
@@ -14,7 +14,7 @@ export const debugMenuSlice = createSlice({
     reducers: {
         toggleDebug: (state) => {
             state.showDebug = !state.showDebug;
-        }
+        },
     },
 });
 

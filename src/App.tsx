@@ -7,7 +7,6 @@ import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
 import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
 import { MenuName } from "./lib/defines/MenuName";
-import { LightingMode } from "./lib/webGL/shaderPrograms";
 import { InfoBox } from "./components/InfoBox";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
@@ -57,7 +56,6 @@ export function App() {
     // Which orbital body is being followed by the camera
     const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
     const [paused, setPaused] = useState<boolean>(true); // Simulation pause control
-    const [lightingMode, setLightingMode] = useState<LightingMode>(LightingMode.STARLIGHT);
 
     // Toggle to reset the simulation
     const [resetSim, setResetSim] = useState<number>(0);
@@ -134,12 +132,7 @@ export function App() {
                     setMenuShown={setMenuShown}
                 />
                 {menuShown == MenuName.SETTINGS ? (
-                    <SettingsMenu
-                        lightingMode={lightingMode}
-                        setLightingMode={setLightingMode}
-                        renderToTexture={renderToTexture}
-                        setRenderToTexture={setRenderToTexture}
-                    />
+                    <SettingsMenu renderToTexture={renderToTexture} setRenderToTexture={setRenderToTexture} />
                 ) : null}
             </Backdrop>
         </>

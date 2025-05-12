@@ -7,7 +7,7 @@ import debugMenuReducer from "./debugSlice";
 export const store = configureStore({
     reducer: {
         graphicsSettings: graphicsSettingsReducer,
-        debugMenu: debugMenuReducer
+        debugMenu: debugMenuReducer,
     },
 });
 
