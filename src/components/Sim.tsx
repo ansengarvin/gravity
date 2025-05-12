@@ -126,7 +126,7 @@ export function Sim(props: SimProps) {
 
     useEffect(() => {
         universe.current = new Universe(settings);
-    }, [settings])
+    }, [settings]);
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);

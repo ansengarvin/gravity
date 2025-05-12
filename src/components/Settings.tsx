@@ -9,10 +9,10 @@ export function SettingsMenu() {
     const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
     const dispatch = useDispatch();
 
-    const [seed, setSeed] = useState(universeSettings.seed)
-    const [numBodies, setNumBodies] = useState(universeSettings.numBodies)
+    const [seed, setSeed] = useState(universeSettings.seed);
+    const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
 
-    console.log(universeSettings.seed)
+    console.log(universeSettings.seed);
 
     return (
         <SettingsStyle>
@@ -52,7 +52,7 @@ export function SettingsMenu() {
                             setNumBodies(1000);
                             return;
                         }
-                        setNumBodies(e.target.valueAsNumber)
+                        setNumBodies(e.target.valueAsNumber);
                     }}
                     step="1"
                 />
@@ -70,7 +70,7 @@ export function SettingsMenu() {
                             },
                         });
                     }}
-                > 
+                >
                     Create New Universe
                 </button>
             </form>

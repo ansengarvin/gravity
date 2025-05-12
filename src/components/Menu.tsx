@@ -1,25 +1,32 @@
 import styled from "@emotion/styled";
 import React from "react";
 
-export enum TabType {
-    BASIC = "basic",
-    ORBIT = "orbit",
+export interface Tab {
+    label: string;
+    value: string;
 }
 
 interface MenuProps {
-    children: React.ReactNode
-    tab: TabType;
-    setTab: React.Dispatch<React.SetStateAction<TabType>>;
+    children: React.ReactNode;
+    tabs: Tab[];
+    activeTab: string;
+    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export function Menu(props: MenuProps) {
-    const {children, tab, setTab} = props;
+    const { children, tabs, activeTab, setActiveTab } = props;
     return (
         <MenuStyle>
-            <MenuTabs MenuTab={tab} setMenuTab={setTab} />
+            <MenuTabsStyle>
+                {tabs.map((tab) => (
+                    <button key={tab.value} onClick={() => setActiveTab(tab.value)} disabled={activeTab === tab.value}>
+                        {tab.label}
+                    </button>
+                ))}
+            </MenuTabsStyle>
             {children}
         </MenuStyle>
-    )
+    );
 }
 
 const MenuStyle = styled.div`
@@ -32,34 +39,6 @@ const MenuStyle = styled.div`
 
     background: none;
 `;
-
-interface MenuTabsProps {
-    MenuTab: TabType;
-    setMenuTab: React.Dispatch<React.SetStateAction<TabType>>;
-}
-function MenuTabs(props: MenuTabsProps) {
-    const { MenuTab, setMenuTab } = props;
-    return (
-        <MenuTabsStyle>
-            <button
-                onClick={() => {
-                    setMenuTab(TabType.BASIC);
-                }}
-                disabled={MenuTab == TabType.BASIC}
-            >
-                Stats
-            </button>
-            <button
-                onClick={() => {
-                    setMenuTab(TabType.ORBIT);
-                }}
-                disabled={MenuTab == TabType.ORBIT}
-            >
-                Orbits
-            </button>
-        </MenuTabsStyle>
-    );
-}
 
 const MenuTabsStyle = styled.div`
     height: 25px;

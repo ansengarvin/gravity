@@ -114,13 +114,13 @@ export function App() {
                     />
                 ) : null}
                 <Profiler id="app" onRender={() => {}}>
-                {menuShown == MenuName.LEADERBOARD ? (
-                    <Leaderboard
-                        leaderboardBodies={leaderboardBodies}
-                        bodyFollowed={bodyFollowed}
-                        setBodyFollowed={setBodyFollowed}
-                    />
-                ) : null}
+                    {menuShown == MenuName.LEADERBOARD ? (
+                        <Leaderboard
+                            leaderboardBodies={leaderboardBodies}
+                            bodyFollowed={bodyFollowed}
+                            setBodyFollowed={setBodyFollowed}
+                        />
+                    ) : null}
                 </Profiler>
                 <Dashboard
                     paused={paused}
