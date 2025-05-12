@@ -14,7 +14,7 @@ interface SettingsMenuProps {
 }
 
 export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode, renderToTexture, setRenderToTexture } =
+    const { debugStatsShown, setDebugStatsShown, renderToTexture, setRenderToTexture } =
         props;
     
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings)
