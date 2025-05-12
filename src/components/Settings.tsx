@@ -3,13 +3,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 
-interface SettingsMenuProps {
-    renderToTexture: boolean;
-    setRenderToTexture: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
-export function SettingsMenu(props: SettingsMenuProps) {
-    const { renderToTexture, setRenderToTexture } = props;
+export function SettingsMenu() {
 
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
@@ -33,16 +27,6 @@ export function SettingsMenu(props: SettingsMenuProps) {
             >
                 {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
             </button>
-            <div>
-                Render to Texture
-                <button
-                    onClick={() => {
-                        setRenderToTexture(!renderToTexture);
-                    }}
-                >
-                    {renderToTexture ? "DISABLE" : "ENABLE"}
-                </button>
-            </div>
         </SettingsStyle>
     );
 }

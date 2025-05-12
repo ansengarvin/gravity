@@ -72,8 +72,6 @@ export function App() {
 
     const showDebug = useSelector((state: RootState) => state.debugMenu.showDebug);
 
-    // Toggle render to texture
-    const [renderToTexture, setRenderToTexture] = useState<boolean>(true);
     return (
         <>
             <SimScreen>
@@ -92,7 +90,6 @@ export function App() {
                     resetSim={resetSim}
                     resetCam={resetCam}
                     paused={paused}
-                    renderToTexture={renderToTexture}
                 />
             </SimScreen>
             <Backdrop>
@@ -132,7 +129,7 @@ export function App() {
                     setMenuShown={setMenuShown}
                 />
                 {menuShown == MenuName.SETTINGS ? (
-                    <SettingsMenu renderToTexture={renderToTexture} setRenderToTexture={setRenderToTexture} />
+                    <SettingsMenu/>
                 ) : null}
             </Backdrop>
         </>

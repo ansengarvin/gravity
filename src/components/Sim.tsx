@@ -66,7 +66,6 @@ interface SimProps {
     resetSim: number;
     resetCam: number;
     paused: boolean;
-    renderToTexture: boolean;
 }
 
 export function Sim(props: SimProps) {
@@ -84,8 +83,7 @@ export function Sim(props: SimProps) {
         setBodyFollowed,
         resetSim,
         resetCam,
-        paused,
-        renderToTexture,
+        paused
     } = props;
 
     // For now, hard-code universe settings. We will eventually want these to be user-controlled.
@@ -145,12 +143,6 @@ export function Sim(props: SimProps) {
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
-
-    const renderToTextureRef = useRef(renderToTexture);
-    useEffect(() => {
-        renderToTextureRef.current = renderToTexture;
-    }, [renderToTexture]);
-
     /*
         Set up WebGL Renderer
     */
@@ -517,13 +509,10 @@ export function Sim(props: SimProps) {
                     // Bind projection matrix
                     gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
                 }
+                
                 // First framebuffer pass
+                gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
 
-                if (renderToTextureRef.current) {
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-                } else {
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                }
                 gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -607,127 +596,119 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-                if (renderToTextureRef.current) {
-                    /*
-                        Antialiasing Pass
-                    */
-                    gl.readBuffer(gl.COLOR_ATTACHMENT0);
-                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
-                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
-                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-                    gl.blitFramebuffer(
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR,
-                    );
+                /*
+                    Antialiasing Pass
+                */
+                gl.readBuffer(gl.COLOR_ATTACHMENT0);
+                gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
+                gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                gl.blitFramebuffer(
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    gl.COLOR_BUFFER_BIT,
+                    gl.LINEAR,
+                );
 
-                    gl.readBuffer(gl.COLOR_ATTACHMENT1);
-                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
-                    gl.blitFramebuffer(
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR,
-                    );
-                    // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                gl.readBuffer(gl.COLOR_ATTACHMENT1);
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
+                gl.blitFramebuffer(
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    gl.COLOR_BUFFER_BIT,
+                    gl.LINEAR,
+                );
+                // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
 
-                    // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
+                // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
 
-                    // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
 
-                    // gl.blitFramebuffer(
-                    //     0,
-                    //     0,
-                    //     canvas.width,
-                    //     canvas.height,
-                    //     0,
-                    //     0,
-                    //     canvas.width,
-                    //     canvas.height,
-                    //     gl.COLOR_BUFFER_BIT,
-                    //     gl.LINEAR,
-                    // );
+                // gl.blitFramebuffer(
+                //     0,
+                //     0,
+                //     canvas.width,
+                //     canvas.height,
+                //     0,
+                //     0,
+                //     canvas.width,
+                //     canvas.height,
+                //     gl.COLOR_BUFFER_BIT,
+                //     gl.LINEAR,
+                // );
 
-                    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-                        console.error("Framebuffer is not complete");
-                    }
-
-                    /*
-                        Bloom Blur
-                    */
-                    if (starLightRef.current) {
-                        gl.useProgram(gaussianBlurProgramInfo.program);
-                        setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-                        setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-
-                        // Pingpong algorithm for gaussian blur
-                        const blurAmount = 10;
-                        let horizontal = 0;
-                        let first_iteration = true;
-                        for (let i = 0; i < blurAmount; i++) {
-                            gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
-                            // Set horizontal int to horizontal
-                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
-                            gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
-                                canvas.clientWidth,
-                                canvas.clientHeight,
-                            ]);
-                            // Set texture to read from
-                            gl.bindTexture(
-                                gl.TEXTURE_2D,
-                                first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
-                            );
-                            gl.drawArrays(gl.TRIANGLES, 0, 6);
-                            horizontal = 1 - horizontal;
-                            if (first_iteration) {
-                                first_iteration = false;
-                            }
-                        }
-                        gl.useProgram(bloomProgramInfo.program);
-
-                        gl.activeTexture(gl.TEXTURE0);
-                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                        gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
-
-                        gl.activeTexture(gl.TEXTURE1);
-                        gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
-                        gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
-
-                        // gl.useProgram(texQuadProgramInfo.program);
-                        // gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
-
-                        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                    } else {
-                        gl.useProgram(texQuadProgramInfo.program);
-                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                        setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                        setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                    }
-
-                    /*
-                        Render scene texture to quad
-                    */
-                    // Bind null frame buffer to render quad-scene-texture
+                if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                    console.error("Framebuffer is not complete");
                 }
 
+                /*
+                    Bloom Blur
+                */
+                if (starLightRef.current) {
+                    gl.useProgram(gaussianBlurProgramInfo.program);
+                    setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+
+                    // Pingpong algorithm for gaussian blur
+                    const blurAmount = 10;
+                    let horizontal = 0;
+                    let first_iteration = true;
+                    for (let i = 0; i < blurAmount; i++) {
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
+                        // Set horizontal int to horizontal
+                        gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
+                        gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
+                            canvas.clientWidth,
+                            canvas.clientHeight,
+                        ]);
+                        // Set texture to read from
+                        gl.bindTexture(
+                            gl.TEXTURE_2D,
+                            first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
+                        );
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                        horizontal = 1 - horizontal;
+                        if (first_iteration) {
+                            first_iteration = false;
+                        }
+                    }
+                    gl.useProgram(bloomProgramInfo.program);
+
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
+
+                    gl.activeTexture(gl.TEXTURE1);
+                    gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
+                    gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
+
+                    // gl.useProgram(texQuadProgramInfo.program);
+                    // gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
+
+                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                } else {
+                    gl.useProgram(texQuadProgramInfo.program);
+                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                }
                 requestAnimationFrame(render);
             }
 
