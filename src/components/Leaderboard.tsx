@@ -7,6 +7,8 @@ import { BlankIcon } from "../assets/icons/BlankIcon";
 import { ArrowDownwardIcon } from "../assets/icons/ArrowDownwardIcon";
 import { ArrowUpwardIcon } from "../assets/icons/ArrowUpwardIcon";
 import { Menu, Tab } from "./Menu";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 enum LeaderboardTabType {
     BASIC = "basic",
@@ -27,8 +29,6 @@ export interface LeaderboardBody {
 
 export interface LeaderboardProps {
     leaderboardBodies: any[];
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const leaderboardTabs: Tab[] = [
@@ -37,11 +37,11 @@ const leaderboardTabs: Tab[] = [
 ];
 
 export function Leaderboard(props: LeaderboardProps) {
-    const { leaderboardBodies, bodyFollowed, setBodyFollowed } = props;
+    const { leaderboardBodies } = props;
     const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
     const sortedBodies = useMemo(() => {
         return sortBodies(leaderboardBodies, sortCriteria);
-    }, [sortCriteria, leaderboardBodies, bodyFollowed]);
+    }, [sortCriteria, leaderboardBodies]);
 
     const [activeTab, setActiveTab] = useState<string>(LeaderboardTabType.BASIC);
 
@@ -53,8 +53,6 @@ export function Leaderboard(props: LeaderboardProps) {
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
-                        bodyFollowed={bodyFollowed}
-                        setBodyFollowed={setBodyFollowed}
                     />
                 )}
                 {activeTab == LeaderboardTabType.ORBIT && (
@@ -62,8 +60,6 @@ export function Leaderboard(props: LeaderboardProps) {
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
-                        bodyFollowed={bodyFollowed}
-                        setBodyFollowed={setBodyFollowed}
                     />
                 )}
             </LeaderboardContent>
@@ -75,12 +71,11 @@ interface TabContentProps {
     sortedBodies: LeaderboardBody[];
     sortCriteria: SortCriteria;
     setSortCriteria: React.Dispatch<React.SetStateAction<SortCriteria>>;
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function BasicTabContent(props: TabContentProps) {
-    const { sortedBodies, sortCriteria, setSortCriteria, bodyFollowed, setBodyFollowed } = props;
+    const { sortedBodies, sortCriteria, setSortCriteria } = props;
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
     return (
         <table>
             <thead>
@@ -124,12 +119,7 @@ function BasicTabContent(props: TabContentProps) {
                             selected={bodyFollowed == body.index}
                         >
                             <td className="name">
-                                <BodySelectButton
-                                    bodyIndex={body.index}
-                                    bodyColor={body.color}
-                                    bodyFollowed={bodyFollowed}
-                                    setBodyFollowed={setBodyFollowed}
-                                />
+                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
                             </td>
                             <td>{body.mass.toFixed(2)}</td>
                             <td>{body.dOrigin.toFixed(2)}</td>
@@ -143,7 +133,8 @@ function BasicTabContent(props: TabContentProps) {
 }
 
 function OrbitTabContent(props: TabContentProps) {
-    const { sortedBodies, sortCriteria, setSortCriteria, bodyFollowed, setBodyFollowed } = props;
+    const { sortedBodies, sortCriteria, setSortCriteria } = props;
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
     return (
         <table>
             <thead>
@@ -187,22 +178,12 @@ function OrbitTabContent(props: TabContentProps) {
                             selected={bodyFollowed == body.index}
                         >
                             <td className="name">
-                                <BodySelectButton
-                                    bodyIndex={body.index}
-                                    bodyColor={body.color}
-                                    bodyFollowed={bodyFollowed}
-                                    setBodyFollowed={setBodyFollowed}
-                                />
+                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
                             </td>
                             <td>{body.numSattelites}</td>
                             <td className={body.orbiting != -1 ? "name" : ""}>
                                 {body.orbiting != -1 ? (
-                                    <BodySelectButton
-                                        bodyIndex={body.orbiting}
-                                        bodyColor={body.orbitColor}
-                                        bodyFollowed={bodyFollowed}
-                                        setBodyFollowed={setBodyFollowed}
-                                    />
+                                    <BodySelectButton bodyIndex={body.orbiting} bodyColor={body.orbitColor} />
                                 ) : (
                                     <>None</>
                                 )}
@@ -343,16 +324,19 @@ const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
 interface BodySelectButtonProps {
     bodyIndex: number;
     bodyColor: string;
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 }
 
 function BodySelectButton(props: BodySelectButtonProps) {
-    const { bodyIndex, bodyColor, bodyFollowed, setBodyFollowed } = props;
+    const { bodyIndex, bodyColor } = props;
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const dispatch = useDispatch();
     return (
         <BodySelectButtonStyle
             onClick={() => {
-                setBodyFollowed(bodyIndex);
+                dispatch({
+                    type: "controls/setBodyFollowed",
+                    payload: bodyFollowed == bodyIndex ? -1 : bodyIndex,
+                });
             }}
             selected={bodyIndex == bodyFollowed}
             bodyColor={bodyColor}

@@ -41,9 +41,6 @@ const SimScreen = styled.div`
 `;
 
 export function App() {
-    // Which orbital body is being followed by the camera
-    const [bodyFollowed, setBodyFollowed] = useState<number>(-1);
-
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
 
@@ -59,13 +56,7 @@ export function App() {
                 <InfoBox />
                 <Header />
                 {showDebug ? <DebugStats /> : null}
-                {menuShown == MenuName.LEADERBOARD ? (
-                    <Leaderboard
-                        leaderboardBodies={leaderboardBodies}
-                        bodyFollowed={bodyFollowed}
-                        setBodyFollowed={setBodyFollowed}
-                    />
-                ) : null}
+                {menuShown == MenuName.LEADERBOARD ? <Leaderboard leaderboardBodies={leaderboardBodies} /> : null}
                 <Dashboard />
                 {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
             </Backdrop>
