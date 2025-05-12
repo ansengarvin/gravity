@@ -6,7 +6,7 @@ import { UniverseSettings } from "../../redux/universeSettingsSlice";
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
 export class Universe {
-    public settings: UniverseSettings
+    public settings: UniverseSettings;
 
     // Uint8Array and Float32Array are guaranteed to be contiguous in memory, which makes them more performant (cache locality).
     public bodiesActive: Uint8Array;

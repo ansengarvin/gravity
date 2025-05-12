@@ -38,7 +38,6 @@ import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
-import { UniverseSettings } from "../redux/universeSettingsSlice";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -87,7 +86,6 @@ export function Sim(props: SimProps) {
         paused,
     } = props;
 
-    
     const settings = useSelector((state: RootState) => state.universeSettings);
 
     /*

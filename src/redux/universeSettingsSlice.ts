@@ -14,7 +14,7 @@ const initialState: UniverseSettings = {
     numBodies: 500,
     size: 20, // The size of the universe in astronomical units|
     starThreshold: 0.8,
-}
+};
 
 export const universeSettingsSlice = createSlice({
     name: "universeSettings",
@@ -26,10 +26,10 @@ export const universeSettingsSlice = createSlice({
             state.numBodies = action.payload.numBodies;
             state.size = action.payload.size;
             state.starThreshold = action.payload.starThreshold;
-        }
+        },
     },
-})
+});
 
-export const {setAll} = universeSettingsSlice.actions;
+export const { setAll } = universeSettingsSlice.actions;
 
 export default universeSettingsSlice.reducer;

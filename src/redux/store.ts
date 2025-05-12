@@ -9,7 +9,7 @@ export const store = configureStore({
     reducer: {
         debugMenu: debugMenuReducer,
         graphicsSettings: graphicsSettingsReducer,
-        universeSettings: universeSettingsReducer
+        universeSettings: universeSettingsReducer,
     },
 });
 
