@@ -125,6 +125,10 @@ export function Sim(props: SimProps) {
     }, [bodyFollowed]);
 
     useEffect(() => {
+        universe.current = new Universe(settings);
+    }, [settings])
+
+    useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         setBodyFollowed(-1);
         universe.current.reset();
