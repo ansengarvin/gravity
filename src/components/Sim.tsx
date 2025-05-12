@@ -258,7 +258,6 @@ export function Sim(props: SimProps) {
                 uniformLocations: {
                     uImage: gl.getUniformLocation(gaussianBlurShaderProgram, "uImage"),
                     uHorizontal: gl.getUniformLocation(gaussianBlurShaderProgram, "uHorizontal"),
-                    uAspectRatio: gl.getUniformLocation(gaussianBlurShaderProgram, "uAspectRatio"),
                     uViewportSize: gl.getUniformLocation(gaussianBlurShaderProgram, "uViewportSize"),
                 },
             };
@@ -705,7 +704,6 @@ export function Sim(props: SimProps) {
                             gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
                             // Set horizontal int to horizontal
                             gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
-                            gl.uniform1f(gaussianBlurProgramInfo.uniformLocations.uAspectRatio, aspect);
                             gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
                                 canvas.clientWidth,
                                 canvas.clientHeight,
