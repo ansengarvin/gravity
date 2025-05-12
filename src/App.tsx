@@ -86,7 +86,6 @@ export function App() {
                     setLeaderboardBodies={setLeaderboardBodies}
                     setMaxSamples={setMaxSamples}
                     setNumStars={setNumStars}
-                    lightingMode={lightingMode}
                     bodyFollowed={bodyFollowed}
                     setBodyFollowed={setBodyFollowed}
                     resetSim={resetSim}

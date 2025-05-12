@@ -17,7 +17,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
     const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode, renderToTexture, setRenderToTexture } =
         props;
     
-    const settings = useSelector((state: RootState) => state.settings)
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings)
     const dispatch = useDispatch()
 
     return (
@@ -34,7 +34,7 @@ export function SettingsMenu(props: SettingsMenuProps) {
             <button
                 onClick={() => {dispatch({type: 'settings/toggleStarLight'})}}
             >
-                {settings.starLight ? "Disable Star Light" : "Enable Star Light"}
+                {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
             </button>
             <div>
                 Render to Texture

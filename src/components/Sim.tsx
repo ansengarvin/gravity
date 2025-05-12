@@ -3,7 +3,6 @@ import {
     BloomProgramInfo,
     CamlightProgramInfo,
     GaussianBlurProgramInfo,
-    LightingMode,
     StarlightProgramInfo,
     TexQuadProgramInfo,
 } from "../lib/webGL/shaderPrograms";
@@ -37,6 +36,8 @@ import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -61,8 +62,6 @@ interface SimProps {
     bodyFollowed: number;
     setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
 
-    lightingMode: LightingMode;
-
     // miscellaneous controls
     resetSim: number;
     resetCam: number;
@@ -83,7 +82,6 @@ export function Sim(props: SimProps) {
         setNumStars,
         bodyFollowed,
         setBodyFollowed,
-        lightingMode,
         resetSim,
         resetCam,
         paused,
@@ -111,6 +109,16 @@ export function Sim(props: SimProps) {
 
     const universe = useRef<Universe>(new Universe(settings));
 
+
+    /*
+        Graphics Settings
+    */
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings)
+    const starLightRef = useRef(graphicsSettings.starLight)
+    useEffect(() => {
+        starLightRef.current = graphicsSettings.starLight
+    }, [graphicsSettings.starLight])
+
     /*
         The WebGL render function doesn't have access to state variables as they update, so we need to use refs
         and effects to update the refs. This ensures that the render function always has the latest values.
@@ -125,11 +133,6 @@ export function Sim(props: SimProps) {
         setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
-
-    const lightingModeRef = useRef(lightingMode);
-    useEffect(() => {
-        lightingModeRef.current = lightingMode;
-    }, [lightingMode]);
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
@@ -484,50 +487,41 @@ export function Sim(props: SimProps) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
 
-                switch (lightingModeRef.current) {
-                    case LightingMode.CAMLIGHT: {
-                        // Bind Buffers
-                        setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                if (starLightRef.current) {
+                    setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                    setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                    gl.useProgram(starlightProgramInfo.program);
 
-                        gl.useProgram(camlightProgramInfo.program);
+                    // Bind projection matrix
+                    gl.uniformMatrix4fv(
+                        starlightProgramInfo.uniformLocations.projectionMatrix,
+                        false,
+                        projectionMatrix,
+                    );
 
-                        // Bind projection matrix
-                        gl.uniformMatrix4fv(
-                            camlightProgramInfo.uniformLocations.projectionMatrix,
-                            false,
-                            projectionMatrix,
-                        );
+                    // Data for calculating star light
+                    const starData: Array<vec4> = universe.current.getStarData();
+                    const numStars = starData.length;
+                    gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
 
-                        break;
+                    if (numStars > 0) {
+                        const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                     }
-                    case LightingMode.STARLIGHT: {
-                        // Bind Buffers
-                        setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                        gl.useProgram(starlightProgramInfo.program);
+                } else {
+                    // Bind Buffers
+                    setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                    setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
 
-                        // Bind projection matrix
-                        gl.uniformMatrix4fv(
-                            starlightProgramInfo.uniformLocations.projectionMatrix,
-                            false,
-                            projectionMatrix,
-                        );
+                    gl.useProgram(camlightProgramInfo.program);
 
-                        // Data for calculating star light
-                        const starData: Array<vec4> = universe.current.getStarData();
-                        const numStars = starData.length;
-                        gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
-
-                        if (numStars > 0) {
-                            const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                            gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
-                        }
-
-                        break;
-                    }
+                    // Bind projection matrix
+                    gl.uniformMatrix4fv(
+                        camlightProgramInfo.uniformLocations.projectionMatrix,
+                        false,
+                        projectionMatrix,
+                    );
                 }
-
                 // First framebuffer pass
 
                 if (renderToTextureRef.current) {
@@ -565,61 +559,57 @@ export function Sim(props: SimProps) {
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
                     // Bind uniforms based on current lighting mode
-                    switch (lightingModeRef.current) {
-                        case LightingMode.CAMLIGHT: {
-                            const normalMatrix = mat4.create();
-                            mat4.invert(normalMatrix, modelViewMatrix);
-                            mat4.transpose(normalMatrix, normalMatrix);
 
-                            gl.uniformMatrix4fv(
-                                camlightProgramInfo.uniformLocations.modelViewMatrix,
-                                false,
-                                modelViewMatrix,
-                            );
-                            gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
-                            gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
-                                universe.current.colorsR[i],
-                                universe.current.colorsG[i],
-                                universe.current.colorsB[i],
-                                1.0,
-                            ]);
+                    if (starLightRef.current) {
+                        const normalMatrix = mat4.create();
+                        mat4.invert(normalMatrix, modelMatrix);
+                        mat4.transpose(normalMatrix, normalMatrix);
 
-                            setNumActiveUniforms(
-                                gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                            );
-                            setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
-                            break;
-                        }
-                        case LightingMode.STARLIGHT: {
-                            const normalMatrix = mat4.create();
-                            mat4.invert(normalMatrix, modelMatrix);
-                            mat4.transpose(normalMatrix, normalMatrix);
+                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
+                        gl.uniformMatrix4fv(
+                            starlightProgramInfo.uniformLocations.modelViewMatrix,
+                            false,
+                            modelViewMatrix,
+                        );
+                        gl.uniformMatrix4fv(
+                            starlightProgramInfo.uniformLocations.normalMatrix,
+                            false,
+                            normalMatrix,
+                        );
+                        const isStar = universe.current.isStar(i) ? 1 : 0;
+                        gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
+                        gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
+                            universe.current.colorsR[i],
+                            universe.current.colorsG[i],
+                            universe.current.colorsB[i],
+                            1.0,
+                        ]);
+                        setNumActiveUniforms(
+                            gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                        );
+                        setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
+                    } else {
+                        const normalMatrix = mat4.create();
+                        mat4.invert(normalMatrix, modelViewMatrix);
+                        mat4.transpose(normalMatrix, normalMatrix);
 
-                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
-                            gl.uniformMatrix4fv(
-                                starlightProgramInfo.uniformLocations.modelViewMatrix,
-                                false,
-                                modelViewMatrix,
-                            );
-                            gl.uniformMatrix4fv(
-                                starlightProgramInfo.uniformLocations.normalMatrix,
-                                false,
-                                normalMatrix,
-                            );
-                            const isStar = universe.current.isStar(i) ? 1 : 0;
-                            gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
-                            gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
-                                universe.current.colorsR[i],
-                                universe.current.colorsG[i],
-                                universe.current.colorsB[i],
-                                1.0,
-                            ]);
-                            setNumActiveUniforms(
-                                gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                            );
-                            setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
-                            break;
-                        }
+                        gl.uniformMatrix4fv(
+                            camlightProgramInfo.uniformLocations.modelViewMatrix,
+                            false,
+                            modelViewMatrix,
+                        );
+                        gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                        gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
+                            universe.current.colorsR[i],
+                            universe.current.colorsG[i],
+                            universe.current.colorsB[i],
+                            1.0,
+                        ]);
+
+                        setNumActiveUniforms(
+                            gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                        );
+                        setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
                     }
 
                     // Draw each sphere
@@ -691,7 +681,7 @@ export function Sim(props: SimProps) {
                     /*
                         Bloom Blur
                     */
-                    if (lightingModeRef.current == LightingMode.STARLIGHT) {
+                    if (starLightRef.current) {
                         gl.useProgram(gaussianBlurProgramInfo.program);
                         setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
                         setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);

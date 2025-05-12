@@ -1,11 +1,11 @@
 // https://redux-toolkit.js.org/tutorials/quick-start
 
 import { configureStore } from "@reduxjs/toolkit";
-import settingsReducer from './graphicsSettingsSlice'
+import graphicsSettingsReducer from './graphicsSettingsSlice'
 
 export const store = configureStore({
     reducer: {
-        settings: settingsReducer
+        graphicsSettings: graphicsSettingsReducer
     }
 })
 
