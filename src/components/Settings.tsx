@@ -1,6 +1,9 @@
 import styled from "@emotion/styled";
 import React from "react";
+import {useSelector, useDispatch} from 'react-redux'
 import { LightingMode } from "../lib/webGL/shaderPrograms";
+import { SettingsState } from "../redux/settingsSlice";
+import { RootState } from "../redux/store";
 
 interface SettingsMenuProps {
     debugStatsShown: boolean;
@@ -14,6 +17,12 @@ interface SettingsMenuProps {
 export function SettingsMenu(props: SettingsMenuProps) {
     const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode, renderToTexture, setRenderToTexture } =
         props;
+    
+    const settingsTest = useSelector((state: RootState) => state.settings.test)
+    const dispatch = useDispatch()
+
+    console.log(settingsTest)
+
     return (
         <SettingsStyle>
             <button
@@ -40,6 +49,16 @@ export function SettingsMenu(props: SettingsMenuProps) {
                     }}
                 >
                     {renderToTexture ? "DISABLE" : "ENABLE"}
+                </button>
+            </div>
+            <div>
+                Test Settings: {settingsTest}
+                <button
+                    onClick={() => {
+                        dispatch({type: "settings/set", payload: {test: settingsTest + 1}})
+                    }}
+                >
+                    {settingsTest}
                 </button>
             </div>
         </SettingsStyle>
