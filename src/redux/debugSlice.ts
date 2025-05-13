@@ -51,10 +51,10 @@ export const debugInfoSlice = createSlice({
         setMaxSamples: (state, action) => {
             state.maxSamples = action.payload;
         },
-        setActiveUniforms: (state, action) => {
+        setNumActiveUniforms: (state, action) => {
             state.numActiveUniforms = action.payload;
         },
-        setActiveUniformVectors: (state, action) => {
+        setNumActiveUniformVectors: (state, action) => {
             state.numActiveUniformVectors = action.payload;
         },
     },

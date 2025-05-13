@@ -379,34 +379,54 @@ export function Sim(props: SimProps) {
             let uiAccumulatedTime = 0;
             const uiThrottleTime = 0.05; // time in seconds
             function render(now: number) {
-                now *= 0.001; // convert to seconds
-                const deltaTime = now - then;
-                then = now;
-                accumulatedTime += deltaTime;
-                uiAccumulatedTime += deltaTime;
-                //Update the universe simulation
-                while (accumulatedTime >= secondsPerTick) {
-                    if (!pausedRef.current) {
-                        universe.current.updateEuler(secondsPerTick);
-                        // Throttle the rate at which the UI is updated with information as not to cause unecessary re-renders
-                        if (uiAccumulatedTime >= uiThrottleTime) {
-                            setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
-                            dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
-                            dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
-                            uiAccumulatedTime = 0;
-                        }
-                    }
-                    accumulatedTime -= secondsPerTick;
-                }
-
-                /*
-                    Render scene from universe
-                */
+                // Need to check this once per render to stop react from throwing an error
                 if (!gl) {
                     console.error("WebGL context not found");
                     return;
                 }
 
+                /*
+                    Update Universe
+                */
+                now *= 0.001; // convert to seconds
+                const deltaTime = now - then;
+                then = now;
+                accumulatedTime += deltaTime;
+                //Update the universe simulation
+                while (accumulatedTime >= secondsPerTick) {
+                    if (!pausedRef.current) {
+                        universe.current.updateEuler(secondsPerTick);
+                    }
+                    accumulatedTime -= secondsPerTick;
+                }
+
+                /*
+                    Update UI with universe information.
+                    This is throttled as not to cause too many rerenders.
+                */
+                uiAccumulatedTime += deltaTime;
+                if (uiAccumulatedTime >= uiThrottleTime) {
+                    setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                    dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+                    dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+                    dispatch({
+                        type: "debugInfo/setNumActiveUniforms",
+                        payload: starLightRef.current
+                            ? gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS)
+                            : gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                    });
+                    dispatch({
+                        type: "debugInfo/setNumActiveUniformVectors",
+                        payload: starLightRef.current
+                            ? calculateUniformVectors(gl, starlightProgramInfo.program)
+                            : calculateUniformVectors(gl, camlightProgramInfo.program),
+                    });
+                    uiAccumulatedTime = 0;
+                }
+
+                /*
+                    Render scene from universe
+                */
                 // Set GL active texture to the default of 0 for safety
                 gl.activeTexture(gl.TEXTURE0);
 
