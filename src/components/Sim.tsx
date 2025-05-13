@@ -198,6 +198,7 @@ export function Sim(props: SimProps) {
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
+                    uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
                 },
             };
 
@@ -476,6 +477,9 @@ export function Sim(props: SimProps) {
                         const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                     }
+
+                    const viewPos = cameraRef.current.getPosition();
+                    gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
                 } else {
                     // Bind Buffers
                     setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);

@@ -24,7 +24,7 @@ export class Camera {
         this.zoom = zoom;
     }
 
-    private calculatePosition(): vec3 {
+    public getPosition(): vec3 {
         const position = vec3.create();
         const offsetX = this.zoom * Math.cos(this.pitch) * Math.sin(this.yaw);
         const offsetY = this.zoom * Math.sin(this.pitch);
@@ -43,7 +43,7 @@ export class Camera {
 
     public getViewMatrix(): mat4 {
         const viewMatrix = mat4.create();
-        const cameraPosition = this.calculatePosition();
+        const cameraPosition = this.getPosition();
         const target = vec3.fromValues(this.target.x, this.target.y, this.target.z);
         const up = vec3.fromValues(0, 1, 0);
         mat4.lookAt(viewMatrix, cameraPosition, target, up);
