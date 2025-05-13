@@ -264,14 +264,6 @@ export function Sim(props: SimProps) {
 
             // Create a simple quad
             const quadModel: Model = {
-                // positions: new Float32Array([
-                //     -1.0, 1.0, 0.0,
-                //     -1.0, -1.0, 0.0,
-                //     1.0, -1.0, 0.0,
-                //     -1.0, 1.0, 0.0,
-                //     1.0, -1.0, 0.0,
-                //     1.0, 1.0, 0.0
-                // ]),
                 positions: new Float32Array([-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
                 texCoords: new Float32Array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
                 indices: new Uint16Array(),
@@ -384,20 +376,25 @@ export function Sim(props: SimProps) {
             */
             let then = 0;
             let accumulatedTime = 0;
+            let uiAccumulatedTime = 0;
+            const uiThrottleTime = 0.05; // time in seconds
             function render(now: number) {
                 now *= 0.001; // convert to seconds
                 const deltaTime = now - then;
                 then = now;
                 accumulatedTime += deltaTime;
-
+                uiAccumulatedTime += deltaTime;
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
-                        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
-                        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
-                        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
-                    } else {
+                        // Throttle the rate at which the UI is updated with information as not to cause unecessary re-renders
+                        if (uiAccumulatedTime >= uiThrottleTime) {
+                            setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                            dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+                            dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+                            uiAccumulatedTime = 0;
+                        }
                     }
                     accumulatedTime -= secondsPerTick;
                 }
