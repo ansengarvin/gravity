@@ -10,6 +10,7 @@ export interface DebugStatsState {
     maxFragmentUniformVectors: number;
     maxUniformBufferBindingPoints: number;
     maxSamples: number;
+    maxBufferBitDepth: string;
     numActiveUniforms: number;
     numActiveUniformVectors: number;
 }
@@ -22,6 +23,7 @@ const initialState: DebugStatsState = {
     maxFragmentUniformVectors: 0,
     maxUniformBufferBindingPoints: 0,
     maxSamples: 0,
+    maxBufferBitDepth: "",
     numActiveUniforms: 0,
     numActiveUniformVectors: 0,
 };
@@ -50,6 +52,9 @@ export const debugInfoSlice = createSlice({
         },
         setMaxSamples: (state, action) => {
             state.maxSamples = action.payload;
+        },
+        setMaxBufferBitDepth: (state, action) => {
+            state.maxBufferBitDepth = action.payload;
         },
         setNumActiveUniforms: (state, action) => {
             state.numActiveUniforms = action.payload;
