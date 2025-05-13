@@ -28,7 +28,7 @@ void main(void) {
     //highp vec3 directionalVector = normalize(vec3(0.85, 0.8, 0.75));
     highp vec3 directionalVector = normalize(vec3(0, 0, -1));
     highp vec3 diffuse = vec3(0, 0, 0);
-
+    
     for (int i = 0; i < MAX_STARS; i++) {
         if (i >= uNumStars) {
             break;
@@ -59,17 +59,7 @@ void main(void) {
     highp vec3 result = (ambient + diffuse) * uFragColor.rgb;
     fragColor = vec4(result, uFragColor.a);
 
-    // THis is normally how bloom would be handled - based on the brightness of all fragments.
-    /*
-    float brightness = dot(FragColor.rgb, vec3(0.2126, 0.7152, 0.0722));
-    if(brightness > 1.0) {
-        BrightColor = vec4(FragColor.rgb, 1.0);
-    } else {
-        BrightColor = vec4(0.0, 0.0, 0.0, 1.0);
-    }
-    */
-
-    // My approach will be to just extract the light from stars and add a bloom effect therein.
+    // Normally, bloom lighting extracts based on brightness. Instead, I extract colors based on whether they're stars.
     if (uIsStar > 0) {
         brightColor = fragColor;
     } else {
