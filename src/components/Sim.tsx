@@ -3,14 +3,13 @@ import {
     BloomProgramInfo,
     CamlightProgramInfo,
     GaussianBlurProgramInfo,
-    LightingMode,
     StarlightProgramInfo,
     TexQuadProgramInfo,
 } from "../lib/webGL/shaderPrograms";
 import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
-import { Universe, UniverseSettings } from "../lib/universe/universe";
+import { Universe } from "../lib/universe/universe";
 import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 
@@ -37,6 +36,8 @@ import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -46,61 +47,18 @@ const zNear = 0.1;
 const zFar = 100.0;
 
 interface SimProps {
-    // debug information
-    setMaxVertexUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setMaxFragmentUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setMaxUniformBufferBindingPoints: React.Dispatch<React.SetStateAction<number>>;
-    setMaxSamples: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveBodies: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveUniforms: React.Dispatch<React.SetStateAction<number>>;
-    setNumActiveUniformVectors: React.Dispatch<React.SetStateAction<number>>;
-    setNumStars: React.Dispatch<React.SetStateAction<number>>;
-
     // leaderboard information
     setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-    bodyFollowed: number;
-    setBodyFollowed: React.Dispatch<React.SetStateAction<number>>;
-
-    lightingMode: LightingMode;
-
-    // miscellaneous controls
-    resetSim: number;
-    resetCam: number;
-    paused: boolean;
-    renderToTexture: boolean;
 }
 
 export function Sim(props: SimProps) {
-    const {
-        setMaxVertexUniformVectors,
-        setMaxFragmentUniformVectors,
-        setMaxUniformBufferBindingPoints,
-        setMaxSamples,
-        setNumActiveBodies,
-        setNumActiveUniforms,
-        setNumActiveUniformVectors,
-        setLeaderboardBodies,
-        setNumStars,
-        bodyFollowed,
-        setBodyFollowed,
-        lightingMode,
-        resetSim,
-        resetCam,
-        paused,
-        renderToTexture,
-    } = props;
+    const { setLeaderboardBodies } = props;
 
-    // For now, hard-code universe settings. We will eventually want these to be user-controlled.
-    const settings: UniverseSettings = {
-        seed: "irrelevant",
-        timeStep: 1.0 / 12.0, // time step in years (1 month)
-        numBodies: 500,
-        size: 20, // The size of the universe in astronomical units
-        starThreshold: 0.8,
-    };
+    const settings = useSelector((state: RootState) => state.universeSettings);
+    const dispatch = useDispatch();
 
     /*
-        Camera and universe classes are placed inside of refs to ensure that they are not caught up in re-renders.
+        The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
     const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
@@ -108,47 +66,57 @@ export function Sim(props: SimProps) {
         cameraSensititivy,
     );
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
-
     const universe = useRef<Universe>(new Universe(settings));
 
     /*
-        The WebGL render function doesn't have access to state variables as they update, so we need to use refs
-        and effects to update the refs. This ensures that the render function always has the latest values.
+        WebGL and render() live outside of the react lifecycle. Therefore, they cannot access the most recent data from
+        states or selectors. To work around this, I convert them into refs.
     */
+    // User-set graphics settings
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
+    const starLightRef = useRef(graphicsSettings.starLight);
+    useEffect(() => {
+        starLightRef.current = graphicsSettings.starLight;
+    }, [graphicsSettings.starLight]);
+
+    // User controls
+    const resetSim = useSelector((state: RootState) => state.controls.resetSim);
+    const resetCam = useSelector((state: RootState) => state.controls.resetCam);
+
+    const paused = useSelector((state: RootState) => state.controls.paused);
     const pausedRef = useRef(paused);
     useEffect(() => {
         pausedRef.current = paused;
     }, [paused]);
 
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
     const bodyFollowedRef = useRef(bodyFollowed);
     useEffect(() => {
         setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
 
-    const lightingModeRef = useRef(lightingMode);
     useEffect(() => {
-        lightingModeRef.current = lightingMode;
-    }, [lightingMode]);
+        universe.current = new Universe(settings);
+        cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
+        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
+        setLeaderboardBodies(universe.current.getActiveBodies(-1));
+        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+    }, [settings]);
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-        setBodyFollowed(-1);
+        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
-        setNumActiveBodies(universe.current.numActive);
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
-        setNumStars(universe.current.getNumStars());
+        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
     }, [resetSim]);
 
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
-
-    const renderToTextureRef = useRef(renderToTexture);
-    useEffect(() => {
-        renderToTextureRef.current = renderToTexture;
-    }, [renderToTexture]);
-
     /*
         Set up WebGL Renderer
     */
@@ -168,14 +136,23 @@ export function Sim(props: SimProps) {
 
         const initialize = async () => {
             // Set sorted universe parameters initially
-            setNumActiveBodies(universe.current.numActive);
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
             // Set unchanging webGL debug text
-            setMaxVertexUniformVectors(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
-            setMaxFragmentUniformVectors(gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS));
-            setMaxUniformBufferBindingPoints(gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS));
-            setMaxSamples(gl.getParameter(gl.MAX_SAMPLES));
+            dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+            dispatch({
+                type: "debugInfo/setMaxVertexUniformVectors",
+                payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
+            });
+            dispatch({
+                type: "debugInfo/setMaxFragmentUniformVectors",
+                payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
+            });
+            dispatch({
+                type: "debugInfo/setMaxUniformBufferBindingPoints",
+                payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
+            });
+            dispatch({ type: "debugInfo/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
 
             /*
                 Initialize all shader programs
@@ -292,14 +269,6 @@ export function Sim(props: SimProps) {
 
             // Create a simple quad
             const quadModel: Model = {
-                // positions: new Float32Array([
-                //     -1.0, 1.0, 0.0,
-                //     -1.0, -1.0, 0.0,
-                //     1.0, -1.0, 0.0,
-                //     -1.0, 1.0, 0.0,
-                //     1.0, -1.0, 0.0,
-                //     1.0, 1.0, 0.0
-                // ]),
                 positions: new Float32Array([-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
                 texCoords: new Float32Array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
                 indices: new Uint16Array(),
@@ -311,29 +280,6 @@ export function Sim(props: SimProps) {
             /*
                 Custom framebuffer intitialization
             */
-
-            // Create a color attachment texture
-            // Below code does not MSAA properly
-            /*
-            const sceneFrameBuffer = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-
-            const textureColorBuffer = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            const texWidth = canvas.width;
-            const texHeight = canvas.height;
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
-
-            // Create a depth buffer attachment texture
-            const depthRenderBuffer = gl.createRenderbuffer();
-            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
-            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
-            */
-
             // Scene to texture with multisampling from the following source:
             // https://stackoverflow.com/questions/47934444/webgl-framebuffer-multisampling
 
@@ -435,32 +381,57 @@ export function Sim(props: SimProps) {
             */
             let then = 0;
             let accumulatedTime = 0;
+            let uiAccumulatedTime = 0;
+            const uiThrottleTime = 0.05; // time in seconds
             function render(now: number) {
-                now *= 0.001; // convert to seconds
-                const deltaTime = now - then;
-                then = now;
-                accumulatedTime += deltaTime;
-
-                //Update the universe simulation
-                while (accumulatedTime >= secondsPerTick) {
-                    if (!pausedRef.current) {
-                        universe.current.updateEuler(secondsPerTick);
-                        setNumActiveBodies(universe.current.numActive);
-                        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
-                        setNumStars(universe.current.getNumStars());
-                    } else {
-                    }
-                    accumulatedTime -= secondsPerTick;
-                }
-
-                /*
-                    Render scene from universe
-                */
+                // Need to check this once per render to stop react from throwing an error
                 if (!gl) {
                     console.error("WebGL context not found");
                     return;
                 }
 
+                /*
+                    Update Universe
+                */
+                now *= 0.001; // convert to seconds
+                const deltaTime = now - then;
+                then = now;
+                accumulatedTime += deltaTime;
+                //Update the universe simulation
+                while (accumulatedTime >= secondsPerTick) {
+                    if (!pausedRef.current) {
+                        universe.current.updateEuler(secondsPerTick);
+                    }
+                    accumulatedTime -= secondsPerTick;
+                }
+
+                /*
+                    Update UI with universe information.
+                    This is throttled as not to cause too many rerenders.
+                */
+                uiAccumulatedTime += deltaTime;
+                if (uiAccumulatedTime >= uiThrottleTime) {
+                    setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                    dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+                    dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+                    dispatch({
+                        type: "debugInfo/setNumActiveUniforms",
+                        payload: starLightRef.current
+                            ? gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS)
+                            : gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
+                    });
+                    dispatch({
+                        type: "debugInfo/setNumActiveUniformVectors",
+                        payload: starLightRef.current
+                            ? calculateUniformVectors(gl, starlightProgramInfo.program)
+                            : calculateUniformVectors(gl, camlightProgramInfo.program),
+                    });
+                    uiAccumulatedTime = 0;
+                }
+
+                /*
+                    Render scene from universe
+                */
                 // Set GL active texture to the default of 0 for safety
                 gl.activeTexture(gl.TEXTURE0);
 
@@ -484,57 +455,41 @@ export function Sim(props: SimProps) {
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
 
-                switch (lightingModeRef.current) {
-                    case LightingMode.CAMLIGHT: {
-                        // Bind Buffers
-                        setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                if (starLightRef.current) {
+                    setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                    setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                    gl.useProgram(starlightProgramInfo.program);
 
-                        gl.useProgram(camlightProgramInfo.program);
+                    // Bind projection matrix
+                    gl.uniformMatrix4fv(
+                        starlightProgramInfo.uniformLocations.projectionMatrix,
+                        false,
+                        projectionMatrix,
+                    );
 
-                        // Bind projection matrix
-                        gl.uniformMatrix4fv(
-                            camlightProgramInfo.uniformLocations.projectionMatrix,
-                            false,
-                            projectionMatrix,
-                        );
+                    // Data for calculating star light
+                    const starData: Array<vec4> = universe.current.getStarData();
+                    const numStars = starData.length;
+                    gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
 
-                        break;
+                    if (numStars > 0) {
+                        const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                     }
-                    case LightingMode.STARLIGHT: {
-                        // Bind Buffers
-                        setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                        setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                        gl.useProgram(starlightProgramInfo.program);
+                } else {
+                    // Bind Buffers
+                    setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                    setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
 
-                        // Bind projection matrix
-                        gl.uniformMatrix4fv(
-                            starlightProgramInfo.uniformLocations.projectionMatrix,
-                            false,
-                            projectionMatrix,
-                        );
+                    gl.useProgram(camlightProgramInfo.program);
 
-                        // Data for calculating star light
-                        const starData: Array<vec4> = universe.current.getStarData();
-                        const numStars = starData.length;
-                        gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
-
-                        if (numStars > 0) {
-                            const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                            gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
-                        }
-
-                        break;
-                    }
+                    // Bind projection matrix
+                    gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
                 }
 
                 // First framebuffer pass
+                gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
 
-                if (renderToTextureRef.current) {
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-                } else {
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                }
                 gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
                 gl.clearDepth(1.0); // Clear everything
                 gl.enable(gl.DEPTH_TEST); // Enable depth testing
@@ -565,61 +520,44 @@ export function Sim(props: SimProps) {
                     mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
 
                     // Bind uniforms based on current lighting mode
-                    switch (lightingModeRef.current) {
-                        case LightingMode.CAMLIGHT: {
-                            const normalMatrix = mat4.create();
-                            mat4.invert(normalMatrix, modelViewMatrix);
-                            mat4.transpose(normalMatrix, normalMatrix);
 
-                            gl.uniformMatrix4fv(
-                                camlightProgramInfo.uniformLocations.modelViewMatrix,
-                                false,
-                                modelViewMatrix,
-                            );
-                            gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
-                            gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
-                                universe.current.colorsR[i],
-                                universe.current.colorsG[i],
-                                universe.current.colorsB[i],
-                                1.0,
-                            ]);
+                    if (starLightRef.current) {
+                        const normalMatrix = mat4.create();
+                        mat4.invert(normalMatrix, modelMatrix);
+                        mat4.transpose(normalMatrix, normalMatrix);
 
-                            setNumActiveUniforms(
-                                gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                            );
-                            setNumActiveUniformVectors(calculateUniformVectors(gl, camlightProgramInfo.program));
-                            break;
-                        }
-                        case LightingMode.STARLIGHT: {
-                            const normalMatrix = mat4.create();
-                            mat4.invert(normalMatrix, modelMatrix);
-                            mat4.transpose(normalMatrix, normalMatrix);
+                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
+                        gl.uniformMatrix4fv(
+                            starlightProgramInfo.uniformLocations.modelViewMatrix,
+                            false,
+                            modelViewMatrix,
+                        );
+                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                        const isStar = universe.current.isStar(i) ? 1 : 0;
+                        gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
+                        gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
+                            universe.current.colorsR[i],
+                            universe.current.colorsG[i],
+                            universe.current.colorsB[i],
+                            1.0,
+                        ]);
+                    } else {
+                        const normalMatrix = mat4.create();
+                        mat4.invert(normalMatrix, modelViewMatrix);
+                        mat4.transpose(normalMatrix, normalMatrix);
 
-                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
-                            gl.uniformMatrix4fv(
-                                starlightProgramInfo.uniformLocations.modelViewMatrix,
-                                false,
-                                modelViewMatrix,
-                            );
-                            gl.uniformMatrix4fv(
-                                starlightProgramInfo.uniformLocations.normalMatrix,
-                                false,
-                                normalMatrix,
-                            );
-                            const isStar = universe.current.isStar(i) ? 1 : 0;
-                            gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
-                            gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
-                                universe.current.colorsR[i],
-                                universe.current.colorsG[i],
-                                universe.current.colorsB[i],
-                                1.0,
-                            ]);
-                            setNumActiveUniforms(
-                                gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                            );
-                            setNumActiveUniformVectors(calculateUniformVectors(gl, starlightProgramInfo.program));
-                            break;
-                        }
+                        gl.uniformMatrix4fv(
+                            camlightProgramInfo.uniformLocations.modelViewMatrix,
+                            false,
+                            modelViewMatrix,
+                        );
+                        gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                        gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
+                            universe.current.colorsR[i],
+                            universe.current.colorsG[i],
+                            universe.current.colorsB[i],
+                            1.0,
+                        ]);
                     }
 
                     // Draw each sphere
@@ -630,127 +568,99 @@ export function Sim(props: SimProps) {
                     }
                 }
 
-                if (renderToTextureRef.current) {
-                    /*
-                        Antialiasing Pass
-                    */
-                    gl.readBuffer(gl.COLOR_ATTACHMENT0);
-                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
-                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
-                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-                    gl.blitFramebuffer(
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR,
-                    );
+                /*
+                    Antialiasing Pass
+                */
+                gl.readBuffer(gl.COLOR_ATTACHMENT0);
+                gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
+                gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                gl.blitFramebuffer(
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    gl.COLOR_BUFFER_BIT,
+                    gl.LINEAR,
+                );
 
-                    gl.readBuffer(gl.COLOR_ATTACHMENT1);
-                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
-                    gl.blitFramebuffer(
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        0,
-                        0,
-                        texWidth,
-                        texHeight,
-                        gl.COLOR_BUFFER_BIT,
-                        gl.LINEAR,
-                    );
-                    // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                gl.readBuffer(gl.COLOR_ATTACHMENT1);
+                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
+                gl.blitFramebuffer(
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    0,
+                    0,
+                    texWidth,
+                    texHeight,
+                    gl.COLOR_BUFFER_BIT,
+                    gl.LINEAR,
+                );
 
-                    // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-
-                    // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-
-                    // gl.blitFramebuffer(
-                    //     0,
-                    //     0,
-                    //     canvas.width,
-                    //     canvas.height,
-                    //     0,
-                    //     0,
-                    //     canvas.width,
-                    //     canvas.height,
-                    //     gl.COLOR_BUFFER_BIT,
-                    //     gl.LINEAR,
-                    // );
-
-                    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-                        console.error("Framebuffer is not complete");
-                    }
-
-                    /*
-                        Bloom Blur
-                    */
-                    if (lightingModeRef.current == LightingMode.STARLIGHT) {
-                        gl.useProgram(gaussianBlurProgramInfo.program);
-                        setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-                        setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-
-                        // Pingpong algorithm for gaussian blur
-                        const blurAmount = 10;
-                        let horizontal = 0;
-                        let first_iteration = true;
-                        for (let i = 0; i < blurAmount; i++) {
-                            gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
-                            // Set horizontal int to horizontal
-                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
-                            gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
-                                canvas.clientWidth,
-                                canvas.clientHeight,
-                            ]);
-                            // Set texture to read from
-                            gl.bindTexture(
-                                gl.TEXTURE_2D,
-                                first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
-                            );
-                            gl.drawArrays(gl.TRIANGLES, 0, 6);
-                            horizontal = 1 - horizontal;
-                            if (first_iteration) {
-                                first_iteration = false;
-                            }
-                        }
-                        gl.useProgram(bloomProgramInfo.program);
-
-                        gl.activeTexture(gl.TEXTURE0);
-                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                        gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
-
-                        gl.activeTexture(gl.TEXTURE1);
-                        gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
-                        gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
-
-                        // gl.useProgram(texQuadProgramInfo.program);
-                        // gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
-
-                        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                    } else {
-                        gl.useProgram(texQuadProgramInfo.program);
-                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                        setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                        setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                    }
-
-                    /*
-                        Render scene texture to quad
-                    */
-                    // Bind null frame buffer to render quad-scene-texture
+                if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                    console.error("Framebuffer is not complete");
                 }
 
+                /*
+                    Bloom Blur
+                */
+                if (starLightRef.current) {
+                    gl.useProgram(gaussianBlurProgramInfo.program);
+                    setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+
+                    // Pingpong algorithm for gaussian blur
+                    const blurAmount = 10;
+                    let horizontal = 0;
+                    let first_iteration = true;
+                    for (let i = 0; i < blurAmount; i++) {
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
+                        // Set horizontal int to horizontal
+                        gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
+                        gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
+                            canvas.clientWidth,
+                            canvas.clientHeight,
+                        ]);
+                        // Set texture to read from
+                        gl.bindTexture(
+                            gl.TEXTURE_2D,
+                            first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
+                        );
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                        horizontal = 1 - horizontal;
+                        if (first_iteration) {
+                            first_iteration = false;
+                        }
+                    }
+                    gl.useProgram(bloomProgramInfo.program);
+
+                    // Add the scene and blur textures together for a bloom effect
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
+
+                    gl.activeTexture(gl.TEXTURE1);
+                    gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
+                    gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
+
+                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                } else {
+                    gl.useProgram(texQuadProgramInfo.program);
+                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                }
                 requestAnimationFrame(render);
             }
 

@@ -1,8 +1,3 @@
-export enum LightingMode {
-    CAMLIGHT = "camlight",
-    STARLIGHT = "starlight",
-}
-
 export interface AttribLocations {
     vertexPosition: GLint;
     vertexNormal: GLint;

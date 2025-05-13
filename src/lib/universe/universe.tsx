@@ -1,16 +1,9 @@
 import { getRandomFloat } from "../../random/random";
 import { vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
+import { UniverseSettings } from "../../redux/universeSettingsSlice";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
-
-export interface UniverseSettings {
-    seed: string;
-    timeStep: number;
-    numBodies: number; // THe number of starting bodies in the universe
-    size: number; // The size of the universe in astronomical units
-    starThreshold: number;
-}
 
 export class Universe {
     public settings: UniverseSettings;
@@ -73,6 +66,27 @@ export class Universe {
         // If it weren't, we wouldn't be able to see most of the bodies.
         return Math.pow(mass, 1 / 3) * 0.1;
         //return 1;
+    }
+
+    public radius_from_mass_B(mass: number): number {
+        const earthMassInSolarMasses = 3.003e-6;
+        const jupiterMassInSolarMasses = 0.0009543;
+        const earthRadiusAU = 4.2635e-5;
+        const jupiterRadiusAU = 0.0004778945;
+        const sunRadiusAU = 0.00465047;
+
+        if (mass < 0.003) {
+            const massInEarthMasses = mass / earthMassInSolarMasses;
+            const radiusInEarthRadii = Math.pow(massInEarthMasses, 0.28);
+            return radiusInEarthRadii * earthRadiusAU * 2.5; // mild exaggeration
+        } else if (mass < 0.08) {
+            const massInJupiterMasses = mass / jupiterMassInSolarMasses;
+            const radiusInJupiterRadii = 1.0 - 0.035 * Math.log10(massInJupiterMasses);
+            return radiusInJupiterRadii * jupiterRadiusAU * 2; // slight boost
+        } else {
+            const radiusInSolarRadii = Math.pow(mass, 0.8);
+            return radiusInSolarRadii * sunRadiusAU * 1.25; // subtle boost
+        }
     }
 
     public initialize(): void {

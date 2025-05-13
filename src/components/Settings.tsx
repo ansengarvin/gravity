@@ -1,47 +1,79 @@
 import styled from "@emotion/styled";
-import React from "react";
-import { LightingMode } from "../lib/webGL/shaderPrograms";
+import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../redux/store";
+import { useState } from "react";
 
-interface SettingsMenuProps {
-    debugStatsShown: boolean;
-    setDebugStatsShown: React.Dispatch<React.SetStateAction<boolean>>;
-    lightingMode: LightingMode;
-    setLightingMode: React.Dispatch<React.SetStateAction<LightingMode>>;
-    renderToTexture: boolean;
-    setRenderToTexture: React.Dispatch<React.SetStateAction<boolean>>;
-}
+export function SettingsMenu() {
+    const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
+    const universeSettings = useSelector((state: RootState) => state.universeSettings);
+    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
+    const dispatch = useDispatch();
 
-export function SettingsMenu(props: SettingsMenuProps) {
-    const { debugStatsShown, setDebugStatsShown, lightingMode, setLightingMode, renderToTexture, setRenderToTexture } =
-        props;
+    const [seed, setSeed] = useState(universeSettings.seed);
+    const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
+
+    console.log(universeSettings.seed);
+
     return (
         <SettingsStyle>
+            General
             <button
                 onClick={() => {
-                    setLightingMode((prev) =>
-                        prev == LightingMode.CAMLIGHT ? LightingMode.STARLIGHT : LightingMode.CAMLIGHT,
-                    );
+                    dispatch({ type: "debugInfo/toggleDebug" });
                 }}
             >
-                {lightingMode == LightingMode.STARLIGHT ? "Disable Star Light" : "Enable Star Light"}
+                {showDebug ? "Hide Debug" : "Show Debug"}
             </button>
+            Graphics
             <button
                 onClick={() => {
-                    setDebugStatsShown(!debugStatsShown);
+                    dispatch({ type: "graphicsSettings/toggleStarLight" });
                 }}
             >
-                {debugStatsShown ? "Hide Debug Stats" : "Show Debug Stats"}
+                {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
             </button>
-            <div>
-                Render to Texture
+            Simulation
+            <form>
+                <label>Seed</label>
+                <input
+                    type="text"
+                    value={seed}
+                    onChange={(e) => {
+                        setSeed(e.target.value);
+                    }}
+                />
+                <label>Num. Grav. Bodies</label>
+                <input
+                    type="number"
+                    value={numBodies}
+                    onChange={(e) => {
+                        const val = e.target.valueAsNumber;
+                        if (val > 1000) {
+                            setNumBodies(1000);
+                            return;
+                        }
+                        setNumBodies(e.target.valueAsNumber);
+                    }}
+                    step="1"
+                />
                 <button
-                    onClick={() => {
-                        setRenderToTexture(!renderToTexture);
+                    onClick={(e) => {
+                        e.preventDefault();
+                        dispatch({
+                            type: "universeSettings/setAll",
+                            payload: {
+                                seed: seed,
+                                timeStep: universeSettings.timeStep,
+                                numBodies: numBodies,
+                                size: universeSettings.size,
+                                starThreshold: universeSettings.starThreshold,
+                            },
+                        });
                     }}
                 >
-                    {renderToTexture ? "DISABLE" : "ENABLE"}
+                    Create New Universe
                 </button>
-            </div>
+            </form>
         </SettingsStyle>
     );
 }
@@ -64,4 +96,15 @@ const SettingsStyle = styled.div`
 
     margin-left: auto;
     margin-right: auto;
+
+    form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+
+        input[type="number"] {
+            width: 3rem;
+        }
+    }
 `;
