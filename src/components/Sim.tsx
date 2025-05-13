@@ -56,8 +56,9 @@ export function Sim(props: SimProps) {
 
     const settings = useSelector((state: RootState) => state.universeSettings);
     const dispatch = useDispatch();
+
     /*
-        Camera and universe classes are placed inside of refs to ensure that they are not caught up in re-renders.
+        The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
     const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
@@ -65,7 +66,6 @@ export function Sim(props: SimProps) {
         cameraSensititivy,
     );
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
-
     const universe = useRef<Universe>(new Universe(settings));
 
     /*
@@ -80,7 +80,6 @@ export function Sim(props: SimProps) {
     }, [graphicsSettings.starLight]);
 
     // User controls
-
     const resetSim = useSelector((state: RootState) => state.controls.resetSim);
     const resetCam = useSelector((state: RootState) => state.controls.resetCam);
 
@@ -568,7 +567,6 @@ export function Sim(props: SimProps) {
                             universe.current.colorsB[i],
                             1.0,
                         ]);
-
                         dispatch({
                             type: "debugInfo/setNumActiveUniforms",
                             payload: gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
@@ -621,24 +619,6 @@ export function Sim(props: SimProps) {
                     gl.COLOR_BUFFER_BIT,
                     gl.LINEAR,
                 );
-                // gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
-
-                // gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, null);
-
-                // gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-
-                // gl.blitFramebuffer(
-                //     0,
-                //     0,
-                //     canvas.width,
-                //     canvas.height,
-                //     0,
-                //     0,
-                //     canvas.width,
-                //     canvas.height,
-                //     gl.COLOR_BUFFER_BIT,
-                //     gl.LINEAR,
-                // );
 
                 if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
                     console.error("Framebuffer is not complete");
@@ -677,6 +657,7 @@ export function Sim(props: SimProps) {
                     }
                     gl.useProgram(bloomProgramInfo.program);
 
+                    // Add the scene and blur textures together for a bloom effect
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
                     gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
@@ -684,9 +665,6 @@ export function Sim(props: SimProps) {
                     gl.activeTexture(gl.TEXTURE1);
                     gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
                     gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
-
-                    // gl.useProgram(texQuadProgramInfo.program);
-                    // gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
 
                     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
                     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
