@@ -283,29 +283,6 @@ export function Sim(props: SimProps) {
             /*
                 Custom framebuffer intitialization
             */
-
-            // Create a color attachment texture
-            // Below code does not MSAA properly
-            /*
-            const sceneFrameBuffer = gl.createFramebuffer();
-            gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-
-            const textureColorBuffer = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            const texWidth = canvas.width;
-            const texHeight = canvas.height;
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
-
-            // Create a depth buffer attachment texture
-            const depthRenderBuffer = gl.createRenderbuffer();
-            gl.bindRenderbuffer(gl.RENDERBUFFER, depthRenderBuffer);
-            gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, canvas.width, canvas.height);
-            gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, depthRenderBuffer);
-            */
-
             // Scene to texture with multisampling from the following source:
             // https://stackoverflow.com/questions/47934444/webgl-framebuffer-multisampling
 
