@@ -536,14 +536,6 @@ export function Sim(props: SimProps) {
                             universe.current.colorsB[i],
                             1.0,
                         ]);
-                        dispatch({
-                            type: "debugInfo/setNumActiveUniforms",
-                            payload: gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                        });
-                        dispatch({
-                            type: "debugInfo/setNumActiveUniformVectors",
-                            payload: calculateUniformVectors(gl, starlightProgramInfo.program),
-                        });
                     } else {
                         const normalMatrix = mat4.create();
                         mat4.invert(normalMatrix, modelViewMatrix);
@@ -561,14 +553,6 @@ export function Sim(props: SimProps) {
                             universe.current.colorsB[i],
                             1.0,
                         ]);
-                        dispatch({
-                            type: "debugInfo/setNumActiveUniforms",
-                            payload: gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
-                        });
-                        dispatch({
-                            type: "debugInfo/setNumActiveUniformVectors",
-                            payload: calculateUniformVectors(gl, camlightProgramInfo.program),
-                        });
                     }
 
                     // Draw each sphere
