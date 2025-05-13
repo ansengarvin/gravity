@@ -153,6 +153,16 @@ export function Sim(props: SimProps) {
                 payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
             });
             dispatch({ type: "debugInfo/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
+            let maxBufferBitDepth = "RGBA8";
+            if (gl.getExtension("EXT_color_buffer_float")) {
+                maxBufferBitDepth = "RGBA32F";
+            } else if (gl.getExtension("EXT_color_buffer_half_float")) {
+                maxBufferBitDepth = "RGBA16F";
+            }
+            dispatch({
+                type: "debugInfo/setMaxBufferBitDepth",
+                payload: maxBufferBitDepth,
+            });
 
             /*
                 Initialize all shader programs
@@ -198,6 +208,7 @@ export function Sim(props: SimProps) {
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
+                    uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
                 },
             };
 
@@ -304,11 +315,19 @@ export function Sim(props: SimProps) {
                 texHeight,
             );
 
+            // Check for required extensions
+            const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
+
+            console.log("extColorBufferHalfFloat", extColorBufferHalfFloat);
+
+            const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
+            const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
+
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                gl.RGBA8,
+                renderBufferFormat,
                 texWidth,
                 texHeight,
             );
@@ -317,7 +336,7 @@ export function Sim(props: SimProps) {
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                gl.RGBA8,
+                renderBufferFormat,
                 texWidth,
                 texHeight,
             );
@@ -333,7 +352,17 @@ export function Sim(props: SimProps) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
             const textureColorBuffer = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                renderBufferFormat,
+                texWidth,
+                texHeight,
+                0,
+                gl.RGBA,
+                renderBufferType,
+                null,
+            );
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
@@ -342,7 +371,17 @@ export function Sim(props: SimProps) {
             gl.bindFramebuffer(gl.FRAMEBUFFER, extractFrameBuffer);
             const starExtractTexture = gl.createTexture();
             gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                renderBufferFormat,
+                texWidth,
+                texHeight,
+                0,
+                gl.RGBA,
+                renderBufferType,
+                null,
+            );
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -363,7 +402,17 @@ export function Sim(props: SimProps) {
             for (let i = 0; i < blurFrameBuffer.length; i++) {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[i]);
                 gl.bindTexture(gl.TEXTURE_2D, blurTextures[i]);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, texWidth, texHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+                gl.texImage2D(
+                    gl.TEXTURE_2D,
+                    0,
+                    renderBufferFormat,
+                    texWidth,
+                    texHeight,
+                    0,
+                    gl.RGBA,
+                    renderBufferType,
+                    null,
+                );
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -476,6 +525,9 @@ export function Sim(props: SimProps) {
                         const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                     }
+
+                    const viewPos = cameraRef.current.getPosition();
+                    gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
                 } else {
                     // Bind Buffers
                     setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);

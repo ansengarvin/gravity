@@ -27,6 +27,7 @@ export interface StarlightProgramInfo {
         uStarLocations: WebGLUniformLocation | null;
         uNumStars: WebGLUniformLocation | null;
         uIsStar: WebGLUniformLocation | null;
+        uViewPosition: WebGLUniformLocation | null;
     };
 }
 

@@ -16,6 +16,7 @@ export function DebugStats() {
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
             <div>Max Uniform Buffer Binding Points: {debug.maxUniformBufferBindingPoints}</div>
             <div>Max Antialiasing Samples: {debug.maxSamples}</div>
+            <div>Max Color Buffer Bit Depth: {debug.maxBufferBitDepth}</div>
             <div>Active Uniforms: {debug.numActiveUniforms}</div>
             <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
         </DebugStatsStyle>
