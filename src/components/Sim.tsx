@@ -98,11 +98,16 @@ export function Sim(props: SimProps) {
 
     useEffect(() => {
         universe.current = new Universe(settings);
+        cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
+        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
+        setLeaderboardBodies(universe.current.getActiveBodies(-1));
+        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
     }, [settings]);
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-        dispatch({ type: "debugInfo/unsetBodyFollowed", payload: 0 });
+        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
         dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
