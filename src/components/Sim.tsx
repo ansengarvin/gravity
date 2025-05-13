@@ -69,8 +69,8 @@ export function Sim(props: SimProps) {
     const universe = useRef<Universe>(new Universe(settings));
 
     /*
-        The WebGL renderer cannot access a redux selector's most recent variable, because it lives outside of the react render lifecycle.
-        We must convert all of them to a ref.
+        WebGL and render() live outside of the react lifecycle. Therefore, they cannot access the most recent data from
+        states or selectors. To work around this, I convert them into refs.
     */
     // User-set graphics settings
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
