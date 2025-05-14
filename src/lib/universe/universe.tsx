@@ -2,6 +2,7 @@ import { getRandomFloat } from "../../random/random";
 import { vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
+import { HSLtoRGB } from "../colors/conversions";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -136,10 +137,22 @@ export class Universe {
         }
 
         // Set colors
+        // HSL to RGB conversion: https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
         for (let i = 0; i < this.settings.numBodies; i++) {
-            this.colorsR[i] = getRandomFloat(0.2, 0.85);
-            this.colorsG[i] = getRandomFloat(0.2, 0.85);
-            this.colorsB[i] = getRandomFloat(0.2, 0.85);
+            // Generating bright colors is easier in HSL
+            const H = getRandomFloat(0, 360);
+            const S = getRandomFloat(0.8, 0.9);
+            const L = 0.8;
+
+            // Convert HSL to RGB
+            const colorRGB = HSLtoRGB(H, S, L);
+            this.colorsR[i] = colorRGB.r;
+            this.colorsG[i] = colorRGB.g;
+            this.colorsB[i] = colorRGB.b;
+
+            // this.colorsR[i] = getRandomFloat(0.2, 0.85);
+            // this.colorsG[i] = getRandomFloat(0.2, 0.85);
+            // this.colorsB[i] = getRandomFloat(0.2, 0.85);
         }
 
         this.setOrbitalInformation();
