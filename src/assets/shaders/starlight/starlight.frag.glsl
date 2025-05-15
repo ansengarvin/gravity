@@ -6,7 +6,6 @@
 uniform highp vec4 uFragColor;
 in highp vec3 vNormal;
 
-
 in highp vec3 vFragPosition;
 
 uniform highp int uNumStars;
@@ -29,6 +28,7 @@ const highp vec3 starDiffuse = vec3(1.0, 1.0, 1.0);
 const highp vec3 starSpecular = vec3(1.0, 1.0, 1.0);
 
 const highp vec3 materialDiffuse = vec3(1.0, 1.0, 1.0);
+//const highp vec3 materialSpecular = vec3(1.0, 1.0, 1.0);
 const highp vec3 materialSpecular = vec3(0.0, 0.0, 0.0);
 const highp float materialShininess = 32.0;
 
@@ -40,16 +40,18 @@ highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3
     // specular shading
     highp vec3 reflectDir = reflect(-lightDir, normal);
     highp float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
+    if (spec < 0.01) {
+        spec = 0.0;
+    }
 
     // attenuation
     highp float dist = length(starLoc - fragPos);
     highp float attenuation = 1.0 / (starConstant + (starLinear * dist) + (starQuadratic * (dist * dist)));
-    attenuation = smoothstep(0.0, 1.0, attenuation);
 
     // results
-    highp vec3 ambient = starAmbient * materialDiffuse * uFragColor.rgb;
+    highp vec3 ambient = starAmbient * materialDiffuse;
     highp vec3 diffuse = starDiffuse * diff * materialDiffuse * uFragColor.rgb;
-    highp vec3 specular = starSpecular * spec * materialSpecular * uFragColor.rgb;
+    highp vec3 specular = starSpecular * spec * materialSpecular;
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -65,7 +67,7 @@ void main(void) {
 
     // Set regular dim ambient color
     highp vec3 ambient = vec3(0.005, 0.005, 0.005);
-    highp vec3 result = ambient * uFragColor.rgb;
+    highp vec3 result = ambient;
 
     for (int i = 0; i < MAX_STARS; i++) {
         if (i >= uNumStars) {
@@ -75,7 +77,7 @@ void main(void) {
     }
 
     // Apply the result to the fragment color
-    fragColor = vec4(result, 1.0);
+    fragColor = vec4(result * uFragColor.rgb, 1.0);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);

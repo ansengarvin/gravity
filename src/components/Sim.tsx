@@ -120,8 +120,14 @@ export function Sim(props: SimProps) {
     /*
         Set up WebGL Renderer
     */
+    const initializedRef = useRef(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
+        if (initializedRef.current) {
+            return;
+        } else {
+            initializedRef.current = true;
+        }
         const canvas = canvasRef.current;
         if (!canvas) {
             console.error("Canvas element not found");
@@ -135,6 +141,7 @@ export function Sim(props: SimProps) {
         }
 
         const initialize = async () => {
+            console.log("Initialize called.");
             // Set sorted universe parameters initially
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
