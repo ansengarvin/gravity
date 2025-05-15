@@ -2,7 +2,6 @@
 
 in vec4 aVertexPosition;
 in vec3 aVertexNormal;
-in vec2 aTex
 
 uniform mat4 uNormalMatrix;
 uniform mat4 uModelMatrix;

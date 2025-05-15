@@ -28,6 +28,7 @@ const highp vec3 starDiffuse = vec3(1.0, 1.0, 1.0);
 const highp vec3 starSpecular = vec3(1.0, 1.0, 1.0);
 
 const highp vec3 materialDiffuse = vec3(1.0, 1.0, 1.0);
+//const highp vec3 materialSpecular = vec3(1.0, 1.0, 1.0);
 const highp vec3 materialSpecular = vec3(0.0, 0.0, 0.0);
 const highp float materialShininess = 32.0;
 
@@ -39,6 +40,9 @@ highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3
     // specular shading
     highp vec3 reflectDir = reflect(-lightDir, normal);
     highp float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
+    if (spec < 0.01) {
+        spec = 0.0;
+    }
 
     // attenuation
     highp float dist = length(starLoc - fragPos);
