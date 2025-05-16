@@ -24,8 +24,8 @@ export interface DebugStatsState {
 
 const initialState: DebugStatsState = {
     showDebug: false,
-    showCircles: true,
-    circleType: CircleType.INCREMENTAL,
+    showCircles: false,
+    circleType: CircleType.SOLAR,
     numActiveBodies: 0,
     numStars: 0,
     maxVertexUniformVectors: 0,
