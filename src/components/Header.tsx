@@ -3,6 +3,19 @@ import styled from "@emotion/styled";
 import { color_offwhite } from "../lib/defines/colors.tsx";
 import { tablet, phone } from "../lib/defines/screenWidths.tsx";
 
+export function Header() {
+    return (
+        <Headerbar>
+            <Left>
+                <a href="https://ansengarvin.com/projects">See Other Projects</a>
+            </Left>
+            <Center>
+                <h1>Gravity</h1>
+            </Center>
+        </Headerbar>
+    );
+}
+
 const Headerbar = styled.div`
     grid-area: top;
     height: 50px;
@@ -76,16 +89,3 @@ const Center = styled.div`
         }
     }
 `;
-
-export function Header() {
-    return (
-        <Headerbar>
-            <Left>
-                <a href="https://ansengarvin.com/projects">See Other Projects</a>
-            </Left>
-            <Center>
-                <h1>Gravity</h1>
-            </Center>
-        </Headerbar>
-    );
-}
