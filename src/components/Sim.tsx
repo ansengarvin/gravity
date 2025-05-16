@@ -372,18 +372,13 @@ export function Sim(props: SimProps) {
             // const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
             // const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
 
-            // let renderBufferFormat: 6408 | 34842 | 34836 = gl.RGBA;
-            // let renderBufferType: 5121 | 5131 | 5126 = gl.UNSIGNED_BYTE;
+            let renderBufferInternalFormat: GLenum = gl.RGBA8;
 
-            // if (gl.getExtension("EXT_color_buffer_float")) {
-            //     renderBufferFormat = gl.RGBA32F;
-            //     renderBufferType = gl.FLOAT;
-            // } else if (gl.getExtension("EXT_color_buffer_half_float")) {
-            //     renderBufferFormat = gl.RGBA16F;
-            //     renderBufferType = gl.HALF_FLOAT;
-            // }
-
-            let renderBufferInternalFormat: GLenum = gl.RGBA32F;
+            if (rgba32fSupported && oesTextureFloatLinearSupported) {
+                renderBufferInternalFormat = gl.RGBA32F;
+            } else if (rgba16fSupported) {
+                renderBufferInternalFormat = gl.RGBA16F;
+            }
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
