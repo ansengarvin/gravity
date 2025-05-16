@@ -1,9 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export interface InformationState {
-    // Universe debug variables
+    // Universe information variables
     numActiveBodies: number;
     numStars: number;
+    yearsElapsed: number;
     // Graphics debug variables
     maxVertexUniformVectors: number;
     maxFragmentUniformVectors: number;
@@ -17,6 +18,7 @@ export interface InformationState {
 const initialState: InformationState = {
     numActiveBodies: 0,
     numStars: 0,
+    yearsElapsed: 0,
     maxVertexUniformVectors: 0,
     maxFragmentUniformVectors: 0,
     maxUniformBufferBindingPoints: 0,
@@ -56,6 +58,9 @@ export const informationSlice = createSlice({
         },
         setNumActiveUniformVectors: (state, action) => {
             state.numActiveUniformVectors = action.payload;
+        },
+        setYearsElapsed: (state, action) => {
+            state.yearsElapsed = action.payload;
         },
     },
 });

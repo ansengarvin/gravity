@@ -522,6 +522,10 @@ export function Sim(props: SimProps) {
                             ? calculateUniformVectors(gl, starlightProgramInfo.program)
                             : calculateUniformVectors(gl, camlightProgramInfo.program),
                     });
+                    dispatch({
+                        type: "information/setYearsElapsed",
+                        payload: universe.current.timeElapsed,
+                    });
                     uiAccumulatedTime = 0;
                 }
 

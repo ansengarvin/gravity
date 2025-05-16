@@ -6,6 +6,10 @@ import { useState } from "react";
 export function InfoBox() {
     const dispatch = useDispatch();
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const yearsElapsed = useSelector((state: RootState) => state.information.yearsElapsed);
+
+    const years = Math.floor(yearsElapsed);
+    const months = Math.floor((yearsElapsed - years) * 12);
 
     const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
     if (bodyFollowed != -1 && camAtOrigin) {
@@ -14,7 +18,9 @@ export function InfoBox() {
 
     return (
         <InfoBoxStyle>
-            <div className="tp">Year</div>
+            <div className="tp">
+                {years} years {months} months
+            </div>
             <div className="lt" />
             <div className="ct">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
             <div className="rt">
