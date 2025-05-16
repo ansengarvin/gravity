@@ -20,17 +20,17 @@ uniform highp vec3 uViewPosition;
 layout(location=0) out highp vec4 fragColor;
 layout(location=1) out highp vec4 brightColor;
 
-const highp float starConstant = 1.0;
-const highp float starLinear = 0.09;
-const highp float starQuadratic = 0.032;
-const highp vec3 starAmbient = vec3(0, 0, 0);
-const highp vec3 starDiffuse = vec3(1.0, 1.0, 1.0);
-const highp vec3 starSpecular = vec3(1.0, 1.0, 1.0);
+const highp float STAR_CONSTANT = 1.0;
+const highp float STAR_LINEAR = 0.09;
+const highp float STAR_QUADRATIC = 0.032;
+const highp vec3 STAR_AMBIENT = vec3(0, 0, 0);
+const highp vec3 STAR_DIFFUSE = vec3(1.0, 1.0, 1.0);
+const highp vec3 STAR_SPECULAR = vec3(1.0, 1.0, 1.0);
 
-const highp vec3 materialDiffuse = vec3(1.0, 1.0, 1.0);
-//const highp vec3 materialSpecular = vec3(1.0, 1.0, 1.0);
-const highp vec3 materialSpecular = vec3(0.0, 0.0, 0.0);
-const highp float materialShininess = 32.0;
+const highp vec3 MATERIAL_DIFFUSE = vec3(1.0, 1.0, 1.0);
+//const highp vec3 MATERIAL_SPECULAR = vec3(1.0, 1.0, 1.0);
+const highp vec3 MATERIAL_SPECULAR = vec3(0.0, 0.0, 0.0);
+const highp float MATERIAL_SHINNINESS = 32.0;
 
 highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3 fragPos, highp vec3 viewDir) {
 
@@ -39,19 +39,19 @@ highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3
     highp float diff = max(dot(normal, lightDir), 0.0);
     // specular shading
     highp vec3 reflectDir = reflect(-lightDir, normal);
-    highp float spec = pow(max(dot(viewDir, reflectDir), 0.0), materialShininess);
+    highp float spec = pow(max(dot(viewDir, reflectDir), 0.0), MATERIAL_SHINNINESS);
     if (spec < 0.01) {
         spec = 0.0;
     }
 
     // attenuation
     highp float dist = length(starLoc - fragPos);
-    highp float attenuation = 1.0 / (starConstant + (starLinear * dist) + (starQuadratic * (dist * dist)));
+    highp float attenuation = 1.0 / (STAR_CONSTANT + (STAR_LINEAR * dist) + (STAR_QUADRATIC * (dist * dist)));
 
     // results
-    highp vec3 ambient = starAmbient * materialDiffuse;
-    highp vec3 diffuse = starDiffuse * diff * materialDiffuse * uFragColor.rgb;
-    highp vec3 specular = starSpecular * spec * materialSpecular;
+    highp vec3 ambient = STAR_AMBIENT * MATERIAL_DIFFUSE;
+    highp vec3 diffuse = STAR_DIFFUSE * diff * MATERIAL_DIFFUSE * uFragColor.rgb;
+    highp vec3 specular = STAR_SPECULAR * spec * MATERIAL_SPECULAR;
 
     ambient *= attenuation;
     diffuse *= attenuation;
