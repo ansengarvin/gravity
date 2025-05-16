@@ -193,6 +193,7 @@ export function Sim(props: SimProps) {
                 uniformLocations: {
                     projectionMatrix: gl.getUniformLocation(simpleShaderProgram, "uProjectionMatrix"),
                     modelViewMatrix: gl.getUniformLocation(simpleShaderProgram, "uModelViewMatrix"),
+                    uFragColor: gl.getUniformLocation(simpleShaderProgram, "uFragColor"),
                 },
             };
 
@@ -570,6 +571,7 @@ export function Sim(props: SimProps) {
                         false,
                         circleModelViewMatrix,
                     );
+                    gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
 
                     gl.lineWidth(4.0);
                     gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);

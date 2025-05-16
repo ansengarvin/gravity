@@ -10,6 +10,7 @@ export interface SimpleProgramInfo {
     uniformLocations: {
         projectionMatrix: WebGLUniformLocation | null;
         modelViewMatrix: WebGLUniformLocation | null;
+        uFragColor: WebGLUniformLocation | null;
     };
 }
 

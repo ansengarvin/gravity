@@ -3,7 +3,9 @@
 layout(location=0) out highp vec4 fragColor;
 layout(location=1) out highp vec4 brightColor;
 
+uniform highp vec4 uFragColor;
+
 void main(void) {
-    fragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    fragColor = uFragColor;
     brightColor = vec4(0.0, 0.0, 0.0, 0.0);
 }
