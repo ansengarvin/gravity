@@ -158,6 +158,11 @@ export function Sim(props: SimProps) {
             // Set sorted universe parameters initially
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
+            // Enable necessary openGL extensions and store results
+            const rgba32fSupported = gl.getExtension("EXT_color_buffer_float") != null;
+            const rgba16fSupported = gl.getExtension("EXT_color_buffer_half_float") !== null;
+            const oesTextureFloatLinearSupported = gl.getExtension("OES_texture_float_linear") !== null;
+
             // Set unchanging webGL debug text
             dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
             dispatch({
@@ -175,11 +180,11 @@ export function Sim(props: SimProps) {
             dispatch({ type: "information/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
             dispatch({
                 type: "information/setRgba32fSupported",
-                payload: gl.getExtension("EXT_color_buffer_float") !== null,
+                payload: rgba32fSupported,
             });
             dispatch({
                 type: "information/setRgba16fSupported",
-                payload: gl.getExtension("EXT_color_buffer_half_float") !== null,
+                payload: rgba16fSupported,
             });
 
             /*
