@@ -568,7 +568,7 @@ export function Sim(props: SimProps) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
                     setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
 
-                    const dAUIncremental = [1, 2, 3, 4, 5, 10, 15, 20, 25, 30, 40, 50];
+                    const dAUIncremental = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50];
                     const dAUSolar = [
                         SolarSystemDistanceAU.MERCURY,
                         SolarSystemDistanceAU.VENUS,
