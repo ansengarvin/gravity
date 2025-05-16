@@ -187,6 +187,14 @@ export function Sim(props: SimProps) {
                 type: "information/setRgba16fSupported",
                 payload: rgba16fSupported,
             });
+            dispatch({
+                type: "information/setOesTextureFloatSupported",
+                payload: oesTextureFloatLinearSupported,
+            });
+            dispatch({
+                type: "information/setOesTextureHalfFloatSupported",
+                payload: oesTextureHalfFloatLinearSupported,
+            });
 
             /*
                 Initialize all shader programs
