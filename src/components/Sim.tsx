@@ -384,8 +384,21 @@ export function Sim(props: SimProps) {
             let renderBufferInternalFormat: GLenum = gl.RGBA8;
             if (rgba32fSupported && oesTextureFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA32F;
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA32F",
+                });
             } else if (rgba16fSupported && oesTextureHalfFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA16F;
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA16F",
+                });
+            } else {
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA8",
+                });
             }
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);

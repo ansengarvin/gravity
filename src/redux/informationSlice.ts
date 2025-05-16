@@ -16,6 +16,7 @@ export interface InformationState {
     oesHalfFloatLinearSupported: boolean | null;
     numActiveUniforms: number | null;
     numActiveUniformVectors: number | null;
+    internalFormatUsed: string | null;
 }
 
 const initialState: InformationState = {
@@ -34,6 +35,7 @@ const initialState: InformationState = {
     oesHalfFloatLinearSupported: null,
     numActiveUniforms: null,
     numActiveUniformVectors: null,
+    internalFormatUsed: null,
 };
 
 export const informationSlice = createSlice({
@@ -78,6 +80,9 @@ export const informationSlice = createSlice({
         },
         setOesHalfFloatLinearSupported: (state, action) => {
             state.oesHalfFloatLinearSupported = action.payload;
+        },
+        setInternalFormatUsed: (state, action) => {
+            state.internalFormatUsed = action.payload;
         },
     },
 });

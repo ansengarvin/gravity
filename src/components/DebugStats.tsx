@@ -15,7 +15,11 @@ export function DebugStats() {
             <div>Max Vertex Uniform Vectors: {debug.maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
             <div>Max Uniform Buffer Binding Points: {debug.maxUniformBufferBindingPoints}</div>
-            <div>Max Samples: {debug.maxSamples}</div>
+            <div>Max AA Samples: {debug.maxSamples}</div>
+            <div>Active Uniforms: {debug.numActiveUniforms}</div>
+            <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
+            <h3>OpenGL Extensions</h3>
+            <div>Intenal Format Used: {debug.internalFormatUsed}</div>
             <div>
                 RBGA32F Supported: {debug.rgba32fSupported !== null ? (debug.rgba32fSupported ? "TRUE" : "FALSE") : ""}
             </div>
@@ -34,8 +38,6 @@ export function DebugStats() {
                         : "FALSE"
                     : ""}
             </div>
-            <div>Active Uniforms: {debug.numActiveUniforms}</div>
-            <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
         </DebugStatsStyle>
     );
 }
