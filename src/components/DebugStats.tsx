@@ -15,11 +15,29 @@ export function DebugStats() {
             <div>Max Vertex Uniform Vectors: {debug.maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
             <div>Max Uniform Buffer Binding Points: {debug.maxUniformBufferBindingPoints}</div>
-            <div>Max Samples: {debug.maxSamples}</div>
-            <div>RBGA32F Supported: {debug.rgba32fSupported ? "TRUE" : "FALSE"}</div>
-            <div>RBGA16F Supported: {debug.rgba16fSupported ? "TRUE" : "FALSE"}</div>
+            <div>Max AA Samples: {debug.maxSamples}</div>
             <div>Active Uniforms: {debug.numActiveUniforms}</div>
             <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
+            <div>Intenal Format Used: {debug.internalFormatUsed}</div>
+            <h3>OpenGL Extensions</h3>
+            <div>
+                RBGA32F Supported: {debug.rgba32fSupported !== null ? (debug.rgba32fSupported ? "TRUE" : "FALSE") : ""}
+            </div>
+            <div>
+                OES Float Linear Supported:{" "}
+                {debug.oesFloatLinearSupported !== null ? (debug.oesFloatLinearSupported ? "TRUE" : "FALSE") : ""}
+            </div>
+            <div>
+                RBGA16F Supported: {debug.rgba16fSupported !== null ? (debug.rgba16fSupported ? "TRUE" : "FALSE") : ""}
+            </div>
+            <div>
+                OES Half Float Linear Supported:{" "}
+                {debug.oesHalfFloatLinearSupported !== null
+                    ? debug.oesHalfFloatLinearSupported
+                        ? "TRUE"
+                        : "FALSE"
+                    : ""}
+            </div>
         </DebugStatsStyle>
     );
 }

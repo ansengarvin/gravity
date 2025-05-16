@@ -12,8 +12,11 @@ export interface InformationState {
     maxSamples: number | null;
     rgba32fSupported: boolean | null;
     rgba16fSupported: boolean | null;
+    oesFloatLinearSupported: boolean | null;
+    oesHalfFloatLinearSupported: boolean | null;
     numActiveUniforms: number | null;
     numActiveUniformVectors: number | null;
+    internalFormatUsed: string | null;
 }
 
 const initialState: InformationState = {
@@ -28,8 +31,11 @@ const initialState: InformationState = {
     maxSamples: null,
     rgba32fSupported: null,
     rgba16fSupported: null,
+    oesFloatLinearSupported: null,
+    oesHalfFloatLinearSupported: null,
     numActiveUniforms: null,
     numActiveUniformVectors: null,
+    internalFormatUsed: null,
 };
 
 export const informationSlice = createSlice({
@@ -68,6 +74,15 @@ export const informationSlice = createSlice({
         },
         setRgba16fSupported: (state, action) => {
             state.rgba16fSupported = action.payload;
+        },
+        setOesFloatLinearSupported: (state, action) => {
+            state.oesFloatLinearSupported = action.payload;
+        },
+        setOesHalfFloatLinearSupported: (state, action) => {
+            state.oesHalfFloatLinearSupported = action.payload;
+        },
+        setInternalFormatUsed: (state, action) => {
+            state.internalFormatUsed = action.payload;
         },
     },
 });

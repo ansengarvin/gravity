@@ -158,6 +158,12 @@ export function Sim(props: SimProps) {
             // Set sorted universe parameters initially
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
+            // Enable necessary openGL extensions and store results
+            const rgba32fSupported = gl.getExtension("EXT_color_buffer_float") != null;
+            const rgba16fSupported = gl.getExtension("EXT_color_buffer_half_float") !== null;
+            const oesTextureFloatLinearSupported = gl.getExtension("OES_texture_float_linear") !== null;
+            const oesTextureHalfFloatLinearSupported = gl.getExtension("OES_texture_half_float_linear") !== null;
+
             // Set unchanging webGL debug text
             dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
             dispatch({
@@ -175,12 +181,21 @@ export function Sim(props: SimProps) {
             dispatch({ type: "information/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
             dispatch({
                 type: "information/setRgba32fSupported",
-                payload: gl.getExtension("EXT_color_buffer_float") !== null,
+                payload: rgba32fSupported,
             });
             dispatch({
                 type: "information/setRgba16fSupported",
-                payload: gl.getExtension("EXT_color_buffer_half_float") !== null,
+                payload: rgba16fSupported,
             });
+            dispatch({
+                type: "information/setOesFloatLinearSupported",
+                payload: oesTextureFloatLinearSupported,
+            });
+            dispatch({
+                type: "information/setOesHalfFloatLinearSupported",
+                payload: oesTextureHalfFloatLinearSupported,
+            });
+            console.log(oesTextureHalfFloatLinearSupported);
 
             /*
                 Initialize all shader programs
@@ -362,17 +377,35 @@ export function Sim(props: SimProps) {
                 texHeight,
             );
 
-            // Check for required extensions
-            const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
+            /*
+                Define MSAA render buffers
+            */
 
-            const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
-            const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
+            let renderBufferInternalFormat: GLenum = gl.RGBA8;
+            if (rgba32fSupported && oesTextureFloatLinearSupported) {
+                renderBufferInternalFormat = gl.RGBA32F;
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA32F",
+                });
+            } else if (rgba16fSupported && oesTextureHalfFloatLinearSupported) {
+                renderBufferInternalFormat = gl.RGBA16F;
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA16F",
+                });
+            } else {
+                dispatch({
+                    type: "information/setInternalFormatUsed",
+                    payload: "RGBA8",
+                });
+            }
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                renderBufferFormat,
+                renderBufferInternalFormat,
                 texWidth,
                 texHeight,
             );
@@ -381,7 +414,7 @@ export function Sim(props: SimProps) {
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                renderBufferFormat,
+                renderBufferInternalFormat,
                 texWidth,
                 texHeight,
             );
@@ -396,18 +429,21 @@ export function Sim(props: SimProps) {
             // Create the texture that the entire unmodified scene is rendered to
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
             const textureColorBuffer = gl.createTexture();
+
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                renderBufferFormat,
-                texWidth,
-                texHeight,
-                0,
-                gl.RGBA,
-                renderBufferType,
-                null,
-            );
+            // gl.texImage2D(
+            //     gl.TEXTURE_2D,
+            //     0,
+            //     renderBufferInternalFormat,
+            //     texWidth,
+            //     texHeight,
+            //     0,
+            //     gl.RGBA,
+            //     renderBufferType,
+            //     null,
+            // );
+            gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
+
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
@@ -415,18 +451,21 @@ export function Sim(props: SimProps) {
             // Create the texture where only the stars are rendered (for bloom)
             gl.bindFramebuffer(gl.FRAMEBUFFER, extractFrameBuffer);
             const starExtractTexture = gl.createTexture();
+
             gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                renderBufferFormat,
-                texWidth,
-                texHeight,
-                0,
-                gl.RGBA,
-                renderBufferType,
-                null,
-            );
+            // gl.texImage2D(
+            //     gl.TEXTURE_2D,
+            //     0,
+            //     renderBufferInternalFormat,
+            //     texWidth,
+            //     texHeight,
+            //     0,
+            //     gl.RGBA,
+            //     renderBufferType,
+            //     null,
+            // );
+            gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
+
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -447,17 +486,18 @@ export function Sim(props: SimProps) {
             for (let i = 0; i < blurFrameBuffer.length; i++) {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[i]);
                 gl.bindTexture(gl.TEXTURE_2D, blurTextures[i]);
-                gl.texImage2D(
-                    gl.TEXTURE_2D,
-                    0,
-                    renderBufferFormat,
-                    texWidth,
-                    texHeight,
-                    0,
-                    gl.RGBA,
-                    renderBufferType,
-                    null,
-                );
+                // gl.texImage2D(
+                //     gl.TEXTURE_2D,
+                //     0,
+                //     renderBufferInternalFormat,
+                //     texWidth,
+                //     texHeight,
+                //     0,
+                //     gl.RGBA,
+                //     renderBufferType,
+                //     null,
+                // );
+                gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
