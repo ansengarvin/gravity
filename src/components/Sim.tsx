@@ -3,6 +3,7 @@ import {
     BloomProgramInfo,
     CamlightProgramInfo,
     GaussianBlurProgramInfo,
+    SimpleProgramInfo,
     StarlightProgramInfo,
     TexQuadProgramInfo,
 } from "../lib/webGL/shaderPrograms";
@@ -14,6 +15,8 @@ import { Camera } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
+import fragSimple from "../assets/shaders/simple/simple.frag.glsl?raw";
+import vertSimple from "../assets/shaders/simple/simple.vert.glsl?raw";
 import fragLightGlobal from "../assets/shaders/camlight/camlight.frag.glsl?raw";
 import vertLightGlobal from "../assets/shaders/camlight/camlight.vert.glsl?raw";
 import fragLightStars from "../assets/shaders/starlight/starlight.frag.glsl?raw";
@@ -38,6 +41,7 @@ import { calculateUniformVectors } from "./DebugStats";
 import { LeaderboardBody } from "./Leaderboard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { getCirclePositions } from "../lib/webGL/shapes";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -45,6 +49,7 @@ const cameraSensititivy = 0.01;
 const fieldOfView = (45 * Math.PI) / 180; // in radians
 const zNear = 0.1;
 const zFar = 100.0;
+const NUM_CIRCLE_VERTICES = 100;
 
 interface SimProps {
     // leaderboard information
@@ -141,7 +146,6 @@ export function Sim(props: SimProps) {
         }
 
         const initialize = async () => {
-            console.log("Initialize called.");
             // Set sorted universe parameters initially
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
@@ -174,6 +178,24 @@ export function Sim(props: SimProps) {
             /*
                 Initialize all shader programs
             */
+            const simpleShaderProgram = initShaderProgram(gl, vertSimple, fragSimple);
+            if (!simpleShaderProgram) {
+                console.error("Failed to initialize shader program");
+                return;
+            }
+            const simpleProgramInfo: SimpleProgramInfo = {
+                program: simpleShaderProgram,
+                attribLocations: {
+                    vertexPosition: gl.getAttribLocation(simpleShaderProgram, "aVertexPosition"),
+                    vertexNormal: gl.getAttribLocation(simpleShaderProgram, "aVertexNormal"),
+                    texCoords: gl.getAttribLocation(simpleShaderProgram, "aTexCoords"),
+                },
+                uniformLocations: {
+                    projectionMatrix: gl.getUniformLocation(simpleShaderProgram, "uProjectionMatrix"),
+                    modelViewMatrix: gl.getUniformLocation(simpleShaderProgram, "uModelViewMatrix"),
+                },
+            };
+
             const camlightShaderProgram = initShaderProgram(gl, vertLightGlobal, fragLightGlobal);
             if (!camlightShaderProgram) {
                 console.error("Failed to initialize camera light shader");
@@ -285,7 +307,7 @@ export function Sim(props: SimProps) {
                 return;
             }
 
-            // Create a simple quad
+            // Create a simple quad for the purpose of displaying a rendered texture
             const quadModel: Model = {
                 positions: new Float32Array([-1.0, 1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
                 texCoords: new Float32Array([0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 1.0]),
@@ -294,6 +316,16 @@ export function Sim(props: SimProps) {
                 indexCount: 0,
             };
             const quadBuffers = initBuffers(gl, quadModel);
+
+            // Create a simple circle for the purpose of displaying debug distance circles
+            const circleModel: Model = {
+                positions: getCirclePositions([0, 0, 0], 1, NUM_CIRCLE_VERTICES),
+                texCoords: new Float32Array(),
+                indices: new Uint16Array(),
+                normals: new Float32Array(),
+                indexCount: 0,
+            };
+            const circleBuffers = initBuffers(gl, circleModel);
 
             /*
                 Custom framebuffer intitialization
@@ -324,8 +356,6 @@ export function Sim(props: SimProps) {
 
             // Check for required extensions
             const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
-
-            console.log("extColorBufferHalfFloat", extColorBufferHalfFloat);
 
             const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
             const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
@@ -506,11 +536,51 @@ export function Sim(props: SimProps) {
                 }
                 const viewMatrix = cameraRef.current.getViewMatrix();
 
+                // Bind scene framebuffer and clear
+                gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+                gl.clearDepth(1.0); // Clear everything
+                gl.enable(gl.DEPTH_TEST); // Enable depth testing
+                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                /*
+                    Draw debug circles
+                */
+                gl.useProgram(simpleProgramInfo.program);
+                gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
+                setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
+
+                const dAU = [1, 2, 3, 4, 5, 10, 20, 50];
+
+                for (let i = 0; i < 5; i++) {
+                    const circleModelMatrix = mat4.create();
+                    mat4.translate(circleModelMatrix, circleModelMatrix, [
+                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsX[bodyFollowedRef.current],
+                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsY[bodyFollowedRef.current],
+                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsZ[bodyFollowedRef.current],
+                    ]);
+                    mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
+                    const circleModelViewMatrix = mat4.create();
+                    mat4.multiply(circleModelViewMatrix, viewMatrix, circleModelMatrix);
+
+                    gl.uniformMatrix4fv(simpleProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
+                    gl.uniformMatrix4fv(
+                        simpleProgramInfo.uniformLocations.modelViewMatrix,
+                        false,
+                        circleModelViewMatrix,
+                    );
+
+                    gl.lineWidth(4.0);
+                    gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
+                }
+
                 // Bind sphere buffers
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
                 gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
 
+                // Set sphere lighting shader
                 if (starLightRef.current) {
                     setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                     setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
@@ -545,15 +615,6 @@ export function Sim(props: SimProps) {
                     // Bind projection matrix
                     gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
                 }
-
-                // First framebuffer pass
-                gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-
-                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-                gl.clearDepth(1.0); // Clear everything
-                gl.enable(gl.DEPTH_TEST); // Enable depth testing
-                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
                 /*
                     Draw Scene
@@ -622,6 +683,7 @@ export function Sim(props: SimProps) {
                     // Draw each sphere
                     {
                         const type = gl.UNSIGNED_SHORT;
+                        2;
                         const offset = 0;
                         gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
                     }
@@ -699,7 +761,7 @@ export function Sim(props: SimProps) {
                     }
                     gl.useProgram(bloomProgramInfo.program);
 
-                    // Add the scene and blur textures together for a bloom effect
+                    // Add the blur texture and scene texture together for bloom
                     gl.activeTexture(gl.TEXTURE0);
                     gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
                     gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);

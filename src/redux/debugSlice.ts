@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export interface DebugStatsState {
     showDebug: boolean;
+    showCircles: boolean;
     // Universe debug variables
     numActiveBodies: number;
     numStars: number;
@@ -17,6 +18,7 @@ export interface DebugStatsState {
 
 const initialState: DebugStatsState = {
     showDebug: false,
+    showCircles: true,
     numActiveBodies: 0,
     numStars: 0,
     maxVertexUniformVectors: 0,
@@ -34,6 +36,9 @@ export const debugInfoSlice = createSlice({
     reducers: {
         toggleDebug: (state) => {
             state.showDebug = !state.showDebug;
+        },
+        toggleCircles: (state) => {
+            state.showCircles = !state.showCircles;
         },
         setNumActiveBodies: (state, action) => {
             state.numActiveBodies = action.payload;
