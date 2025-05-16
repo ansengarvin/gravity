@@ -41,6 +41,10 @@ export class Camera {
         this.target.z = z;
     }
 
+    public getTarget(): vec3 {
+        return vec3.fromValues(this.target.x, this.target.y, this.target.z);
+    }
+
     public getViewMatrix(): mat4 {
         const viewMatrix = mat4.create();
         const cameraPosition = this.getPosition();

@@ -594,12 +594,14 @@ export function Sim(props: SimProps) {
 
                     const dAU = circleTypeRef.current === CircleType.SOLAR ? dAUSolar : dAUIncremental;
 
+                    const camTarget = cameraRef.current.getTarget();
+
                     for (let i = 0; i < dAU.length; i++) {
                         const circleModelMatrix = mat4.create();
                         mat4.translate(circleModelMatrix, circleModelMatrix, [
-                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsX[bodyFollowedRef.current],
-                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsY[bodyFollowedRef.current],
-                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsZ[bodyFollowedRef.current],
+                            camTarget[0],
+                            camTarget[1],
+                            camTarget[2],
                         ]);
                         mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
                         const circleModelViewMatrix = mat4.create();
