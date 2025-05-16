@@ -116,7 +116,7 @@ const InfoBoxStyle = styled.div`
         border-radius: 5px;
         font-size: 0.9rem;
         height: 35px;
-        width: 110px;
+        width: 115px;
 
         background-color: black;
 
