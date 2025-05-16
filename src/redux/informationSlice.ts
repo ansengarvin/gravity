@@ -6,26 +6,30 @@ export interface InformationState {
     numStars: number;
     yearsElapsed: number;
     // Graphics debug variables
-    maxVertexUniformVectors: number;
-    maxFragmentUniformVectors: number;
-    maxUniformBufferBindingPoints: number;
-    maxSamples: number;
-    maxBufferBitDepth: string;
-    numActiveUniforms: number;
-    numActiveUniformVectors: number;
+    maxVertexUniformVectors: number | null;
+    maxFragmentUniformVectors: number | null;
+    maxUniformBufferBindingPoints: number | null;
+    maxSamples: number | null;
+    rgba32fSupported: boolean | null;
+    rgba16fSupported: boolean | null;
+    numActiveUniforms: number | null;
+    numActiveUniformVectors: number | null;
 }
 
 const initialState: InformationState = {
     numActiveBodies: 0,
     numStars: 0,
     yearsElapsed: 0,
-    maxVertexUniformVectors: 0,
-    maxFragmentUniformVectors: 0,
-    maxUniformBufferBindingPoints: 0,
-    maxSamples: 0,
-    maxBufferBitDepth: "",
-    numActiveUniforms: 0,
-    numActiveUniformVectors: 0,
+    // Debug variables are actually initialized by the program.
+    // Set to null here so if these dispatches fail, we can know.
+    maxVertexUniformVectors: null,
+    maxFragmentUniformVectors: null,
+    maxUniformBufferBindingPoints: null,
+    maxSamples: null,
+    rgba32fSupported: null,
+    rgba16fSupported: null,
+    numActiveUniforms: null,
+    numActiveUniformVectors: null,
 };
 
 export const informationSlice = createSlice({
@@ -50,9 +54,6 @@ export const informationSlice = createSlice({
         setMaxSamples: (state, action) => {
             state.maxSamples = action.payload;
         },
-        setMaxBufferBitDepth: (state, action) => {
-            state.maxBufferBitDepth = action.payload;
-        },
         setNumActiveUniforms: (state, action) => {
             state.numActiveUniforms = action.payload;
         },
@@ -61,6 +62,12 @@ export const informationSlice = createSlice({
         },
         setYearsElapsed: (state, action) => {
             state.yearsElapsed = action.payload;
+        },
+        setRgba32fSupported: (state, action) => {
+            state.rgba32fSupported = action.payload;
+        },
+        setRgba16fSupported: (state, action) => {
+            state.rgba16fSupported = action.payload;
         },
     },
 });
