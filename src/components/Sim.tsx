@@ -164,6 +164,7 @@ export function Sim(props: SimProps) {
                 type: "information/setMaxVertexUniformVectors",
                 payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
             });
+            console.log(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             dispatch({
                 type: "information/setMaxFragmentUniformVectors",
                 payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
@@ -173,15 +174,13 @@ export function Sim(props: SimProps) {
                 payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
             });
             dispatch({ type: "information/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
-            let maxBufferBitDepth = "RGBA8";
-            if (gl.getExtension("EXT_color_buffer_float")) {
-                maxBufferBitDepth = "RGBA32F";
-            } else if (gl.getExtension("EXT_color_buffer_half_float")) {
-                maxBufferBitDepth = "RGBA16F";
-            }
             dispatch({
-                type: "information/setMaxBufferBitDepth",
-                payload: maxBufferBitDepth,
+                type: "information/setRgba32fSupported",
+                payload: gl.getExtension("EXT_color_buffer_float") !== null,
+            });
+            dispatch({
+                type: "information/setRgba16fSupported",
+                payload: gl.getExtension("EXT_color_buffer_half_float") !== null,
             });
 
             /*

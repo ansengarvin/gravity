@@ -42,10 +42,10 @@ export const informationSlice = createSlice({
         setNumStars: (state, action) => {
             state.numStars = action.payload;
         },
-        setMaxVertexUniforms: (state, action) => {
+        setMaxVertexUniformVectors: (state, action) => {
             state.maxVertexUniformVectors = action.payload;
         },
-        setMaxFragmentUniforms: (state, action) => {
+        setMaxFragmentUniformVectors: (state, action) => {
             state.maxFragmentUniformVectors = action.payload;
         },
         setMaxUniformBufferBindingPoints: (state, action) => {
