@@ -14,8 +14,9 @@ export function InfoBox() {
 
     return (
         <InfoBoxStyle>
+            <div className="tp">Year</div>
             <div className="lt" />
-            <div className="text">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
+            <div className="ct">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
             <div className="rt">
                 {bodyFollowed != -1 ? (
                     <button
@@ -51,9 +52,9 @@ const InfoBoxStyle = styled.div`
 
     display: grid;
 
-    grid-template-areas: "left center right";
+    grid-template-areas: "top top top" "left center right";
     grid-template-columns: 1fr 150px 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 1fr 1fr;
 
     font-size: 1.2rem;
 
@@ -65,7 +66,14 @@ const InfoBoxStyle = styled.div`
         min-width: 85px;
     }
 
-    div.text {
+    div.tp {
+        grid-area: top;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    div.ct {
         grid-area: center;
         display: flex;
         justify-content: center;
