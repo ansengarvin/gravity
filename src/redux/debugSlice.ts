@@ -2,7 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export enum CircleType {
     INCREMENTAL = "incremental",
-    PLANETS = "planets",
+    SOLAR = "solar",
 }
 
 export interface DebugStatsState {
@@ -48,8 +48,7 @@ export const debugInfoSlice = createSlice({
             state.showCircles = !state.showCircles;
         },
         toggleCircleType: (state) => {
-            state.circleType =
-                state.circleType === CircleType.INCREMENTAL ? CircleType.PLANETS : CircleType.INCREMENTAL;
+            state.circleType = state.circleType === CircleType.INCREMENTAL ? CircleType.SOLAR : CircleType.INCREMENTAL;
         },
         setNumActiveBodies: (state, action) => {
             state.numActiveBodies = action.payload;

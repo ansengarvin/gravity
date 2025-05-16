@@ -42,6 +42,8 @@ import { LeaderboardBody } from "./Leaderboard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
+import { CircleType } from "../redux/debugSlice";
+import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -83,6 +85,12 @@ export function Sim(props: SimProps) {
     useEffect(() => {
         showCirclesRef.current = showCircles;
     }, [showCircles]);
+
+    const circleType = useSelector((state: RootState) => state.debugInfo.circleType);
+    const circleTypeRef = useRef(circleType);
+    useEffect(() => {
+        circleTypeRef.current = circleType;
+    }, [circleType]);
 
     // User-set graphics settings
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
@@ -560,9 +568,33 @@ export function Sim(props: SimProps) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
                     setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
 
-                    const dAU = [1, 2, 3, 4, 5, 10, 20, 50];
+                    const dAUIncremental = [1, 2, 3, 4, 5, 10, 20, 50];
+                    const dAUSolar = [
+                        SolarSystemDistanceAU.MERCURY,
+                        SolarSystemDistanceAU.VENUS,
+                        SolarSystemDistanceAU.EARTH,
+                        SolarSystemDistanceAU.MARS,
+                        SolarSystemDistanceAU.JUPITER,
+                        SolarSystemDistanceAU.SATURN,
+                        SolarSystemDistanceAU.URANUS,
+                        SolarSystemDistanceAU.NEPTUNE,
+                        SolarSystemDistanceAU.PLUTO,
+                    ];
+                    const colorSolar = [
+                        [0.62, 0.412, 0.518], // Mercury is purpleish
+                        [1, 0.933, 0.71], // Venus is yellowish
+                        [0.2, 0.6, 1], // Earth is blue
+                        [1, 0.478, 0.176], // Mars is orange
+                        [1, 0.82, 0.573], // Jupiter is red
+                        [1, 0.902, 0.573], // Saturn is tannish yellow
+                        [0.486, 1, 0.996], // Uranus is sky blue
+                        [0.486, 0.565, 1], // Neptune is deep blue
+                        [0.812, 0.812, 0.812], // Pluto is grey
+                    ];
 
-                    for (let i = 0; i < 5; i++) {
+                    const dAU = circleTypeRef.current === CircleType.SOLAR ? dAUSolar : dAUIncremental;
+
+                    for (let i = 0; i < dAU.length; i++) {
                         const circleModelMatrix = mat4.create();
                         mat4.translate(circleModelMatrix, circleModelMatrix, [
                             bodyFollowedRef.current === -1 ? 0 : universe.current.positionsX[bodyFollowedRef.current],
@@ -583,7 +615,17 @@ export function Sim(props: SimProps) {
                             false,
                             circleModelViewMatrix,
                         );
-                        gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
+
+                        if (circleTypeRef.current === CircleType.SOLAR) {
+                            gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [
+                                colorSolar[i][0],
+                                colorSolar[i][1],
+                                colorSolar[i][2],
+                                1,
+                            ]);
+                        } else {
+                            gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
+                        }
 
                         gl.lineWidth(4.0);
                         gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
