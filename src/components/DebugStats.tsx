@@ -18,8 +18,8 @@ export function DebugStats() {
             <div>Max AA Samples: {debug.maxSamples}</div>
             <div>Active Uniforms: {debug.numActiveUniforms}</div>
             <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
-            <h3>OpenGL Extensions</h3>
             <div>Intenal Format Used: {debug.internalFormatUsed}</div>
+            <h3>OpenGL Extensions</h3>
             <div>
                 RBGA32F Supported: {debug.rgba32fSupported !== null ? (debug.rgba32fSupported ? "TRUE" : "FALSE") : ""}
             </div>
