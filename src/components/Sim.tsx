@@ -162,6 +162,7 @@ export function Sim(props: SimProps) {
             const rgba32fSupported = gl.getExtension("EXT_color_buffer_float") != null;
             const rgba16fSupported = gl.getExtension("EXT_color_buffer_half_float") !== null;
             const oesTextureFloatLinearSupported = gl.getExtension("OES_texture_float_linear") !== null;
+            const oesTextureHalfFloatLinearSupported = gl.getExtension("OES_texture_half_float_linear") !== null;
 
             // Set unchanging webGL debug text
             dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
@@ -367,16 +368,15 @@ export function Sim(props: SimProps) {
                 texHeight,
             );
 
-            // Check for required extensions
-            //const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
-            // const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
-            // const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
+            /*
+                Define MSAA render buffers
+            */
 
             let renderBufferInternalFormat: GLenum = gl.RGBA8;
 
             if (rgba32fSupported && oesTextureFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA32F;
-            } else if (rgba16fSupported) {
+            } else if (rgba16fSupported && oesTextureHalfFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA16F;
             }
 
