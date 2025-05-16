@@ -4,6 +4,16 @@ export interface AttribLocations {
     texCoords: GLint;
 }
 
+export interface SimpleProgramInfo {
+    program: WebGLProgram;
+    attribLocations: AttribLocations;
+    uniformLocations: {
+        projectionMatrix: WebGLUniformLocation | null;
+        modelViewMatrix: WebGLUniformLocation | null;
+        uFragColor: WebGLUniformLocation | null;
+    };
+}
+
 export interface CamlightProgramInfo {
     program: WebGLProgram;
     attribLocations: AttribLocations;

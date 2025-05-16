@@ -7,6 +7,8 @@ export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const universeSettings = useSelector((state: RootState) => state.universeSettings);
     const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
+    const showCircles = useSelector((state: RootState) => state.debugInfo.showCircles);
+    const circleType = useSelector((state: RootState) => state.debugInfo.circleType);
     const dispatch = useDispatch();
 
     const [seed, setSeed] = useState(universeSettings.seed);
@@ -17,12 +19,28 @@ export function SettingsMenu() {
     return (
         <SettingsStyle>
             General
+            <div>
+                <button
+                    onClick={() => {
+                        dispatch({ type: "debugInfo/toggleDebug" });
+                    }}
+                >
+                    {showDebug ? "Hide Debug" : "Show Debug"}
+                </button>
+                <button
+                    onClick={() => {
+                        dispatch({ type: "debugInfo/toggleCircles" });
+                    }}
+                >
+                    {showCircles ? "Hide Circles" : "Show Circles"}
+                </button>
+            </div>
             <button
                 onClick={() => {
-                    dispatch({ type: "debugInfo/toggleDebug" });
+                    dispatch({ type: "debugInfo/toggleCircleType" });
                 }}
             >
-                {showDebug ? "Hide Debug" : "Show Debug"}
+                {circleType === "incremental" ? "Incremental Circles" : "Solar Circles"}
             </button>
             Graphics
             <button

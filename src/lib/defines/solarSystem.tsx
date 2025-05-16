@@ -1,0 +1,30 @@
+export enum SolarSystemMassSolar {
+    JUPITER = 0.000954588,
+    SATURN = 0.0002857169,
+    NEPTUNE = 0.0000515139,
+    URANUS = 0.0000444292,
+    EARTH = 0.000003003,
+    VENUS = 0.000002447,
+    MARS = 0.0000003227,
+    MERCURY = 0.000000165,
+    GANYMEDE = 0.0000000756,
+    TITAN = 0.0000000702,
+    LUNA = 0.0000000363,
+    PLUTO = 0.00000000218,
+    CERES = 0.00000000047,
+    VESTA = 0.00000000013,
+}
+
+export enum SolarSystemDistanceAU {
+    MERCURY = 0.39,
+    VENUS = 0.72,
+    EARTH = 1.0,
+    MARS = 1.52,
+    VESTA = 2.36,
+    CERES = 2.77,
+    JUPITER = 5.2,
+    SATURN = 9.58,
+    URANUS = 19.22,
+    NEPTUNE = 30.05,
+    PLUTO = 39.48,
+}

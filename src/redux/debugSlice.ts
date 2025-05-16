@@ -1,7 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+export enum CircleType {
+    INCREMENTAL = "incremental",
+    SOLAR = "solar",
+}
+
 export interface DebugStatsState {
     showDebug: boolean;
+    showCircles: boolean;
+    circleType: CircleType;
     // Universe debug variables
     numActiveBodies: number;
     numStars: number;
@@ -17,6 +24,8 @@ export interface DebugStatsState {
 
 const initialState: DebugStatsState = {
     showDebug: false,
+    showCircles: false,
+    circleType: CircleType.INCREMENTAL,
     numActiveBodies: 0,
     numStars: 0,
     maxVertexUniformVectors: 0,
@@ -34,6 +43,12 @@ export const debugInfoSlice = createSlice({
     reducers: {
         toggleDebug: (state) => {
             state.showDebug = !state.showDebug;
+        },
+        toggleCircles: (state) => {
+            state.showCircles = !state.showCircles;
+        },
+        toggleCircleType: (state) => {
+            state.circleType = state.circleType === CircleType.INCREMENTAL ? CircleType.SOLAR : CircleType.INCREMENTAL;
         },
         setNumActiveBodies: (state, action) => {
             state.numActiveBodies = action.payload;

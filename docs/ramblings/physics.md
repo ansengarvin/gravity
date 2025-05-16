@@ -40,7 +40,7 @@ The range of most masses are much larger than any planets in our solar sytem. Ou
 | Body        | Mass (Solar)   | Mass (Earths) | Mass (kg)         |
 |-------------|----------------|---------------|-------------------|
 | Current Min | 0.001          | 333.59        | 1.989 × 10²⁷      |
-| Jupiter     | 0.000954791    | 318.00        | 1.898 × 10²⁷      |
+| Jupiter     | 0.000954588    | 318.00        | 1.898 × 10²⁷      |
 | Saturn      | 0.0002857169   | 95.16         | 5.684 × 10²⁶      |
 | Neptune     | 0.0000515139   | 17.15         | 1.024 × 10²⁶      |
 | Uranus      | 0.0000444292   | 14.54         | 8.681 × 10²⁵      |
