@@ -113,3 +113,4 @@ Here's a chart showing distance from the sun in AU:
 
 ### Other simulation parameters
 
+The other problem I ran into when setting smaller masses for objects is that, if other settings (universe size, initial velocity) are unchanged, the system ends up flying apart. I'd like to come up with some parameters that can keep smaller bodies gravitationally bound by default, without necessarily having a central parent star (as it's enjoyable to watch them form).

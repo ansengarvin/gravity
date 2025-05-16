@@ -711,6 +711,15 @@ export function Sim(props: SimProps) {
                     gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
                     gl.bindFramebuffer(gl.FRAMEBUFFER, null);
                     gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+                    /*
+                    gl.useProgram(texQuadProgramInfo.program);
+
+                    gl.activeTexture(gl.TEXTURE0);
+                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    */
                 } else {
                     gl.useProgram(texQuadProgramInfo.program);
                     gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
