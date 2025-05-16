@@ -16,8 +16,8 @@ export function DebugStats() {
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
             <div>Max Uniform Buffer Binding Points: {debug.maxUniformBufferBindingPoints}</div>
             <div>Max Samples: {debug.maxSamples}</div>
-            <div>RBGA32F Supported: {debug.rgba32fSupported}</div>
-            <div>RBGA16F Supported: {debug.rgba16fSupported}</div>
+            <div>RBGA32F Supported: {debug.rgba32fSupported ? "TRUE" : "FALSE"}</div>
+            <div>RBGA16F Supported: {debug.rgba16fSupported ? "TRUE" : "FALSE"}</div>
             <div>Active Uniforms: {debug.numActiveUniforms}</div>
             <div>Active Uniform Vectors: {debug.numActiveUniformVectors}</div>
         </DebugStatsStyle>

@@ -164,7 +164,6 @@ export function Sim(props: SimProps) {
                 type: "information/setMaxVertexUniformVectors",
                 payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
             });
-            console.log(gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS));
             dispatch({
                 type: "information/setMaxFragmentUniformVectors",
                 payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
@@ -368,10 +367,6 @@ export function Sim(props: SimProps) {
 
             const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
             const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
-
-            console.log(renderBufferFormat);
-            console.log(gl.getExtension("EXT_color_buffer_half_float"));
-            console.log(gl.getExtension("EXT_color_buffer_float"));
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
