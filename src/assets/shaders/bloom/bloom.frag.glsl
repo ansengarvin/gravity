@@ -26,7 +26,7 @@ void main() {
 
     highp vec3 result = vec3(1.0) - exp(-color * exposure);
 
-    result = pow(result, vec3(1.0 / gamma));
+    result = pow(result, vec3(1.0 / 1.0));
     //result = sceneColor;
     //result = bloomColor;
     
