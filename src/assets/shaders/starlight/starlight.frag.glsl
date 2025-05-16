@@ -54,9 +54,9 @@ highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3
     // }
 
     // results
-    highp vec3 ambient = STAR_AMBIENT * MATERIAL_DIFFUSE * fc;
-    highp vec3 diffuse = STAR_DIFFUSE * diff * MATERIAL_DIFFUSE * fc;
-    highp vec3 specular = STAR_SPECULAR * spec * MATERIAL_SPECULAR * fc;
+    highp vec3 ambient = STAR_AMBIENT * MATERIAL_DIFFUSE;
+    highp vec3 diffuse = STAR_DIFFUSE * diff * MATERIAL_DIFFUSE;
+    highp vec3 specular = STAR_SPECULAR * spec * MATERIAL_SPECULAR;
 
     ambient *= attenuation;
     diffuse *= attenuation;
@@ -82,7 +82,7 @@ void main(void) {
     }
 
     // Apply the result to the fragment color
-    fragColor = vec4(result, 1.0);
+    fragColor = vec4(result * uFragColor.rgb, 1.0);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);
