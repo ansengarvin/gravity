@@ -27,6 +27,7 @@ const Headerbar = styled.div`
     grid-template-rows: 1fr;
 
     border-bottom: 0.25rem solid ${color_offwhite};
+    background-color: black;
 
     @media (max-width: ${phone}) {
         height: 45px;
