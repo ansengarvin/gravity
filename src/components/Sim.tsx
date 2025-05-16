@@ -188,13 +188,14 @@ export function Sim(props: SimProps) {
                 payload: rgba16fSupported,
             });
             dispatch({
-                type: "information/setOesTextureFloatSupported",
+                type: "information/setOesFloatLinearSupported",
                 payload: oesTextureFloatLinearSupported,
             });
             dispatch({
-                type: "information/setOesTextureHalfFloatSupported",
+                type: "information/setOesHalfFloatLinearSupported",
                 payload: oesTextureHalfFloatLinearSupported,
             });
+            console.log(oesTextureHalfFloatLinearSupported);
 
             /*
                 Initialize all shader programs
@@ -381,7 +382,6 @@ export function Sim(props: SimProps) {
             */
 
             let renderBufferInternalFormat: GLenum = gl.RGBA8;
-
             if (rgba32fSupported && oesTextureFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA32F;
             } else if (rgba16fSupported && oesTextureHalfFloatLinearSupported) {
