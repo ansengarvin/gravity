@@ -7,6 +7,7 @@ export enum MenuName {
 }
 
 export enum CircleType {
+    NONE,
     INCREMENTAL,
     SOLAR,
 }
@@ -18,7 +19,6 @@ export interface ControlsState {
     menuShown: MenuName;
     bodyFollowed: number;
     showDebug: boolean;
-    showCircles: boolean;
     circleType: CircleType;
 }
 
@@ -29,8 +29,7 @@ const initialState: ControlsState = {
     bodyFollowed: -1,
     menuShown: MenuName.NONE,
     showDebug: false,
-    showCircles: false,
-    circleType: CircleType.INCREMENTAL,
+    circleType: CircleType.NONE,
 };
 
 export const controlSlice = createSlice({
@@ -62,11 +61,8 @@ export const controlSlice = createSlice({
         toggleDebug: (state) => {
             state.showDebug = !state.showDebug;
         },
-        toggleCircles: (state) => {
-            state.showCircles = !state.showCircles;
-        },
-        toggleCircleType: (state) => {
-            state.circleType = state.circleType === CircleType.INCREMENTAL ? CircleType.SOLAR : CircleType.INCREMENTAL;
+        setCircleType: (state, action) => {
+            state.circleType = action.payload;
         },
     },
 });

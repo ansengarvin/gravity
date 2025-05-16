@@ -80,12 +80,6 @@ export function Sim(props: SimProps) {
         states or selectors. To work around this, I convert them into refs.
     */
     // User-set debug settings
-    const showCircles = useSelector((state: RootState) => state.controls.showCircles);
-    const showCirclesRef = useRef(showCircles);
-    useEffect(() => {
-        showCirclesRef.current = showCircles;
-    }, [showCircles]);
-
     const circleType = useSelector((state: RootState) => state.controls.circleType);
     const circleTypeRef = useRef(circleType);
     useEffect(() => {
@@ -563,7 +557,7 @@ export function Sim(props: SimProps) {
                 /*
                     Draw debug circles
                 */
-                if (showCirclesRef.current) {
+                if (!(circleTypeRef.current == CircleType.NONE)) {
                     gl.useProgram(simpleProgramInfo.program);
                     gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
                     setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
