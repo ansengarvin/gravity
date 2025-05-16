@@ -363,16 +363,28 @@ export function Sim(props: SimProps) {
             );
 
             // Check for required extensions
-            const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
+            //const extColorBufferHalfFloat = gl.getExtension("EXT_color_buffer_half_float");
+            // const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
+            // const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
 
-            const renderBufferFormat = extColorBufferHalfFloat ? gl.RGBA16F : gl.RGBA;
-            const renderBufferType = extColorBufferHalfFloat ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE;
+            // let renderBufferFormat: 6408 | 34842 | 34836 = gl.RGBA;
+            // let renderBufferType: 5121 | 5131 | 5126 = gl.UNSIGNED_BYTE;
+
+            // if (gl.getExtension("EXT_color_buffer_float")) {
+            //     renderBufferFormat = gl.RGBA32F;
+            //     renderBufferType = gl.FLOAT;
+            // } else if (gl.getExtension("EXT_color_buffer_half_float")) {
+            //     renderBufferFormat = gl.RGBA16F;
+            //     renderBufferType = gl.HALF_FLOAT;
+            // }
+
+            let renderBufferInternalFormat: GLenum = gl.RGBA32F;
 
             gl.bindRenderbuffer(gl.RENDERBUFFER, colorRenderBuffer);
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                renderBufferFormat,
+                renderBufferInternalFormat,
                 texWidth,
                 texHeight,
             );
@@ -381,7 +393,7 @@ export function Sim(props: SimProps) {
             gl.renderbufferStorageMultisample(
                 gl.RENDERBUFFER,
                 gl.getParameter(gl.MAX_SAMPLES),
-                renderBufferFormat,
+                renderBufferInternalFormat,
                 texWidth,
                 texHeight,
             );
@@ -396,18 +408,21 @@ export function Sim(props: SimProps) {
             // Create the texture that the entire unmodified scene is rendered to
             gl.bindFramebuffer(gl.FRAMEBUFFER, colorFrameBuffer);
             const textureColorBuffer = gl.createTexture();
+
             gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                renderBufferFormat,
-                texWidth,
-                texHeight,
-                0,
-                gl.RGBA,
-                renderBufferType,
-                null,
-            );
+            // gl.texImage2D(
+            //     gl.TEXTURE_2D,
+            //     0,
+            //     renderBufferInternalFormat,
+            //     texWidth,
+            //     texHeight,
+            //     0,
+            //     gl.RGBA,
+            //     renderBufferType,
+            //     null,
+            // );
+            gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
+
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textureColorBuffer, 0);
@@ -415,18 +430,21 @@ export function Sim(props: SimProps) {
             // Create the texture where only the stars are rendered (for bloom)
             gl.bindFramebuffer(gl.FRAMEBUFFER, extractFrameBuffer);
             const starExtractTexture = gl.createTexture();
+
             gl.bindTexture(gl.TEXTURE_2D, starExtractTexture);
-            gl.texImage2D(
-                gl.TEXTURE_2D,
-                0,
-                renderBufferFormat,
-                texWidth,
-                texHeight,
-                0,
-                gl.RGBA,
-                renderBufferType,
-                null,
-            );
+            // gl.texImage2D(
+            //     gl.TEXTURE_2D,
+            //     0,
+            //     renderBufferInternalFormat,
+            //     texWidth,
+            //     texHeight,
+            //     0,
+            //     gl.RGBA,
+            //     renderBufferType,
+            //     null,
+            // );
+            gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
+
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -447,17 +465,18 @@ export function Sim(props: SimProps) {
             for (let i = 0; i < blurFrameBuffer.length; i++) {
                 gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[i]);
                 gl.bindTexture(gl.TEXTURE_2D, blurTextures[i]);
-                gl.texImage2D(
-                    gl.TEXTURE_2D,
-                    0,
-                    renderBufferFormat,
-                    texWidth,
-                    texHeight,
-                    0,
-                    gl.RGBA,
-                    renderBufferType,
-                    null,
-                );
+                // gl.texImage2D(
+                //     gl.TEXTURE_2D,
+                //     0,
+                //     renderBufferInternalFormat,
+                //     texWidth,
+                //     texHeight,
+                //     0,
+                //     gl.RGBA,
+                //     renderBufferType,
+                //     null,
+                // );
+                gl.texStorage2D(gl.TEXTURE_2D, 1, renderBufferInternalFormat, texWidth, texHeight);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
