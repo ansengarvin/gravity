@@ -77,6 +77,13 @@ export function Sim(props: SimProps) {
         WebGL and render() live outside of the react lifecycle. Therefore, they cannot access the most recent data from
         states or selectors. To work around this, I convert them into refs.
     */
+    // User-set debug settings
+    const showCircles = useSelector((state: RootState) => state.debugInfo.showCircles);
+    const showCirclesRef = useRef(showCircles);
+    useEffect(() => {
+        showCirclesRef.current = showCircles;
+    }, [showCircles]);
+
     // User-set graphics settings
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const starLightRef = useRef(graphicsSettings.starLight);
@@ -548,33 +555,39 @@ export function Sim(props: SimProps) {
                 /*
                     Draw debug circles
                 */
-                gl.useProgram(simpleProgramInfo.program);
-                gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
-                setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
+                if (showCirclesRef.current) {
+                    gl.useProgram(simpleProgramInfo.program);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
+                    setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
 
-                const dAU = [1, 2, 3, 4, 5, 10, 20, 50];
+                    const dAU = [1, 2, 3, 4, 5, 10, 20, 50];
 
-                for (let i = 0; i < 5; i++) {
-                    const circleModelMatrix = mat4.create();
-                    mat4.translate(circleModelMatrix, circleModelMatrix, [
-                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsX[bodyFollowedRef.current],
-                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsY[bodyFollowedRef.current],
-                        bodyFollowedRef.current === -1 ? 0 : universe.current.positionsZ[bodyFollowedRef.current],
-                    ]);
-                    mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
-                    const circleModelViewMatrix = mat4.create();
-                    mat4.multiply(circleModelViewMatrix, viewMatrix, circleModelMatrix);
+                    for (let i = 0; i < 5; i++) {
+                        const circleModelMatrix = mat4.create();
+                        mat4.translate(circleModelMatrix, circleModelMatrix, [
+                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsX[bodyFollowedRef.current],
+                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsY[bodyFollowedRef.current],
+                            bodyFollowedRef.current === -1 ? 0 : universe.current.positionsZ[bodyFollowedRef.current],
+                        ]);
+                        mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
+                        const circleModelViewMatrix = mat4.create();
+                        mat4.multiply(circleModelViewMatrix, viewMatrix, circleModelMatrix);
 
-                    gl.uniformMatrix4fv(simpleProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
-                    gl.uniformMatrix4fv(
-                        simpleProgramInfo.uniformLocations.modelViewMatrix,
-                        false,
-                        circleModelViewMatrix,
-                    );
-                    gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
+                        gl.uniformMatrix4fv(
+                            simpleProgramInfo.uniformLocations.projectionMatrix,
+                            false,
+                            projectionMatrix,
+                        );
+                        gl.uniformMatrix4fv(
+                            simpleProgramInfo.uniformLocations.modelViewMatrix,
+                            false,
+                            circleModelViewMatrix,
+                        );
+                        gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
 
-                    gl.lineWidth(4.0);
-                    gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
+                        gl.lineWidth(4.0);
+                        gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
+                    }
                 }
 
                 // Bind sphere buffers
