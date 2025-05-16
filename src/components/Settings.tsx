@@ -6,15 +6,13 @@ import { useState } from "react";
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const universeSettings = useSelector((state: RootState) => state.universeSettings);
-    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
-    const showCircles = useSelector((state: RootState) => state.debugInfo.showCircles);
-    const circleType = useSelector((state: RootState) => state.debugInfo.circleType);
+    const showDebug = useSelector((state: RootState) => state.information.showDebug);
+    const showCircles = useSelector((state: RootState) => state.information.showCircles);
+    const circleType = useSelector((state: RootState) => state.information.circleType);
     const dispatch = useDispatch();
 
     const [seed, setSeed] = useState(universeSettings.seed);
     const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
-
-    console.log(universeSettings.seed);
 
     return (
         <SettingsStyle>
@@ -22,14 +20,14 @@ export function SettingsMenu() {
             <div>
                 <button
                     onClick={() => {
-                        dispatch({ type: "debugInfo/toggleDebug" });
+                        dispatch({ type: "information/toggleDebug" });
                     }}
                 >
                     {showDebug ? "Hide Debug" : "Show Debug"}
                 </button>
                 <button
                     onClick={() => {
-                        dispatch({ type: "debugInfo/toggleCircles" });
+                        dispatch({ type: "information/toggleCircles" });
                     }}
                 >
                     {showCircles ? "Hide Circles" : "Show Circles"}
@@ -37,7 +35,7 @@ export function SettingsMenu() {
             </div>
             <button
                 onClick={() => {
-                    dispatch({ type: "debugInfo/toggleCircleType" });
+                    dispatch({ type: "information/toggleCircleType" });
                 }}
             >
                 {circleType === "incremental" ? "Incremental Circles" : "Solar Circles"}

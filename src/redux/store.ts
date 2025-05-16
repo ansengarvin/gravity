@@ -2,14 +2,14 @@
 
 import { configureStore } from "@reduxjs/toolkit";
 import graphicsSettingsReducer from "./graphicsSettingsSlice";
-import debugInfoReducer from "./debugSlice";
+import informationReducer from "./informationSlice";
 import universeSettingsReducer from "./universeSettingsSlice";
 import controlsReducer from "./controlsSlice";
 
 export const store = configureStore({
     reducer: {
         controls: controlsReducer,
-        debugInfo: debugInfoReducer,
+        information: informationReducer,
         graphicsSettings: graphicsSettingsReducer,
         universeSettings: universeSettingsReducer,
     },

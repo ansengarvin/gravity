@@ -5,7 +5,7 @@ export enum CircleType {
     SOLAR = "solar",
 }
 
-export interface DebugStatsState {
+export interface InformationState {
     showDebug: boolean;
     showCircles: boolean;
     circleType: CircleType;
@@ -22,7 +22,7 @@ export interface DebugStatsState {
     numActiveUniformVectors: number;
 }
 
-const initialState: DebugStatsState = {
+const initialState: InformationState = {
     showDebug: false,
     showCircles: false,
     circleType: CircleType.INCREMENTAL,
@@ -37,8 +37,8 @@ const initialState: DebugStatsState = {
     numActiveUniformVectors: 0,
 };
 
-export const debugInfoSlice = createSlice({
-    name: "debugInfo",
+export const informationSlice = createSlice({
+    name: "information",
     initialState,
     reducers: {
         toggleDebug: (state) => {
@@ -80,4 +80,4 @@ export const debugInfoSlice = createSlice({
     },
 });
 
-export default debugInfoSlice.reducer;
+export default informationSlice.reducer;

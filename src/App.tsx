@@ -44,7 +44,7 @@ export function App() {
     // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
     const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
 
-    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
+    const showDebug = useSelector((state: RootState) => state.information.showDebug);
     const menuShown = useSelector((state: RootState) => state.controls.menuShown);
 
     return (
