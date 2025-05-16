@@ -3,7 +3,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
 export function DebugStats() {
-    const debug = useSelector((state: RootState) => state.debugInfo);
+    const debug = useSelector((state: RootState) => state.information);
 
     return (
         <DebugStatsStyle>

@@ -6,12 +6,20 @@ export enum MenuName {
     SETTINGS = "settings",
 }
 
+export enum CircleType {
+    INCREMENTAL = "incremental",
+    SOLAR = "solar",
+}
+
 export interface ControlsState {
     paused: boolean;
     resetSim: number;
     resetCam: number;
     menuShown: MenuName;
     bodyFollowed: number;
+    showDebug: boolean;
+    showCircles: boolean;
+    circleType: CircleType;
 }
 
 const initialState: ControlsState = {
@@ -20,6 +28,9 @@ const initialState: ControlsState = {
     resetCam: 0,
     bodyFollowed: -1,
     menuShown: MenuName.NONE,
+    showDebug: false,
+    showCircles: false,
+    circleType: CircleType.INCREMENTAL,
 };
 
 export const controlSlice = createSlice({
@@ -47,6 +58,15 @@ export const controlSlice = createSlice({
         },
         hideMenu: (state) => {
             state.menuShown = MenuName.NONE;
+        },
+        toggleDebug: (state) => {
+            state.showDebug = !state.showDebug;
+        },
+        toggleCircles: (state) => {
+            state.showCircles = !state.showCircles;
+        },
+        toggleCircleType: (state) => {
+            state.circleType = state.circleType === CircleType.INCREMENTAL ? CircleType.SOLAR : CircleType.INCREMENTAL;
         },
     },
 });

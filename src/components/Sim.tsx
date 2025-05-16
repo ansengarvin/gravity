@@ -42,8 +42,8 @@ import { LeaderboardBody } from "./Leaderboard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
-import { CircleType } from "../redux/informationSlice";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
+import { CircleType } from "../redux/controlsSlice";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -80,13 +80,13 @@ export function Sim(props: SimProps) {
         states or selectors. To work around this, I convert them into refs.
     */
     // User-set debug settings
-    const showCircles = useSelector((state: RootState) => state.information.showCircles);
+    const showCircles = useSelector((state: RootState) => state.controls.showCircles);
     const showCirclesRef = useRef(showCircles);
     useEffect(() => {
         showCirclesRef.current = showCircles;
     }, [showCircles]);
 
-    const circleType = useSelector((state: RootState) => state.information.circleType);
+    const circleType = useSelector((state: RootState) => state.controls.circleType);
     const circleTypeRef = useRef(circleType);
     useEffect(() => {
         circleTypeRef.current = circleType;

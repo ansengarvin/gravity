@@ -6,9 +6,9 @@ import { useState } from "react";
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const universeSettings = useSelector((state: RootState) => state.universeSettings);
-    const showDebug = useSelector((state: RootState) => state.information.showDebug);
-    const showCircles = useSelector((state: RootState) => state.information.showCircles);
-    const circleType = useSelector((state: RootState) => state.information.circleType);
+    const showDebug = useSelector((state: RootState) => state.controls.showDebug);
+    const showCircles = useSelector((state: RootState) => state.controls.showCircles);
+    const circleType = useSelector((state: RootState) => state.controls.circleType);
     const dispatch = useDispatch();
 
     const [seed, setSeed] = useState(universeSettings.seed);
@@ -20,14 +20,14 @@ export function SettingsMenu() {
             <div>
                 <button
                     onClick={() => {
-                        dispatch({ type: "information/toggleDebug" });
+                        dispatch({ type: "controls/toggleDebug" });
                     }}
                 >
                     {showDebug ? "Hide Debug" : "Show Debug"}
                 </button>
                 <button
                     onClick={() => {
-                        dispatch({ type: "information/toggleCircles" });
+                        dispatch({ type: "controls/toggleCircles" });
                     }}
                 >
                     {showCircles ? "Hide Circles" : "Show Circles"}
@@ -35,7 +35,7 @@ export function SettingsMenu() {
             </div>
             <button
                 onClick={() => {
-                    dispatch({ type: "information/toggleCircleType" });
+                    dispatch({ type: "controls/toggleCircleType" });
                 }}
             >
                 {circleType === "incremental" ? "Incremental Circles" : "Solar Circles"}
