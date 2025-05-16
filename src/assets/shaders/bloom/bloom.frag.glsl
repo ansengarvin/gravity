@@ -13,7 +13,7 @@ uniform highp sampler2D uScene;
 uniform highp sampler2D uBloom;
 
 void main() {
-    const highp float gamma = 2.2;
+    const highp float gamma = 1.0;
     const highp float exposure = 1.0;
 
     highp vec3 sceneColor = texture(uScene, TexCoords).rgb;
