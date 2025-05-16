@@ -1,14 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export enum MenuName {
-    NONE = "none",
-    LEADERBOARD = "leaderboard",
-    SETTINGS = "settings",
+    NONE,
+    LEADERBOARD,
+    SETTINGS,
 }
 
 export enum CircleType {
-    INCREMENTAL = "incremental",
-    SOLAR = "solar",
+    INCREMENTAL,
+    SOLAR,
 }
 
 export interface ControlsState {
