@@ -1,9 +1,15 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export enum MenuName {
-    NONE = "none",
-    LEADERBOARD = "leaderboard",
-    SETTINGS = "settings",
+    NONE,
+    LEADERBOARD,
+    SETTINGS,
+}
+
+export enum CircleType {
+    NONE,
+    INCREMENTAL,
+    SOLAR,
 }
 
 export interface ControlsState {
@@ -12,6 +18,8 @@ export interface ControlsState {
     resetCam: number;
     menuShown: MenuName;
     bodyFollowed: number;
+    showDebug: boolean;
+    circleType: CircleType;
 }
 
 const initialState: ControlsState = {
@@ -20,6 +28,8 @@ const initialState: ControlsState = {
     resetCam: 0,
     bodyFollowed: -1,
     menuShown: MenuName.NONE,
+    showDebug: false,
+    circleType: CircleType.NONE,
 };
 
 export const controlSlice = createSlice({
@@ -47,6 +57,12 @@ export const controlSlice = createSlice({
         },
         hideMenu: (state) => {
             state.menuShown = MenuName.NONE;
+        },
+        toggleDebug: (state) => {
+            state.showDebug = !state.showDebug;
+        },
+        setCircleType: (state, action) => {
+            state.circleType = action.payload;
         },
     },
 });

@@ -29,6 +29,7 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
     public numSattelites: Float32Array;
+    public timeElapsed: number;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -58,6 +59,7 @@ export class Universe {
         this.numSattelites = new Float32Array(this.settings.numBodies);
 
         this.numActive = this.settings.numBodies;
+        this.timeElapsed = 0;
 
         this.initialize();
     }
@@ -139,7 +141,7 @@ export class Universe {
         // Set colors
         // HSL to RGB conversion: https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
         for (let i = 0; i < this.settings.numBodies; i++) {
-            // Generating bright colors is easier in HSL
+            // Generating bright, saturated colors is easier in HSL
             const H = getRandomFloat(0, 360);
             const S = getRandomFloat(0.8, 0.9);
             const L = 0.8;
@@ -176,6 +178,9 @@ export class Universe {
         this.colorsB.fill(0);
         this.orbitalIndices.fill(-1);
         this.orbitalDistances.fill(-1);
+        this.numActive = 0;
+        this.numSattelites.fill(0);
+        this.timeElapsed = 0;
     }
 
     public reset(): void {
@@ -185,6 +190,8 @@ export class Universe {
 
     public updateEuler(deltaTime: number) {
         const dt = deltaTime * this.settings.timeStep;
+
+        this.timeElapsed += dt;
 
         // Zero out all accelerations
         // Each fill operation, evidently, is done in O(n) time.

@@ -1,17 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-export enum CircleType {
-    INCREMENTAL = "incremental",
-    SOLAR = "solar",
-}
-
-export interface DebugStatsState {
-    showDebug: boolean;
-    showCircles: boolean;
-    circleType: CircleType;
-    // Universe debug variables
+export interface InformationState {
+    // Universe information variables
     numActiveBodies: number;
     numStars: number;
+    yearsElapsed: number;
     // Graphics debug variables
     maxVertexUniformVectors: number;
     maxFragmentUniformVectors: number;
@@ -22,12 +15,10 @@ export interface DebugStatsState {
     numActiveUniformVectors: number;
 }
 
-const initialState: DebugStatsState = {
-    showDebug: false,
-    showCircles: false,
-    circleType: CircleType.INCREMENTAL,
+const initialState: InformationState = {
     numActiveBodies: 0,
     numStars: 0,
+    yearsElapsed: 0,
     maxVertexUniformVectors: 0,
     maxFragmentUniformVectors: 0,
     maxUniformBufferBindingPoints: 0,
@@ -37,19 +28,10 @@ const initialState: DebugStatsState = {
     numActiveUniformVectors: 0,
 };
 
-export const debugInfoSlice = createSlice({
-    name: "debugInfo",
+export const informationSlice = createSlice({
+    name: "information",
     initialState,
     reducers: {
-        toggleDebug: (state) => {
-            state.showDebug = !state.showDebug;
-        },
-        toggleCircles: (state) => {
-            state.showCircles = !state.showCircles;
-        },
-        toggleCircleType: (state) => {
-            state.circleType = state.circleType === CircleType.INCREMENTAL ? CircleType.SOLAR : CircleType.INCREMENTAL;
-        },
         setNumActiveBodies: (state, action) => {
             state.numActiveBodies = action.payload;
         },
@@ -77,7 +59,10 @@ export const debugInfoSlice = createSlice({
         setNumActiveUniformVectors: (state, action) => {
             state.numActiveUniformVectors = action.payload;
         },
+        setYearsElapsed: (state, action) => {
+            state.yearsElapsed = action.payload;
+        },
     },
 });
 
-export default debugInfoSlice.reducer;
+export default informationSlice.reducer;

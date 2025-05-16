@@ -6,6 +6,10 @@ import { useState } from "react";
 export function InfoBox() {
     const dispatch = useDispatch();
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const yearsElapsed = useSelector((state: RootState) => state.information.yearsElapsed);
+
+    const years = Math.floor(yearsElapsed);
+    const months = Math.floor((yearsElapsed - years) * 12);
 
     const [camAtOrigin, setCamAtOrigin] = useState<boolean>(true);
     if (bodyFollowed != -1 && camAtOrigin) {
@@ -14,8 +18,11 @@ export function InfoBox() {
 
     return (
         <InfoBoxStyle>
+            <div className="tp">
+                {years} years {months} months
+            </div>
             <div className="lt" />
-            <div className="text">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
+            <div className="ct">Following: {bodyFollowed != -1 ? "B-" + bodyFollowed : "None"}</div>
             <div className="rt">
                 {bodyFollowed != -1 ? (
                     <button
@@ -51,9 +58,9 @@ const InfoBoxStyle = styled.div`
 
     display: grid;
 
-    grid-template-areas: "left center right";
+    grid-template-areas: "top top top" "left center right";
     grid-template-columns: 1fr 150px 1fr;
-    grid-template-rows: 1fr;
+    grid-template-rows: 1fr 1fr;
 
     font-size: 1.2rem;
 
@@ -65,7 +72,14 @@ const InfoBoxStyle = styled.div`
         min-width: 85px;
     }
 
-    div.text {
+    div.tp {
+        grid-area: top;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    div.ct {
         grid-area: center;
         display: flex;
         justify-content: center;
@@ -102,7 +116,7 @@ const InfoBoxStyle = styled.div`
         border-radius: 5px;
         font-size: 0.9rem;
         height: 35px;
-        width: 110px;
+        width: 115px;
 
         background-color: black;
 

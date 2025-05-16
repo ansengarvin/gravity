@@ -2,19 +2,17 @@ import styled from "@emotion/styled";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { useState } from "react";
+import { CircleType } from "../redux/controlsSlice";
 
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
     const universeSettings = useSelector((state: RootState) => state.universeSettings);
-    const showDebug = useSelector((state: RootState) => state.debugInfo.showDebug);
-    const showCircles = useSelector((state: RootState) => state.debugInfo.showCircles);
-    const circleType = useSelector((state: RootState) => state.debugInfo.circleType);
+    const showDebug = useSelector((state: RootState) => state.controls.showDebug);
+    const circleType = useSelector((state: RootState) => state.controls.circleType);
     const dispatch = useDispatch();
 
     const [seed, setSeed] = useState(universeSettings.seed);
     const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
-
-    console.log(universeSettings.seed);
 
     return (
         <SettingsStyle>
@@ -22,26 +20,39 @@ export function SettingsMenu() {
             <div>
                 <button
                     onClick={() => {
-                        dispatch({ type: "debugInfo/toggleDebug" });
+                        dispatch({ type: "controls/toggleDebug" });
                     }}
                 >
                     {showDebug ? "Hide Debug" : "Show Debug"}
                 </button>
-                <button
-                    onClick={() => {
-                        dispatch({ type: "debugInfo/toggleCircles" });
-                    }}
-                >
-                    {showCircles ? "Hide Circles" : "Show Circles"}
-                </button>
             </div>
-            <button
-                onClick={() => {
-                    dispatch({ type: "debugInfo/toggleCircleType" });
-                }}
-            >
-                {circleType === "incremental" ? "Incremental Circles" : "Solar Circles"}
-            </button>
+            <label>Circles:</label>
+            <div>
+                <input
+                    type="radio"
+                    id="none"
+                    name="circles"
+                    checked={circleType === CircleType.NONE}
+                    onChange={() => dispatch({ type: "controls/setCircleType", payload: CircleType.NONE })}
+                />
+                <label htmlFor="none">None</label>
+                <input
+                    type="radio"
+                    id="incremental"
+                    name="circles"
+                    checked={circleType === CircleType.INCREMENTAL}
+                    onChange={() => dispatch({ type: "controls/setCircleType", payload: CircleType.INCREMENTAL })}
+                />
+                <label htmlFor="incremental">Incremental</label>
+                <input
+                    type="radio"
+                    id="solar"
+                    name="circles"
+                    checked={circleType === CircleType.SOLAR}
+                    onChange={() => dispatch({ type: "controls/setCircleType", payload: CircleType.SOLAR })}
+                />
+                <label htmlFor="solar">Solar</label>
+            </div>
             Graphics
             <button
                 onClick={() => {

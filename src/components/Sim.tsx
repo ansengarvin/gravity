@@ -42,8 +42,8 @@ import { LeaderboardBody } from "./Leaderboard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
-import { CircleType } from "../redux/debugSlice";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
+import { CircleType } from "../redux/controlsSlice";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -80,13 +80,7 @@ export function Sim(props: SimProps) {
         states or selectors. To work around this, I convert them into refs.
     */
     // User-set debug settings
-    const showCircles = useSelector((state: RootState) => state.debugInfo.showCircles);
-    const showCirclesRef = useRef(showCircles);
-    useEffect(() => {
-        showCirclesRef.current = showCircles;
-    }, [showCircles]);
-
-    const circleType = useSelector((state: RootState) => state.debugInfo.circleType);
+    const circleType = useSelector((state: RootState) => state.controls.circleType);
     const circleTypeRef = useRef(circleType);
     useEffect(() => {
         circleTypeRef.current = circleType;
@@ -121,8 +115,8 @@ export function Sim(props: SimProps) {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
-        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
-        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+        dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
     }, [settings]);
 
     useEffect(() => {
@@ -130,8 +124,8 @@ export function Sim(props: SimProps) {
         dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
         setLeaderboardBodies(universe.current.getActiveBodies(-1));
-        dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
-        dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+        dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
+        dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
     }, [resetSim]);
 
     useEffect(() => {
@@ -165,20 +159,20 @@ export function Sim(props: SimProps) {
             setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
 
             // Set unchanging webGL debug text
-            dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
+            dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
             dispatch({
-                type: "debugInfo/setMaxVertexUniformVectors",
+                type: "information/setMaxVertexUniformVectors",
                 payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
             });
             dispatch({
-                type: "debugInfo/setMaxFragmentUniformVectors",
+                type: "information/setMaxFragmentUniformVectors",
                 payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
             });
             dispatch({
-                type: "debugInfo/setMaxUniformBufferBindingPoints",
+                type: "information/setMaxUniformBufferBindingPoints",
                 payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
             });
-            dispatch({ type: "debugInfo/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
+            dispatch({ type: "information/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
             let maxBufferBitDepth = "RGBA8";
             if (gl.getExtension("EXT_color_buffer_float")) {
                 maxBufferBitDepth = "RGBA32F";
@@ -186,7 +180,7 @@ export function Sim(props: SimProps) {
                 maxBufferBitDepth = "RGBA16F";
             }
             dispatch({
-                type: "debugInfo/setMaxBufferBitDepth",
+                type: "information/setMaxBufferBitDepth",
                 payload: maxBufferBitDepth,
             });
 
@@ -514,19 +508,23 @@ export function Sim(props: SimProps) {
                 uiAccumulatedTime += deltaTime;
                 if (uiAccumulatedTime >= uiThrottleTime) {
                     setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
-                    dispatch({ type: "debugInfo/setNumActiveBodies", payload: universe.current.numActive });
-                    dispatch({ type: "debugInfo/setNumStars", payload: universe.current.getNumStars() });
+                    dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
+                    dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
                     dispatch({
-                        type: "debugInfo/setNumActiveUniforms",
+                        type: "information/setNumActiveUniforms",
                         payload: starLightRef.current
                             ? gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS)
                             : gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
                     });
                     dispatch({
-                        type: "debugInfo/setNumActiveUniformVectors",
+                        type: "information/setNumActiveUniformVectors",
                         payload: starLightRef.current
                             ? calculateUniformVectors(gl, starlightProgramInfo.program)
                             : calculateUniformVectors(gl, camlightProgramInfo.program),
+                    });
+                    dispatch({
+                        type: "information/setYearsElapsed",
+                        payload: universe.current.timeElapsed,
                     });
                     uiAccumulatedTime = 0;
                 }
@@ -563,7 +561,7 @@ export function Sim(props: SimProps) {
                 /*
                     Draw debug circles
                 */
-                if (showCirclesRef.current) {
+                if (!(circleTypeRef.current == CircleType.NONE)) {
                     gl.useProgram(simpleProgramInfo.program);
                     gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
                     setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
