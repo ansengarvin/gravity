@@ -3,3 +3,7 @@ export function getRandomFloat(min: number, max: number): number {
     // For now, I'll lazily use Math.random().
     return Math.random() * (max - min) + min;
 }
+
+export function getRandomInt(min: number, max: number): number {
+    return Math.floor(getRandomFloat(min, max));
+}

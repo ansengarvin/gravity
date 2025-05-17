@@ -7,6 +7,8 @@ export interface UniverseSettings {
     numBodies: number; // THe number of starting bodies in the universe
     size: number; // The size of the universe in astronomical units
     starThreshold: number;
+    starInCenter: boolean;
+    centerStarMass: number;
     minMass: number;
     maxMass: number;
 }
@@ -17,6 +19,8 @@ const initialState: UniverseSettings = {
     numBodies: 500,
     size: 20, // The size of the universe in astronomical units|
     starThreshold: 0.08,
+    starInCenter: true,
+    centerStarMass: 1.0,
     minMass: SolarSystemMassSolar.MARS,
     maxMass: SolarSystemMassSolar.JUPITER,
 };

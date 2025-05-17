@@ -1,4 +1,4 @@
-import { getRandomFloat } from "../../random/random";
+import { getRandomFloat, getRandomInt } from "../../random/random";
 import { vec3, vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
@@ -148,20 +148,34 @@ export class Universe {
             // this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
             // this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
 
-            const initialAngularVelocity = this.getInitialAngularVelocity(
+            const initialAngularVelocity = this.getInitialVelocityKepler(
                 this.positionsX[i],
                 this.positionsY[i],
                 this.positionsZ[i],
+                this.settings.starInCenter ? this.settings.centerStarMass : 1,
             );
-            const multiplier = 10;
-            this.velocitiesX[i] = initialAngularVelocity.x * multiplier;
-            this.velocitiesY[i] = initialAngularVelocity.y * multiplier;
-            this.velocitiesZ[i] = initialAngularVelocity.z * multiplier;
+            this.velocitiesX[i] = initialAngularVelocity.vX;
+            this.velocitiesY[i] = initialAngularVelocity.vY;
+            this.velocitiesZ[i] = initialAngularVelocity.vZ;
 
             this.bodiesActive[i] = 1;
 
             this.masses[i] = getRandomFloat(this.settings.minMass, this.settings.maxMass);
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
+        }
+
+        // Set star in center if applicable
+        if (this.settings.starInCenter) {
+            const centerBody = getRandomInt(0, this.settings.numBodies - 1);
+            this.masses[centerBody] = this.settings.centerStarMass;
+            this.radii[centerBody] = this.radius_from_mass_piecewise(this.masses[centerBody]);
+            this.positionsX[centerBody] = 0;
+            this.positionsY[centerBody] = 0;
+            this.positionsZ[centerBody] = 0;
+            this.velocitiesX[centerBody] = 0;
+            this.velocitiesY[centerBody] = 0;
+            this.velocitiesZ[centerBody] = 0;
+            this.bodiesActive[centerBody] = 1;
         }
 
         // Set colors
@@ -432,7 +446,7 @@ export class Universe {
         return numStars;
     }
 
-    private getInitialAngularVelocity(x: number, y: number, z: number): { x: number; y: number; z: number } {
+    public getInitialVelocityOriginal(x: number, y: number, z: number): { x: number; y: number; z: number } {
         // Planets in the center move slower than planets on the edge of the universe.
         // The velocity is proportional to the distance from the center of the universe.
         const distanceFromCenter = Math.sqrt(x * x + y * y + z * z);
@@ -447,6 +461,27 @@ export class Universe {
             y: angularVelocityY,
             z: angularVelocityZ,
         };
+    }
+
+    private getInitialVelocityKepler(
+        x: number,
+        y: number,
+        z: number,
+        M: number,
+    ): { vX: number; vY: number; vZ: number } {
+        // Planets in the center move slower than planets on the edge of the universe.
+        // The velocity is proportional to the distance from the center of the universe.
+        const positionVector = vec3.fromValues(x, y, z);
+        const perpendicularUnitVector = vec3.create();
+        vec3.cross(perpendicularUnitVector, positionVector, vec3.fromValues(0, 0, 1)); // Perpendicular to the position vector
+        vec3.normalize(perpendicularUnitVector, perpendicularUnitVector); // Normalize the vector
+        const distanceFromCenter = vec3.length(positionVector);
+        const angularVelocityMagnitude = Math.sqrt((G * M) / distanceFromCenter); // Gravitational acceleration
+
+        const velocityVector = vec3.create();
+        vec3.scale(velocityVector, perpendicularUnitVector, angularVelocityMagnitude); // Scale the vector by the angular velocity
+
+        return { vX: velocityVector[0], vY: velocityVector[1], vZ: velocityVector[2] };
     }
 
     // private getRandomSphericalStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
