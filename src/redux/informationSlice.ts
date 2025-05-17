@@ -1,7 +1,9 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface InformationState {
     // Universe information variables
+    fps: number;
+    tps: number; // ticks per second
     numActiveBodies: number;
     numStars: number;
     yearsElapsed: number;
@@ -21,6 +23,10 @@ export interface InformationState {
 }
 
 const initialState: InformationState = {
+    //
+    fps: 0,
+    tps: 0,
+    // Simulation variables
     numActiveBodies: 0,
     numStars: 0,
     yearsElapsed: 0,
@@ -44,50 +50,56 @@ export const informationSlice = createSlice({
     name: "information",
     initialState,
     reducers: {
-        setNumActiveBodies: (state, action) => {
+        setFPS: (state, action: PayloadAction<number>) => {
+            state.fps = action.payload;
+        },
+        setTPS: (state, action: PayloadAction<number>) => {
+            state.tps = action.payload;
+        },
+        setNumActiveBodies: (state, action: PayloadAction<number>) => {
             state.numActiveBodies = action.payload;
         },
-        setNumStars: (state, action) => {
+        setNumStars: (state, action: PayloadAction<number>) => {
             state.numStars = action.payload;
         },
-        setMaxVertexUniformVectors: (state, action) => {
-            state.maxVertexUniformVectors = action.payload;
-        },
-        setMaxFragmentUniformVectors: (state, action) => {
-            state.maxFragmentUniformVectors = action.payload;
-        },
-        setMaxUniformBufferBindingPoints: (state, action) => {
-            state.maxUniformBufferBindingPoints = action.payload;
-        },
-        setMaxSamples: (state, action) => {
-            state.maxSamples = action.payload;
-        },
-        setNumActiveUniforms: (state, action) => {
-            state.numActiveUniforms = action.payload;
-        },
-        setNumActiveUniformVectors: (state, action) => {
-            state.numActiveUniformVectors = action.payload;
-        },
-        setYearsElapsed: (state, action) => {
+        setYearsElapsed: (state, action: PayloadAction<number>) => {
             state.yearsElapsed = action.payload;
         },
-        setRgba32fSupported: (state, action) => {
+        setFollowedBodyRadius: (state, action: PayloadAction<number | null>) => {
+            state.followedBodyRadius = action.payload;
+        },
+        setMaxVertexUniformVectors: (state, action: PayloadAction<number | null>) => {
+            state.maxVertexUniformVectors = action.payload;
+        },
+        setMaxFragmentUniformVectors: (state, action: PayloadAction<number | null>) => {
+            state.maxFragmentUniformVectors = action.payload;
+        },
+        setMaxUniformBufferBindingPoints: (state, action: PayloadAction<number | null>) => {
+            state.maxUniformBufferBindingPoints = action.payload;
+        },
+        setMaxSamples: (state, action: PayloadAction<number | null>) => {
+            state.maxSamples = action.payload;
+        },
+        setRgba32fSupported: (state, action: PayloadAction<boolean | null>) => {
             state.rgba32fSupported = action.payload;
         },
-        setRgba16fSupported: (state, action) => {
+        setRgba16fSupported: (state, action: PayloadAction<boolean | null>) => {
             state.rgba16fSupported = action.payload;
         },
-        setOesFloatLinearSupported: (state, action) => {
+        setOesFloatLinearSupported: (state, action: PayloadAction<boolean | null>) => {
             state.oesFloatLinearSupported = action.payload;
         },
-        setOesHalfFloatLinearSupported: (state, action) => {
+        setOesHalfFloatLinearSupported: (state, action: PayloadAction<boolean | null>) => {
             state.oesHalfFloatLinearSupported = action.payload;
         },
-        setInternalFormatUsed: (state, action) => {
-            state.internalFormatUsed = action.payload;
+        setNumActiveUniforms: (state, action: PayloadAction<number | null>) => {
+            state.numActiveUniforms = action.payload;
         },
-        setFollowedBodyRadius: (state, action) => {
-            state.followedBodyRadius = action.payload;
+        setNumActiveUniformVectors: (state, action: PayloadAction<number | null>) => {
+            state.numActiveUniformVectors = action.payload;
+        },
+        setInternalFormatUsed: (state, action: PayloadAction<string | null>) => {
+            state.internalFormatUsed = action.payload;
         },
     },
 });

@@ -516,6 +516,9 @@ export function Sim(props: SimProps) {
             let accumulatedTime = 0;
             let uiAccumulatedTime = 0;
             const uiThrottleTime = 0.05; // time in seconds
+            let tickCount = 0;
+            let lastTickMeasure = 0;
+            let measuerdTPS = 0;
             function render(now: number) {
                 // Need to check this once per render to stop react from throwing an error
                 if (!gl) {
@@ -530,12 +533,23 @@ export function Sim(props: SimProps) {
                 const deltaTime = now - then;
                 then = now;
                 accumulatedTime += deltaTime;
+                // Tick stuff
+
                 //Update the universe simulation
                 while (accumulatedTime >= secondsPerTick) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
+                        tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
+                }
+
+                // Measure TPS every second
+                if (now - lastTickMeasure >= 1) {
+                    measuerdTPS = tickCount / (now - lastTickMeasure);
+                    tickCount = 0;
+                    lastTickMeasure = now;
+                    dispatch({ type: "information/setTPS", payload: measuerdTPS });
                 }
 
                 /*
@@ -571,6 +585,12 @@ export function Sim(props: SimProps) {
                         payload: followedBodyRadius,
                     });
                     uiAccumulatedTime = 0;
+
+                    // Performance stuff
+                    dispatch({
+                        type: "information/setFPS",
+                        payload: Math.round(1 / deltaTime),
+                    });
                 }
 
                 /*
