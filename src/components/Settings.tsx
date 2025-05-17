@@ -100,8 +100,8 @@ export function SettingsMenu() {
                         value={centerStarMass}
                         onChange={(e) => {
                             const val = e.target.valueAsNumber;
-                            if (val < universeSettings.starThreshold) {
-                                setCenterStarMass(universeSettings.starThreshold);
+                            if (val < MIN_STAR_MASS) {
+                                setCenterStarMass(MIN_STAR_MASS);
                                 return;
                             }
                             if (val > MAX_STAR_MASS) {
@@ -178,7 +178,6 @@ export function SettingsMenu() {
                                 timeStep: universeSettings.timeStep,
                                 numBodies: numBodies,
                                 size: universeSettings.size,
-                                starThreshold: universeSettings.starThreshold,
                                 starInCenter: starInCenter,
                                 centerStarMass: centerStarMass,
                                 minMass: minMass,

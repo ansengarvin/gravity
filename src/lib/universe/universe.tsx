@@ -419,7 +419,7 @@ export class Universe {
     }
 
     public isStar(idx: number) {
-        return this.bodiesActive[idx] && this.masses[idx] >= this.settings.starThreshold;
+        return this.bodiesActive[idx] && this.masses[idx] >= MassThresholds.STAR;
     }
 
     public getStarData(): Array<vec4> {

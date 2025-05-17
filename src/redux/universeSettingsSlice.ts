@@ -6,7 +6,6 @@ export interface UniverseSettings {
     timeStep: number;
     numBodies: number; // THe number of starting bodies in the universe
     size: number; // The size of the universe in astronomical units
-    starThreshold: number;
     starInCenter: boolean;
     centerStarMass: number;
     minMass: number;
@@ -17,8 +16,7 @@ const initialState: UniverseSettings = {
     seed: "irrelevant",
     timeStep: 1.0 / 12.0, // time step in years (1 month)
     numBodies: 500,
-    size: 20, // The size of the universe in astronomical units|
-    starThreshold: 0.08,
+    size: 20, // The size of the universe in astronomical units
     starInCenter: true,
     centerStarMass: 1.0,
     minMass: SolarSystemMassSolar.MARS,
@@ -34,7 +32,6 @@ export const universeSettingsSlice = createSlice({
             state.timeStep = action.payload.timeStep;
             state.numBodies = action.payload.numBodies;
             state.size = action.payload.size;
-            state.starThreshold = action.payload.starThreshold;
             state.starInCenter = action.payload.starInCenter;
             state.centerStarMass = action.payload.centerStarMass;
             state.minMass = action.payload.minMass;
