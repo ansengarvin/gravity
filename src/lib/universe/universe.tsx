@@ -232,6 +232,33 @@ export class Universe {
         this.initialize();
     }
 
+    /**
+     *
+     * Updates the universe with brownian motion (e.g. totally random, incremental motion).
+     * Included as a low-computation diagnostic tool for performance comparisons.
+     */
+    public updateBrownian(deltaTime: number) {
+        const dt = deltaTime * this.settings.timeStep;
+
+        this.timeElapsed += dt;
+
+        const motionScale = 0.01;
+        const displacement = motionScale * dt;
+
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            this.positionsX[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsY[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsZ[i] += getRandomFloat(-1, 1) * displacement;
+        }
+    }
+
+    /**
+     *
+     * Updates the universe via simple Euler integration.
+     */
     public updateEuler(deltaTime: number) {
         const dt = deltaTime * this.settings.timeStep;
 
