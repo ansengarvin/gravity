@@ -242,7 +242,7 @@ export class Universe {
 
         this.timeElapsed += dt;
 
-        const motionScale = 0.01;
+        const motionScale = 10;
         const displacement = motionScale * dt;
 
         for (let i = 0; i < this.settings.numBodies; i++) {

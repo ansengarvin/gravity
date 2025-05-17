@@ -540,7 +540,8 @@ export function Sim(props: SimProps) {
                 let updatesThisFrame = 0;
                 while (accumulatedTime >= secondsPerTick && updatesThisFrame < maxUpdatesAllowedAtOnce) {
                     if (!pausedRef.current) {
-                        universe.current.updateEuler(secondsPerTick);
+                        //universe.current.updateEuler(secondsPerTick);
+                        universe.current.updateBrownian(secondsPerTick);
                         tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
