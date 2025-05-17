@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export interface InformationState {
     // Universe information variables
+    fps: number;
+    tps: number; // ticks per second
     numActiveBodies: number;
     numStars: number;
     yearsElapsed: number;
@@ -21,6 +23,10 @@ export interface InformationState {
 }
 
 const initialState: InformationState = {
+    //
+    fps: 0,
+    tps: 0,
+    // Simulation variables
     numActiveBodies: 0,
     numStars: 0,
     yearsElapsed: 0,
@@ -44,6 +50,12 @@ export const informationSlice = createSlice({
     name: "information",
     initialState,
     reducers: {
+        setFPS: (state, action) => {
+            state.fps = action.payload;
+        },
+        setTPS: (state, action) => {
+            state.tps = action.payload;
+        },
         setNumActiveBodies: (state, action) => {
             state.numActiveBodies = action.payload;
         },
