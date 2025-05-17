@@ -546,7 +546,7 @@ export function Sim(props: SimProps) {
 
                 // Measure TPS every second
                 if (now - lastTickMeasure >= 1) {
-                    measuerdTPS = tickCount;
+                    measuerdTPS = tickCount / (now - lastTickMeasure);
                     tickCount = 0;
                     lastTickMeasure = now;
                     dispatch({ type: "information/setTPS", payload: measuerdTPS });
