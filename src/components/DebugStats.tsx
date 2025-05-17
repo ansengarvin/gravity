@@ -8,7 +8,7 @@ export function DebugStats() {
     return (
         <DebugStatsStyle>
             <div>FPS: {debug.fps}</div>
-            <div>TPS: {debug.tps}</div>
+            <div>TPS: {debug.tps.toFixed(2)}</div>
             <h2>Debug Stats</h2>
             <h3>Simulation</h3>
             <div>Number of Bodies: {debug.numActiveBodies}</div>
