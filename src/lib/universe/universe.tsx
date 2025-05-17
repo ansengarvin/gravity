@@ -473,7 +473,7 @@ export class Universe {
         // The velocity is proportional to the distance from the center of the universe.
         const positionVector = vec3.fromValues(x, y, z);
         const perpendicularUnitVector = vec3.create();
-        vec3.cross(perpendicularUnitVector, positionVector, vec3.fromValues(0, 0, 1)); // Perpendicular to the position vector
+        vec3.cross(perpendicularUnitVector, positionVector, vec3.fromValues(0, 1, 0)); // Perpendicular to the position vector
         vec3.normalize(perpendicularUnitVector, perpendicularUnitVector); // Normalize the vector
         const distanceFromCenter = vec3.length(positionVector);
         const angularVelocityMagnitude = Math.sqrt((G * M) / distanceFromCenter); // Gravitational acceleration
