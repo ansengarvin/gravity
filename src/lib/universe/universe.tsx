@@ -71,6 +71,37 @@ export class Universe {
         //return 1;
     }
 
+    public radius_from_mass_piecewise(mass: number): number {
+        const gasGiantThreshold = 0.00003;
+        const brownDwarfThreshold = 0.012;
+        const starThreshold = 0.08;
+        function f(x: number): number {
+            return 800 * x + 0.005;
+        }
+
+        function g(x: number): number {
+            return 1.8 * (x - gasGiantThreshold) + f(gasGiantThreshold);
+        }
+
+        function h(x: number): number {
+            return 0.45 * (x - brownDwarfThreshold) + g(brownDwarfThreshold);
+        }
+
+        function j(x: number): number {
+            return 0.025 * (x - starThreshold) + h(starThreshold);
+        }
+
+        if (mass <= gasGiantThreshold) {
+            return f(mass);
+        } else if (mass <= brownDwarfThreshold) {
+            return g(mass);
+        } else if (mass <= starThreshold) {
+            return h(mass);
+        } else {
+            return j(mass);
+        }
+    }
+
     public radius_from_mass_B(mass: number): number {
         const earthMassInSolarMasses = 3.003e-6;
         const jupiterMassInSolarMasses = 0.0009543;
@@ -135,7 +166,7 @@ export class Universe {
             this.bodiesActive[i] = 1;
 
             this.masses[i] = getRandomFloat(min_mass, max_mass);
-            this.radii[i] = this.radius_from_mass(this.masses[i]);
+            this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
         }
 
         // Set colors
@@ -273,7 +304,7 @@ export class Universe {
 
                     // Merge the masses
                     this.masses[most_massive] += this.masses[less_massive];
-                    this.radii[most_massive] = this.radius_from_mass(this.masses[most_massive]);
+                    this.radii[most_massive] = this.radius_from_mass_piecewise(this.masses[most_massive]);
                     this.velocitiesX[most_massive] =
                         (this.velocitiesX[most_massive] * this.masses[most_massive] +
                             this.velocitiesX[less_massive] * this.masses[less_massive]) /
