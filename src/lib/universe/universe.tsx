@@ -89,14 +89,20 @@ export class Universe {
             return 0.025 * (x - MassThresholds.STAR) + h(MassThresholds.STAR);
         }
 
+        function k(x: number): number {
+            return 0.156 * (Math.pow(x, 0.57) - MassThresholds.SOLAR) + j(MassThresholds.SOLAR);
+        }
+
         if (mass <= MassThresholds.GAS_GIANT) {
             return f(mass);
         } else if (mass <= MassThresholds.BROWN_DWARF) {
             return g(mass);
         } else if (mass <= MassThresholds.STAR) {
             return h(mass);
-        } else {
+        } else if (mass <= MassThresholds.SOLAR) {
             return j(mass);
+        } else {
+            return k(mass);
         }
     }
 
