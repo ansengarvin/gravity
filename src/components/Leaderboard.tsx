@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useState } from "react";
+import { Profiler, useMemo, useState } from "react";
 import { brightenColor } from "../lib/colors/brightenColor";
 import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
 import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
@@ -48,22 +48,24 @@ export function Leaderboard(props: LeaderboardProps) {
 
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
-            <LeaderboardContent>
-                {activeTab == LeaderboardTabType.BASIC && (
-                    <BasicTabContent
-                        sortedBodies={sortedBodies}
-                        sortCriteria={sortCriteria}
-                        setSortCriteria={setSortCriteria}
-                    />
-                )}
-                {activeTab == LeaderboardTabType.ORBIT && (
-                    <OrbitTabContent
-                        sortedBodies={sortedBodies}
-                        sortCriteria={sortCriteria}
-                        setSortCriteria={setSortCriteria}
-                    />
-                )}
-            </LeaderboardContent>
+            <Profiler id="Leaderboard" onRender={() => {}}>
+                <LeaderboardContent>
+                    {activeTab == LeaderboardTabType.BASIC && (
+                        <BasicTabContent
+                            sortedBodies={sortedBodies}
+                            sortCriteria={sortCriteria}
+                            setSortCriteria={setSortCriteria}
+                        />
+                    )}
+                    {activeTab == LeaderboardTabType.ORBIT && (
+                        <OrbitTabContent
+                            sortedBodies={sortedBodies}
+                            sortCriteria={sortCriteria}
+                            setSortCriteria={setSortCriteria}
+                        />
+                    )}
+                </LeaderboardContent>
+            </Profiler>
         </Menu>
     );
 }
@@ -113,14 +115,15 @@ function BasicTabContent(props: TabContentProps) {
             </thead>
             <tbody>
                 {sortedBodies.map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
                     return (
-                        <LeaderboardRowStyle
-                            key={body.index}
-                            bodyColor={body.color}
-                            selected={bodyFollowed == body.index}
-                        >
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
                             <td className="name">
-                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
                             </td>
                             <td>{body.mass.toFixed(5)}</td>
                             <td>{body.dOrigin.toFixed(2)}</td>
@@ -172,19 +175,24 @@ function OrbitTabContent(props: TabContentProps) {
             </thead>
             <tbody>
                 {sortedBodies.map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
                     return (
-                        <LeaderboardRowStyle
-                            key={body.index}
-                            bodyColor={body.color}
-                            selected={bodyFollowed == body.index}
-                        >
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
                             <td className="name">
-                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
                             </td>
                             <td>{body.numSatellites}</td>
                             <td className={body.orbiting != -1 ? "name" : ""}>
                                 {body.orbiting != -1 ? (
-                                    <BodySelectButton bodyIndex={body.orbiting} bodyColor={body.orbitColor} />
+                                    <BodySelectButton
+                                        bodyIndex={body.orbiting}
+                                        bodyColor={body.orbitColor}
+                                        selected={isFollowedBody}
+                                    />
                                 ) : (
                                     <>None</>
                                 )}
@@ -325,24 +333,24 @@ const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
 interface BodySelectButtonProps {
     bodyIndex: number;
     bodyColor: string;
+    selected: boolean;
 }
 
 function BodySelectButton(props: BodySelectButtonProps) {
-    const { bodyIndex, bodyColor } = props;
-    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const { bodyIndex, bodyColor, selected } = props;
     const dispatch = useDispatch();
     return (
         <BodySelectButtonStyle
             onClick={() => {
                 dispatch({
                     type: "controls/setBodyFollowed",
-                    payload: bodyFollowed == bodyIndex ? -1 : bodyIndex,
+                    payload: selected ? -1 : bodyIndex,
                 });
             }}
-            selected={bodyIndex == bodyFollowed}
+            selected={selected}
             bodyColor={bodyColor}
         >
-            {bodyIndex == bodyFollowed ? (
+            {selected ? (
                 <RadioButtonCheckedIcon filled={false} color={"black"} dim={"1rem"} />
             ) : (
                 <RadioButtonUncheckedIcon filled={false} color={"black"} dim={"1rem"} />
