@@ -1,5 +1,5 @@
 import { getRandomFloat } from "../../random/random";
-import { vec4 } from "gl-matrix";
+import { vec3, vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/conversions";
@@ -464,5 +464,27 @@ export class Universe {
         const U = G * (this.masses[bodyA] + this.masses[bodyB]);
 
         return 0.5 * v * v - U / r;
+    }
+
+    /*
+        Getters
+    */
+    public getRadius(idx: number): number {
+        return this.radii[idx];
+    }
+    public getMass(idx: number): number {
+        return this.masses[idx];
+    }
+    public getPositionX(idx: number): number {
+        return this.positionsX[idx];
+    }
+    public getPosition(idx: number): vec3 {
+        return vec3.fromValues(this.positionsX[idx], this.positionsY[idx], this.positionsZ[idx]);
+    }
+    public getVelocity(idx: number): vec3 {
+        return vec3.fromValues(this.velocitiesX[idx], this.velocitiesY[idx], this.velocitiesZ[idx]);
+    }
+    public getAcceleration(idx: number): vec3 {
+        return vec3.fromValues(this.accelerationsX[idx], this.accelerationsY[idx], this.accelerationsZ[idx]);
     }
 }

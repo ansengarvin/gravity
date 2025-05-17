@@ -5,6 +5,7 @@ export interface InformationState {
     numActiveBodies: number;
     numStars: number;
     yearsElapsed: number;
+    followedBodyRadius: number | null;
     // Graphics debug variables
     maxVertexUniformVectors: number | null;
     maxFragmentUniformVectors: number | null;
@@ -23,6 +24,7 @@ const initialState: InformationState = {
     numActiveBodies: 0,
     numStars: 0,
     yearsElapsed: 0,
+    followedBodyRadius: null,
     // Debug variables are actually initialized by the program.
     // Set to null here so if these dispatches fail, we can know.
     maxVertexUniformVectors: null,
@@ -83,6 +85,9 @@ export const informationSlice = createSlice({
         },
         setInternalFormatUsed: (state, action) => {
             state.internalFormatUsed = action.payload;
+        },
+        setFollowedBodyRadius: (state, action) => {
+            state.followedBodyRadius = action.payload;
         },
     },
 });
