@@ -15,7 +15,7 @@ export interface UniverseSettings {
 const initialState: UniverseSettings = {
     seed: "irrelevant",
     timeStep: 1.0 / 12.0, // time step in years (1 month)
-    numBodies: 500,
+    numBodies: 1000,
     size: 20, // The size of the universe in astronomical units
     starInCenter: true,
     centerStarMass: 1.0,
