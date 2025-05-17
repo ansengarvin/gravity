@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useState } from "react";
+import { Profiler, useMemo, useState } from "react";
 import { brightenColor } from "../lib/colors/brightenColor";
 import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
 import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
@@ -24,7 +24,7 @@ export interface LeaderboardBody {
     orbiting: number;
     dOrbit: number;
     orbitColor: string;
-    numSattelites: number;
+    numSatellites: number;
 }
 
 export interface LeaderboardProps {
@@ -40,29 +40,32 @@ export function Leaderboard(props: LeaderboardProps) {
     const { leaderboardBodies } = props;
     const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
     const sortedBodies = useMemo(() => {
-        return sortBodies(leaderboardBodies, sortCriteria);
+        const sorted = sortBodies(leaderboardBodies, sortCriteria);
+        return sorted;
     }, [sortCriteria, leaderboardBodies]);
 
     const [activeTab, setActiveTab] = useState<string>(LeaderboardTabType.BASIC);
 
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
-            <LeaderboardContent>
-                {activeTab == LeaderboardTabType.BASIC && (
-                    <BasicTabContent
-                        sortedBodies={sortedBodies}
-                        sortCriteria={sortCriteria}
-                        setSortCriteria={setSortCriteria}
-                    />
-                )}
-                {activeTab == LeaderboardTabType.ORBIT && (
-                    <OrbitTabContent
-                        sortedBodies={sortedBodies}
-                        sortCriteria={sortCriteria}
-                        setSortCriteria={setSortCriteria}
-                    />
-                )}
-            </LeaderboardContent>
+            <Profiler id="Leaderboard" onRender={() => {}}>
+                <LeaderboardContent>
+                    {activeTab == LeaderboardTabType.BASIC && (
+                        <BasicTabContent
+                            sortedBodies={sortedBodies}
+                            sortCriteria={sortCriteria}
+                            setSortCriteria={setSortCriteria}
+                        />
+                    )}
+                    {activeTab == LeaderboardTabType.ORBIT && (
+                        <OrbitTabContent
+                            sortedBodies={sortedBodies}
+                            sortCriteria={sortCriteria}
+                            setSortCriteria={setSortCriteria}
+                        />
+                    )}
+                </LeaderboardContent>
+            </Profiler>
         </Menu>
     );
 }
@@ -112,14 +115,15 @@ function BasicTabContent(props: TabContentProps) {
             </thead>
             <tbody>
                 {sortedBodies.map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
                     return (
-                        <LeaderboardRowStyle
-                            key={body.index}
-                            bodyColor={body.color}
-                            selected={bodyFollowed == body.index}
-                        >
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
                             <td className="name">
-                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
                             </td>
                             <td>{body.mass.toFixed(5)}</td>
                             <td>{body.dOrigin.toFixed(2)}</td>
@@ -171,19 +175,24 @@ function OrbitTabContent(props: TabContentProps) {
             </thead>
             <tbody>
                 {sortedBodies.map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
                     return (
-                        <LeaderboardRowStyle
-                            key={body.index}
-                            bodyColor={body.color}
-                            selected={bodyFollowed == body.index}
-                        >
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
                             <td className="name">
-                                <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
                             </td>
-                            <td>{body.numSattelites}</td>
+                            <td>{body.numSatellites}</td>
                             <td className={body.orbiting != -1 ? "name" : ""}>
                                 {body.orbiting != -1 ? (
-                                    <BodySelectButton bodyIndex={body.orbiting} bodyColor={body.orbitColor} />
+                                    <BodySelectButton
+                                        bodyIndex={body.orbiting}
+                                        bodyColor={body.orbitColor}
+                                        selected={isFollowedBody}
+                                    />
                                 ) : (
                                     <>None</>
                                 )}
@@ -324,24 +333,24 @@ const LeaderboardSortHeaderStyle = styled.th<{ selected: boolean }>`
 interface BodySelectButtonProps {
     bodyIndex: number;
     bodyColor: string;
+    selected: boolean;
 }
 
 function BodySelectButton(props: BodySelectButtonProps) {
-    const { bodyIndex, bodyColor } = props;
-    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const { bodyIndex, bodyColor, selected } = props;
     const dispatch = useDispatch();
     return (
         <BodySelectButtonStyle
             onClick={() => {
                 dispatch({
                     type: "controls/setBodyFollowed",
-                    payload: bodyFollowed == bodyIndex ? -1 : bodyIndex,
+                    payload: selected ? -1 : bodyIndex,
                 });
             }}
-            selected={bodyIndex == bodyFollowed}
+            selected={selected}
             bodyColor={bodyColor}
         >
-            {bodyIndex == bodyFollowed ? (
+            {selected ? (
                 <RadioButtonCheckedIcon filled={false} color={"black"} dim={"1rem"} />
             ) : (
                 <RadioButtonUncheckedIcon filled={false} color={"black"} dim={"1rem"} />
@@ -407,7 +416,7 @@ interface SortCriteria {
 }
 
 function sortBodies(bodies: LeaderboardBody[], criteria: SortCriteria): LeaderboardBody[] {
-    return bodies.sort((a, b) => {
+    return bodies.toSorted((a, b) => {
         if (criteria.type === SortType.NAME) {
             return criteria.ascending ? a.index - b.index : b.index - a.index;
         } else if (criteria.type === SortType.MASS) {
@@ -438,8 +447,8 @@ function sortBodies(bodies: LeaderboardBody[], criteria: SortCriteria): Leaderbo
                 : b.dOrbit - a.dOrbit || a.index - b.index;
         } else if (criteria.type === SortType.NUM_SAT) {
             return criteria.ascending
-                ? a.numSattelites - b.numSattelites || a.index - b.index
-                : b.numSattelites - a.numSattelites || a.index - b.index;
+                ? a.numSatellites - b.numSatellites || a.index - b.index
+                : b.numSatellites - a.numSatellites || a.index - b.index;
         } else {
             // Default case for MASS in descending order
             return b.mass - a.mass;
