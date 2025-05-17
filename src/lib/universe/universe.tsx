@@ -3,6 +3,7 @@ import { vec3, vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../components/Leaderboard";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/conversions";
+import { MassThresholds } from "../defines/physics";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -72,30 +73,27 @@ export class Universe {
     }
 
     public radius_from_mass_piecewise(mass: number): number {
-        const gasGiantThreshold = 0.00003;
-        const brownDwarfThreshold = 0.012;
-        const starThreshold = 0.08;
         function f(x: number): number {
             return 800 * x + 0.005;
         }
 
         function g(x: number): number {
-            return 1.8 * (x - gasGiantThreshold) + f(gasGiantThreshold);
+            return 1.8 * (x - MassThresholds.GAS_GIANT) + f(MassThresholds.GAS_GIANT);
         }
 
         function h(x: number): number {
-            return 0.45 * (x - brownDwarfThreshold) + g(brownDwarfThreshold);
+            return 0.45 * (x - MassThresholds.BROWN_DWARF) + g(MassThresholds.BROWN_DWARF);
         }
 
         function j(x: number): number {
-            return 0.025 * (x - starThreshold) + h(starThreshold);
+            return 0.025 * (x - MassThresholds.STAR) + h(MassThresholds.STAR);
         }
 
-        if (mass <= gasGiantThreshold) {
+        if (mass <= MassThresholds.GAS_GIANT) {
             return f(mass);
-        } else if (mass <= brownDwarfThreshold) {
+        } else if (mass <= MassThresholds.BROWN_DWARF) {
             return g(mass);
-        } else if (mass <= starThreshold) {
+        } else if (mass <= MassThresholds.STAR) {
             return h(mass);
         } else {
             return j(mass);

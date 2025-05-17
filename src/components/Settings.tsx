@@ -3,6 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux/store";
 import { useState } from "react";
 import { CircleType } from "../redux/controlsSlice";
+import { SolarSystemMassSolar } from "../lib/defines/solarSystem";
+import { MassThresholds } from "../lib/defines/physics";
 
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
@@ -13,6 +15,15 @@ export function SettingsMenu() {
 
     const [seed, setSeed] = useState(universeSettings.seed);
     const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
+    const [minMass, setMinMass] = useState(universeSettings.minMass);
+    const [maxMass, setMaxMass] = useState(universeSettings.maxMass);
+    const [starInCenter, setStarInCenter] = useState(universeSettings.starInCenter);
+    const [centerStarMass, setCenterStarMass] = useState(universeSettings.centerStarMass);
+
+    const MAX_BODY_MASS = 10.0; // 10 solar masses
+    const MIN_BODY_MASS = SolarSystemMassSolar.PLUTO;
+    const MIN_STAR_MASS = MassThresholds.STAR;
+    const MAX_STAR_MASS = 100.0;
 
     return (
         <SettingsStyle>
@@ -71,6 +82,38 @@ export function SettingsMenu() {
                         setSeed(e.target.value);
                     }}
                 />
+                <div>
+                    <input
+                        type="checkbox"
+                        id="setStarInCenter"
+                        checked={starInCenter}
+                        onChange={(e) => {
+                            setStarInCenter(e.target.checked);
+                        }}
+                    />
+                    <label htmlFor="setStarInCenter">Central Star</label>
+                </div>
+                <div>
+                    <label htmlFor="centralStarMass">Mass:</label>
+                    <input
+                        type="number"
+                        value={centerStarMass}
+                        onChange={(e) => {
+                            const val = e.target.valueAsNumber;
+                            if (val < universeSettings.starThreshold) {
+                                setCenterStarMass(universeSettings.starThreshold);
+                                return;
+                            }
+                            if (val > MAX_STAR_MASS) {
+                                setCenterStarMass(MAX_STAR_MASS);
+                                return;
+                            }
+                            setCenterStarMass(e.target.valueAsNumber);
+                        }}
+                        disabled={!starInCenter}
+                    />
+                </div>
+
                 <label>Num. Grav. Bodies</label>
                 <input
                     type="number"
@@ -85,6 +128,46 @@ export function SettingsMenu() {
                     }}
                     step="1"
                 />
+                <label>Max and Min Mass</label>
+                <div>
+                    <input
+                        className="big"
+                        type="number"
+                        value={minMass}
+                        onChange={(e) => {
+                            const val = e.target.valueAsNumber;
+                            if (val > maxMass) {
+                                setMinMass(maxMass);
+                                return;
+                            }
+                            if (val < MIN_BODY_MASS) {
+                                setMinMass(MIN_BODY_MASS);
+                                return;
+                            }
+                            setMinMass(e.target.valueAsNumber);
+                        }}
+                        step="1"
+                    />
+                    <input
+                        className="big"
+                        type="number"
+                        value={maxMass}
+                        onChange={(e) => {
+                            const val = e.target.valueAsNumber;
+                            if (val < minMass) {
+                                setMaxMass(minMass);
+                                return;
+                            }
+                            if (val > MAX_BODY_MASS) {
+                                setMaxMass(MAX_BODY_MASS);
+                                return;
+                            }
+                            setMaxMass(e.target.valueAsNumber);
+                        }}
+                        step="1"
+                    />
+                </div>
+
                 <button
                     onClick={(e) => {
                         e.preventDefault();
@@ -96,6 +179,10 @@ export function SettingsMenu() {
                                 numBodies: numBodies,
                                 size: universeSettings.size,
                                 starThreshold: universeSettings.starThreshold,
+                                starInCenter: starInCenter,
+                                centerStarMass: centerStarMass,
+                                minMass: minMass,
+                                maxMass: maxMass,
                             },
                         });
                     }}
@@ -134,6 +221,10 @@ const SettingsStyle = styled.div`
 
         input[type="number"] {
             width: 3rem;
+        }
+
+        input.big {
+            width: 5rem;
         }
     }
 `;

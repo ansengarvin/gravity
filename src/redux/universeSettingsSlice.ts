@@ -35,6 +35,10 @@ export const universeSettingsSlice = createSlice({
             state.numBodies = action.payload.numBodies;
             state.size = action.payload.size;
             state.starThreshold = action.payload.starThreshold;
+            state.starInCenter = action.payload.starInCenter;
+            state.centerStarMass = action.payload.centerStarMass;
+            state.minMass = action.payload.minMass;
+            state.maxMass = action.payload.maxMass;
         },
     },
 });
