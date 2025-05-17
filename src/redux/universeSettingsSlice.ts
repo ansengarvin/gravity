@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { SolarSystemMassSolar } from "../lib/defines/solarSystem";
 
 export interface UniverseSettings {
     seed: string;
@@ -16,8 +17,8 @@ const initialState: UniverseSettings = {
     numBodies: 500,
     size: 20, // The size of the universe in astronomical units|
     starThreshold: 0.08,
-    minMass: 0.001,
-    maxMass: 0.1,
+    minMass: SolarSystemMassSolar.MARS,
+    maxMass: SolarSystemMassSolar.JUPITER,
 };
 
 export const universeSettingsSlice = createSlice({
