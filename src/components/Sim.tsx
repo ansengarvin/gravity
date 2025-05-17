@@ -195,7 +195,6 @@ export function Sim(props: SimProps) {
                 type: "information/setOesHalfFloatLinearSupported",
                 payload: oesTextureHalfFloatLinearSupported,
             });
-            console.log(oesTextureHalfFloatLinearSupported);
 
             /*
                 Initialize all shader programs
@@ -563,6 +562,13 @@ export function Sim(props: SimProps) {
                     dispatch({
                         type: "information/setYearsElapsed",
                         payload: universe.current.timeElapsed,
+                    });
+                    const followedBodyRadius = bodyFollowedRef.current
+                        ? universe.current.getRadius(bodyFollowedRef.current)
+                        : null;
+                    dispatch({
+                        type: "information/setFollowedBodyRadius",
+                        payload: followedBodyRadius,
                     });
                     uiAccumulatedTime = 0;
                 }

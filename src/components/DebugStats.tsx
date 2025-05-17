@@ -11,6 +11,7 @@ export function DebugStats() {
             <h3>Simulation</h3>
             <div>Number of Bodies: {debug.numActiveBodies}</div>
             <div>Number of Stars: {debug.numStars}</div>
+            <div>Radius of Followed Body: {debug.followedBodyRadius}</div>
             <h3>OpenGL</h3>
             <div>Max Vertex Uniform Vectors: {debug.maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>

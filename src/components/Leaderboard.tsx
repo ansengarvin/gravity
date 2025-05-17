@@ -121,7 +121,7 @@ function BasicTabContent(props: TabContentProps) {
                             <td className="name">
                                 <BodySelectButton bodyIndex={body.index} bodyColor={body.color} />
                             </td>
-                            <td>{body.mass.toFixed(2)}</td>
+                            <td>{body.mass.toFixed(5)}</td>
                             <td>{body.dOrigin.toFixed(2)}</td>
                             <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
                         </LeaderboardRowStyle>
