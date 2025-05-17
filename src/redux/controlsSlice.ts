@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export enum MenuName {
     NONE,
@@ -46,7 +46,7 @@ export const controlSlice = createSlice({
             state.bodyFollowed = -1;
             state.resetCam += 1;
         },
-        setBodyFollowed: (state, action) => {
+        setBodyFollowed: (state, action: PayloadAction<number>) => {
             state.bodyFollowed = action.payload;
         },
         unsetBodyFollowed: (state) => {
@@ -61,7 +61,7 @@ export const controlSlice = createSlice({
         toggleDebug: (state) => {
             state.showDebug = !state.showDebug;
         },
-        setCircleType: (state, action) => {
+        setCircleType: (state, action: PayloadAction<CircleType>) => {
             state.circleType = action.payload;
         },
     },

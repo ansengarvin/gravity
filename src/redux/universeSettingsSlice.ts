@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SolarSystemMassSolar } from "../lib/defines/solarSystem";
 
 export interface UniverseSettings {
@@ -27,7 +27,7 @@ export const universeSettingsSlice = createSlice({
     name: "universeSettings",
     initialState,
     reducers: {
-        setAll: (state: UniverseSettings, action) => {
+        setAll: (state: UniverseSettings, action: PayloadAction<UniverseSettings>) => {
             state.seed = action.payload.seed;
             state.timeStep = action.payload.timeStep;
             state.numBodies = action.payload.numBodies;
