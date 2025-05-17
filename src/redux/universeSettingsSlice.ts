@@ -6,6 +6,8 @@ export interface UniverseSettings {
     numBodies: number; // THe number of starting bodies in the universe
     size: number; // The size of the universe in astronomical units
     starThreshold: number;
+    minMass: number;
+    maxMass: number;
 }
 
 const initialState: UniverseSettings = {
@@ -13,7 +15,9 @@ const initialState: UniverseSettings = {
     timeStep: 1.0 / 12.0, // time step in years (1 month)
     numBodies: 500,
     size: 20, // The size of the universe in astronomical units|
-    starThreshold: 0.8,
+    starThreshold: 0.08,
+    minMass: 0.001,
+    maxMass: 0.1,
 };
 
 export const universeSettingsSlice = createSlice({

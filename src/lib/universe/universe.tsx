@@ -134,11 +134,6 @@ export class Universe {
         // const min_velocity = 0.0;
         // const max_velocity = 3;
 
-        // Masses are in solar masses
-        // For reference, the Sun's mass is 1 solar mass.
-        const min_mass = 0.001; // 0.1 solar masses
-        const max_mass = 0.1; // 1 solar mass
-
         for (let i = 0; i < this.settings.numBodies; i++) {
             // this.positionsX[i] = getRandomFloat(min_position, max_position);
             // this.positionsY[i] = getRandomFloat(-1, 1);
@@ -165,7 +160,7 @@ export class Universe {
 
             this.bodiesActive[i] = 1;
 
-            this.masses[i] = getRandomFloat(min_mass, max_mass);
+            this.masses[i] = getRandomFloat(this.settings.minMass, this.settings.maxMass);
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
         }
 
