@@ -536,12 +536,23 @@ export function Sim(props: SimProps) {
                 // Tick stuff
 
                 //Update the universe simulation
-                while (accumulatedTime >= secondsPerTick) {
+                const maxUpdatesAllowedAtOnce = 30;
+                let updatesThisFrame = 0;
+                while (accumulatedTime >= secondsPerTick && updatesThisFrame < maxUpdatesAllowedAtOnce) {
                     if (!pausedRef.current) {
                         universe.current.updateEuler(secondsPerTick);
                         tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
+                    updatesThisFrame++;
+                }
+
+                if (updatesThisFrame === maxUpdatesAllowedAtOnce && accumulatedTime > 0) {
+                    console.log(
+                        `Simulation capped at ${maxUpdatesAllowedAtOnce} updates this frame.`,
+                        `Dropping ${accumulatedTime.toFixed(3)}s of accumulated time (likely due to tab-out).`,
+                    );
+                    accumulatedTime = 0;
                 }
 
                 // Measure TPS every second
