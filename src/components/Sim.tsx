@@ -93,6 +93,11 @@ export function Sim(props: SimProps) {
         starLightRef.current = graphicsSettings.starLight;
     }, [graphicsSettings.starLight]);
 
+    const renderEnabledRef = useRef(graphicsSettings.renderEnabled);
+    useEffect(() => {
+        renderEnabledRef.current = graphicsSettings.renderEnabled;
+    }, [graphicsSettings.renderEnabled]);
+
     // User controls
     const resetSim = useSelector((state: RootState) => state.controls.resetSim);
     const resetCam = useSelector((state: RootState) => state.controls.resetCam);
@@ -612,8 +617,7 @@ export function Sim(props: SimProps) {
                 /*
                     Render scene from universe
                 */
-                const renderEnabled = true;
-                if (renderEnabled) {
+                if (renderEnabledRef.current) {
                     // Set GL active texture to the default of 0 for safety
                     gl.activeTexture(gl.TEXTURE0);
 

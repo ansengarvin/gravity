@@ -2,10 +2,12 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export interface GraphicsSettingsState {
     starLight: boolean;
+    renderEnabled: boolean;
 }
 
 const initialState: GraphicsSettingsState = {
     starLight: true,
+    renderEnabled: true,
 };
 
 export const graphicsSettingsSlice = createSlice({
@@ -14,6 +16,9 @@ export const graphicsSettingsSlice = createSlice({
     reducers: {
         toggleStarLight: (state) => {
             state.starLight = !state.starLight;
+        },
+        toggleRender: (state) => {
+            state.renderEnabled = !state.renderEnabled;
         },
     },
 });
