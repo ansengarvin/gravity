@@ -24,7 +24,6 @@ const leaderboardTabs: Tab[] = [
 export function Leaderboard() {
     const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
     const leaderboardBodies = useSelector((state: RootState) => state.information.leaderboard);
-    console.log(leaderboardBodies);
     const sortedBodies = useMemo(() => {
         const sorted = sortBodies(leaderboardBodies, sortCriteria);
         return sorted;
