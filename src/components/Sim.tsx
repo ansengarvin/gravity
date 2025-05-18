@@ -541,13 +541,13 @@ export function Sim(props: SimProps) {
                 // Tick stuff
 
                 //Update the universe simulation
-                const maxUpdatesAllowedAtOnce = 30;
+                const maxUpdatesAllowedAtOnce = 60;
                 let updatesThisFrame = 0;
                 while (accumulatedTime >= secondsPerTick && updatesThisFrame < maxUpdatesAllowedAtOnce) {
                     if (!pausedRef.current) {
                         //universe.current.updateEulerHalved(secondsPerTick);
-                        universe.current.updateBrownian(secondsPerTick);
-                        //universe.current.updateSmallRandom(secondsPerTick);
+                        //universe.current.updateBrownian(secondsPerTick);
+                        universe.current.updateSmallRandom(secondsPerTick);
                         tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
