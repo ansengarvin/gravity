@@ -540,8 +540,9 @@ export function Sim(props: SimProps) {
                 let updatesThisFrame = 0;
                 while (accumulatedTime >= secondsPerTick && updatesThisFrame < maxUpdatesAllowedAtOnce) {
                     if (!pausedRef.current) {
-                        //universe.current.updateEuler(secondsPerTick);
+                        //universe.current.updateEulerHalved(secondsPerTick);
                         universe.current.updateBrownian(secondsPerTick);
+                        //universe.current.updateSmallRandom(secondsPerTick);
                         tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
@@ -611,322 +612,334 @@ export function Sim(props: SimProps) {
                 /*
                     Render scene from universe
                 */
-                // Set GL active texture to the default of 0 for safety
-                gl.activeTexture(gl.TEXTURE0);
+                const renderEnabled = true;
+                if (renderEnabled) {
+                    // Set GL active texture to the default of 0 for safety
+                    gl.activeTexture(gl.TEXTURE0);
 
-                // Create Projection Matrix (used by all shaders)
-                const projectionMatrix = mat4.create();
-                const canvas = gl.canvas as HTMLCanvasElement;
-                const aspect = canvas.clientWidth / canvas.clientHeight;
-                mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
-                // Create View Matrix (used by all shaders)
-                if (bodyFollowedRef.current !== -1) {
-                    cameraRef.current.setTarget(
-                        universe.current.positionsX[bodyFollowedRef.current],
-                        universe.current.positionsY[bodyFollowedRef.current],
-                        universe.current.positionsZ[bodyFollowedRef.current],
-                    );
-                }
-                const viewMatrix = cameraRef.current.getViewMatrix();
+                    // Create Projection Matrix (used by all shaders)
+                    const projectionMatrix = mat4.create();
+                    const canvas = gl.canvas as HTMLCanvasElement;
+                    const aspect = canvas.clientWidth / canvas.clientHeight;
+                    mat4.perspective(projectionMatrix, fieldOfView, aspect, zNear, zFar);
+                    // Create View Matrix (used by all shaders)
+                    if (bodyFollowedRef.current !== -1) {
+                        cameraRef.current.setTarget(
+                            universe.current.positionsX[bodyFollowedRef.current],
+                            universe.current.positionsY[bodyFollowedRef.current],
+                            universe.current.positionsZ[bodyFollowedRef.current],
+                        );
+                    }
+                    const viewMatrix = cameraRef.current.getViewMatrix();
 
-                // Bind scene framebuffer and clear
-                gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
-                gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
-                gl.clearDepth(1.0); // Clear everything
-                gl.enable(gl.DEPTH_TEST); // Enable depth testing
-                gl.depthFunc(gl.LEQUAL); // Near things obscure far things
-                gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+                    // Bind scene framebuffer and clear
+                    gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
+                    gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
+                    gl.clearDepth(1.0); // Clear everything
+                    gl.enable(gl.DEPTH_TEST); // Enable depth testing
+                    gl.depthFunc(gl.LEQUAL); // Near things obscure far things
+                    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-                /*
-                    Draw debug circles
-                */
-                if (!(circleTypeRef.current == CircleType.NONE)) {
-                    gl.useProgram(simpleProgramInfo.program);
-                    gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
-                    setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
+                    /*
+                        Draw debug circles
+                    */
+                    if (!(circleTypeRef.current == CircleType.NONE)) {
+                        gl.useProgram(simpleProgramInfo.program);
+                        gl.bindBuffer(gl.ARRAY_BUFFER, circleBuffers.position);
+                        setPositionAttribute(gl, circleBuffers, simpleProgramInfo.attribLocations);
 
-                    const dAUIncremental = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50];
-                    const dAUSolar = [
-                        SolarSystemDistanceAU.MERCURY,
-                        SolarSystemDistanceAU.VENUS,
-                        SolarSystemDistanceAU.EARTH,
-                        SolarSystemDistanceAU.MARS,
-                        SolarSystemDistanceAU.JUPITER,
-                        SolarSystemDistanceAU.SATURN,
-                        SolarSystemDistanceAU.URANUS,
-                        SolarSystemDistanceAU.NEPTUNE,
-                        SolarSystemDistanceAU.PLUTO,
-                    ];
-                    const colorSolar = [
-                        [0.62, 0.412, 0.518], // Mercury is purpleish
-                        [1, 0.933, 0.71], // Venus is yellowish
-                        [0.2, 0.6, 1], // Earth is blue
-                        [1, 0.478, 0.176], // Mars is orange
-                        [1, 0.82, 0.573], // Jupiter is red
-                        [1, 0.902, 0.573], // Saturn is tannish yellow
-                        [0.486, 1, 0.996], // Uranus is sky blue
-                        [0.486, 0.565, 1], // Neptune is deep blue
-                        [0.812, 0.812, 0.812], // Pluto is grey
-                    ];
+                        const dAUIncremental = [1, 2, 3, 4, 5, 10, 15, 20, 30, 40, 50];
+                        const dAUSolar = [
+                            SolarSystemDistanceAU.MERCURY,
+                            SolarSystemDistanceAU.VENUS,
+                            SolarSystemDistanceAU.EARTH,
+                            SolarSystemDistanceAU.MARS,
+                            SolarSystemDistanceAU.JUPITER,
+                            SolarSystemDistanceAU.SATURN,
+                            SolarSystemDistanceAU.URANUS,
+                            SolarSystemDistanceAU.NEPTUNE,
+                            SolarSystemDistanceAU.PLUTO,
+                        ];
+                        const colorSolar = [
+                            [0.62, 0.412, 0.518], // Mercury is purpleish
+                            [1, 0.933, 0.71], // Venus is yellowish
+                            [0.2, 0.6, 1], // Earth is blue
+                            [1, 0.478, 0.176], // Mars is orange
+                            [1, 0.82, 0.573], // Jupiter is red
+                            [1, 0.902, 0.573], // Saturn is tannish yellow
+                            [0.486, 1, 0.996], // Uranus is sky blue
+                            [0.486, 0.565, 1], // Neptune is deep blue
+                            [0.812, 0.812, 0.812], // Pluto is grey
+                        ];
 
-                    const dAU = circleTypeRef.current === CircleType.SOLAR ? dAUSolar : dAUIncremental;
+                        const dAU = circleTypeRef.current === CircleType.SOLAR ? dAUSolar : dAUIncremental;
 
-                    const camTarget = cameraRef.current.getTarget();
+                        const camTarget = cameraRef.current.getTarget();
 
-                    for (let i = 0; i < dAU.length; i++) {
-                        const circleModelMatrix = mat4.create();
-                        mat4.translate(circleModelMatrix, circleModelMatrix, [
-                            camTarget[0],
-                            camTarget[1],
-                            camTarget[2],
-                        ]);
-                        mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
-                        const circleModelViewMatrix = mat4.create();
-                        mat4.multiply(circleModelViewMatrix, viewMatrix, circleModelMatrix);
+                        for (let i = 0; i < dAU.length; i++) {
+                            const circleModelMatrix = mat4.create();
+                            mat4.translate(circleModelMatrix, circleModelMatrix, [
+                                camTarget[0],
+                                camTarget[1],
+                                camTarget[2],
+                            ]);
+                            mat4.scale(circleModelMatrix, circleModelMatrix, [dAU[i], dAU[i], dAU[i]]);
+                            const circleModelViewMatrix = mat4.create();
+                            mat4.multiply(circleModelViewMatrix, viewMatrix, circleModelMatrix);
 
+                            gl.uniformMatrix4fv(
+                                simpleProgramInfo.uniformLocations.projectionMatrix,
+                                false,
+                                projectionMatrix,
+                            );
+                            gl.uniformMatrix4fv(
+                                simpleProgramInfo.uniformLocations.modelViewMatrix,
+                                false,
+                                circleModelViewMatrix,
+                            );
+
+                            if (circleTypeRef.current === CircleType.SOLAR) {
+                                gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [
+                                    colorSolar[i][0],
+                                    colorSolar[i][1],
+                                    colorSolar[i][2],
+                                    1,
+                                ]);
+                            } else {
+                                gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
+                            }
+
+                            gl.lineWidth(4.0);
+                            gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
+                        }
+                    }
+
+                    // Bind sphere buffers
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
+                    gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
+
+                    // Set sphere lighting shader
+                    if (starLightRef.current) {
+                        setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        gl.useProgram(starlightProgramInfo.program);
+
+                        // Bind projection matrix
                         gl.uniformMatrix4fv(
-                            simpleProgramInfo.uniformLocations.projectionMatrix,
+                            starlightProgramInfo.uniformLocations.projectionMatrix,
                             false,
                             projectionMatrix,
                         );
-                        gl.uniformMatrix4fv(
-                            simpleProgramInfo.uniformLocations.modelViewMatrix,
-                            false,
-                            circleModelViewMatrix,
-                        );
 
-                        if (circleTypeRef.current === CircleType.SOLAR) {
-                            gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [
-                                colorSolar[i][0],
-                                colorSolar[i][1],
-                                colorSolar[i][2],
-                                1,
-                            ]);
-                        } else {
-                            gl.uniform4fv(simpleProgramInfo.uniformLocations.uFragColor, [1, 1, 1, 1]);
+                        // Data for calculating star light
+                        const starData: Array<vec4> = universe.current.getStarData();
+                        const numStars = starData.length;
+                        gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
+
+                        if (numStars > 0) {
+                            const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
+                            gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
                         }
 
-                        gl.lineWidth(4.0);
-                        gl.drawArrays(gl.LINE_LOOP, 0, NUM_CIRCLE_VERTICES);
-                    }
-                }
-
-                // Bind sphere buffers
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, sphereBuffers.indices);
-                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.position);
-                gl.bindBuffer(gl.ARRAY_BUFFER, sphereBuffers.normal);
-
-                // Set sphere lighting shader
-                if (starLightRef.current) {
-                    setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                    setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
-                    gl.useProgram(starlightProgramInfo.program);
-
-                    // Bind projection matrix
-                    gl.uniformMatrix4fv(
-                        starlightProgramInfo.uniformLocations.projectionMatrix,
-                        false,
-                        projectionMatrix,
-                    );
-
-                    // Data for calculating star light
-                    const starData: Array<vec4> = universe.current.getStarData();
-                    const numStars = starData.length;
-                    gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
-
-                    if (numStars > 0) {
-                        const flattenedStarLocs = starData.flatMap((vec) => [vec[0], vec[1], vec[2]]);
-                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uStarLocations, flattenedStarLocs);
-                    }
-
-                    const viewPos = cameraRef.current.getPosition();
-                    gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
-                } else {
-                    // Bind Buffers
-                    setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-                    setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
-
-                    gl.useProgram(camlightProgramInfo.program);
-
-                    // Bind projection matrix
-                    gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.projectionMatrix, false, projectionMatrix);
-                }
-
-                /*
-                    Draw Scene
-                */
-                for (let i = 0; i < universe.current.settings.numBodies; i++) {
-                    if (!universe.current.bodiesActive[i]) {
-                        continue;
-                    }
-
-                    const modelMatrix = mat4.create();
-                    mat4.translate(modelMatrix, modelMatrix, [
-                        universe.current.positionsX[i],
-                        universe.current.positionsY[i],
-                        universe.current.positionsZ[i],
-                    ]);
-                    mat4.scale(modelMatrix, modelMatrix, [
-                        universe.current.radii[i],
-                        universe.current.radii[i],
-                        universe.current.radii[i],
-                    ]);
-
-                    const modelViewMatrix = mat4.create();
-                    mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
-
-                    // Bind uniforms based on current lighting mode
-
-                    if (starLightRef.current) {
-                        const normalMatrix = mat4.create();
-                        mat4.invert(normalMatrix, modelMatrix);
-                        mat4.transpose(normalMatrix, normalMatrix);
-
-                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
-                        gl.uniformMatrix4fv(
-                            starlightProgramInfo.uniformLocations.modelViewMatrix,
-                            false,
-                            modelViewMatrix,
-                        );
-                        gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
-                        const isStar = universe.current.isStar(i) ? 1 : 0;
-                        gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
-                        gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
-                            universe.current.colorsR[i],
-                            universe.current.colorsG[i],
-                            universe.current.colorsB[i],
-                            1.0,
-                        ]);
+                        const viewPos = cameraRef.current.getPosition();
+                        gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
                     } else {
-                        const normalMatrix = mat4.create();
-                        mat4.invert(normalMatrix, modelViewMatrix);
-                        mat4.transpose(normalMatrix, normalMatrix);
+                        // Bind Buffers
+                        setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
 
+                        gl.useProgram(camlightProgramInfo.program);
+
+                        // Bind projection matrix
                         gl.uniformMatrix4fv(
-                            camlightProgramInfo.uniformLocations.modelViewMatrix,
+                            camlightProgramInfo.uniformLocations.projectionMatrix,
                             false,
-                            modelViewMatrix,
+                            projectionMatrix,
                         );
-                        gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
-                        gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
-                            universe.current.colorsR[i],
-                            universe.current.colorsG[i],
-                            universe.current.colorsB[i],
-                            1.0,
-                        ]);
                     }
-
-                    // Draw each sphere
-                    {
-                        const type = gl.UNSIGNED_SHORT;
-                        2;
-                        const offset = 0;
-                        gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
-                    }
-                }
-
-                /*
-                    Antialiasing Pass
-                */
-                gl.readBuffer(gl.COLOR_ATTACHMENT0);
-                gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
-                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
-                gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
-                gl.blitFramebuffer(
-                    0,
-                    0,
-                    texWidth,
-                    texHeight,
-                    0,
-                    0,
-                    texWidth,
-                    texHeight,
-                    gl.COLOR_BUFFER_BIT,
-                    gl.LINEAR,
-                );
-
-                gl.readBuffer(gl.COLOR_ATTACHMENT1);
-                gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
-                gl.blitFramebuffer(
-                    0,
-                    0,
-                    texWidth,
-                    texHeight,
-                    0,
-                    0,
-                    texWidth,
-                    texHeight,
-                    gl.COLOR_BUFFER_BIT,
-                    gl.LINEAR,
-                );
-
-                if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
-                    console.error("Framebuffer is not complete");
-                }
-
-                /*
-                    Bloom Blur
-                */
-                if (starLightRef.current) {
-                    gl.useProgram(gaussianBlurProgramInfo.program);
-                    setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-                    setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
-
-                    // Pingpong algorithm for gaussian blur
-                    const blurAmount = 10;
-                    let horizontal = 0;
-                    let first_iteration = true;
-                    for (let i = 0; i < blurAmount; i++) {
-                        gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
-                        // Set horizontal int to horizontal
-                        gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
-                        gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
-                            canvas.clientWidth,
-                            canvas.clientHeight,
-                        ]);
-                        // Set texture to read from
-                        gl.bindTexture(
-                            gl.TEXTURE_2D,
-                            first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
-                        );
-                        gl.drawArrays(gl.TRIANGLES, 0, 6);
-                        horizontal = 1 - horizontal;
-                        if (first_iteration) {
-                            first_iteration = false;
-                        }
-                    }
-                    gl.useProgram(bloomProgramInfo.program);
-
-                    // Add the blur texture and scene texture together for bloom
-                    gl.activeTexture(gl.TEXTURE0);
-                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                    gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
-
-                    gl.activeTexture(gl.TEXTURE1);
-                    gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
-                    gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
-
-                    gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                    gl.drawArrays(gl.TRIANGLES, 0, 6);
 
                     /*
-                    gl.useProgram(texQuadProgramInfo.program);
-
-                    gl.activeTexture(gl.TEXTURE0);
-                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                        Draw Scene
                     */
-                } else {
-                    gl.useProgram(texQuadProgramInfo.program);
-                    gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
-                    setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
-                    setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                    for (let i = 0; i < universe.current.settings.numBodies; i++) {
+                        if (!universe.current.bodiesActive[i]) {
+                            continue;
+                        }
 
-                    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-                    gl.drawArrays(gl.TRIANGLES, 0, 6);
+                        const modelMatrix = mat4.create();
+                        mat4.translate(modelMatrix, modelMatrix, [
+                            universe.current.positionsX[i],
+                            universe.current.positionsY[i],
+                            universe.current.positionsZ[i],
+                        ]);
+                        mat4.scale(modelMatrix, modelMatrix, [
+                            universe.current.radii[i],
+                            universe.current.radii[i],
+                            universe.current.radii[i],
+                        ]);
+
+                        const modelViewMatrix = mat4.create();
+                        mat4.multiply(modelViewMatrix, viewMatrix, modelMatrix);
+
+                        // Bind uniforms based on current lighting mode
+
+                        if (starLightRef.current) {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+
+                            gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.modelViewMatrix,
+                                false,
+                                modelViewMatrix,
+                            );
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.normalMatrix,
+                                false,
+                                normalMatrix,
+                            );
+                            const isStar = universe.current.isStar(i) ? 1 : 0;
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
+                            gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
+                                universe.current.colorsR[i],
+                                universe.current.colorsG[i],
+                                universe.current.colorsB[i],
+                                1.0,
+                            ]);
+                        } else {
+                            const normalMatrix = mat4.create();
+                            mat4.invert(normalMatrix, modelViewMatrix);
+                            mat4.transpose(normalMatrix, normalMatrix);
+
+                            gl.uniformMatrix4fv(
+                                camlightProgramInfo.uniformLocations.modelViewMatrix,
+                                false,
+                                modelViewMatrix,
+                            );
+                            gl.uniformMatrix4fv(camlightProgramInfo.uniformLocations.normalMatrix, false, normalMatrix);
+                            gl.uniform4fv(camlightProgramInfo.uniformLocations.uFragColor, [
+                                universe.current.colorsR[i],
+                                universe.current.colorsG[i],
+                                universe.current.colorsB[i],
+                                1.0,
+                            ]);
+                        }
+
+                        // Draw each sphere
+                        {
+                            const type = gl.UNSIGNED_SHORT;
+                            2;
+                            const offset = 0;
+                            gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
+                        }
+                    }
+
+                    /*
+                        Antialiasing Pass
+                    */
+                    gl.readBuffer(gl.COLOR_ATTACHMENT0);
+                    gl.bindFramebuffer(gl.READ_FRAMEBUFFER, sceneFrameBuffer);
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, colorFrameBuffer);
+                    gl.clearBufferfv(gl.COLOR, 0, [1.0, 1.0, 1.0, 1.0]);
+                    gl.blitFramebuffer(
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR,
+                    );
+
+                    gl.readBuffer(gl.COLOR_ATTACHMENT1);
+                    gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, extractFrameBuffer);
+                    gl.blitFramebuffer(
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        0,
+                        0,
+                        texWidth,
+                        texHeight,
+                        gl.COLOR_BUFFER_BIT,
+                        gl.LINEAR,
+                    );
+
+                    if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+                        console.error("Framebuffer is not complete");
+                    }
+
+                    /*
+                        Bloom Blur
+                    */
+                    if (starLightRef.current) {
+                        gl.useProgram(gaussianBlurProgramInfo.program);
+                        setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
+
+                        // Pingpong algorithm for gaussian blur
+                        const blurAmount = 10;
+                        let horizontal = 0;
+                        let first_iteration = true;
+                        for (let i = 0; i < blurAmount; i++) {
+                            gl.bindFramebuffer(gl.FRAMEBUFFER, blurFrameBuffer[horizontal]);
+                            // Set horizontal int to horizontal
+                            gl.uniform1i(gaussianBlurProgramInfo.uniformLocations.uHorizontal, horizontal);
+                            gl.uniform2fv(gaussianBlurProgramInfo.uniformLocations.uViewportSize, [
+                                canvas.clientWidth,
+                                canvas.clientHeight,
+                            ]);
+                            // Set texture to read from
+                            gl.bindTexture(
+                                gl.TEXTURE_2D,
+                                first_iteration ? starExtractTexture : blurTextures[1 - horizontal],
+                            );
+                            gl.drawArrays(gl.TRIANGLES, 0, 6);
+                            horizontal = 1 - horizontal;
+                            if (first_iteration) {
+                                first_iteration = false;
+                            }
+                        }
+                        gl.useProgram(bloomProgramInfo.program);
+
+                        // Add the blur texture and scene texture together for bloom
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                        gl.uniform1i(bloomProgramInfo.uniformLocations.uScene, 0);
+
+                        gl.activeTexture(gl.TEXTURE1);
+                        gl.bindTexture(gl.TEXTURE_2D, blurTextures[horizontal]);
+                        gl.uniform1i(bloomProgramInfo.uniformLocations.uBloom, 1);
+
+                        gl.bindBuffer(gl.ARRAY_BUFFER, quadBuffers.position);
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+
+                        /*
+                        gl.useProgram(texQuadProgramInfo.program);
+
+                        gl.activeTexture(gl.TEXTURE0);
+                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                        */
+                    } else {
+                        gl.useProgram(texQuadProgramInfo.program);
+                        gl.bindTexture(gl.TEXTURE_2D, textureColorBuffer);
+                        setPositionAttribute2D(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, quadBuffers, texQuadProgramInfo.attribLocations);
+
+                        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                        gl.drawArrays(gl.TRIANGLES, 0, 6);
+                    }
                 }
+
                 requestAnimationFrame(render);
             }
 

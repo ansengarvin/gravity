@@ -120,8 +120,8 @@ export function SettingsMenu() {
                     value={numBodies}
                     onChange={(e) => {
                         const val = e.target.valueAsNumber;
-                        if (val > 1000) {
-                            setNumBodies(1000);
+                        if (val > 5000) {
+                            setNumBodies(5000);
                             return;
                         }
                         setNumBodies(e.target.valueAsNumber);

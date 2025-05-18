@@ -28,7 +28,7 @@ const initialState: ControlsState = {
     resetCam: 0,
     bodyFollowed: -1,
     menuShown: MenuName.NONE,
-    showDebug: false,
+    showDebug: true,
     circleType: CircleType.NONE,
 };
 
