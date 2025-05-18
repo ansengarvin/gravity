@@ -1,11 +1,10 @@
 import styled from "@emotion/styled";
 import { Sim } from "./components/Sim";
-import { useState } from "react";
 import { Header } from "./components/Header";
 import { Dashboard } from "./components/Dashboard";
 import { SettingsMenu } from "./components/Settings";
 import { DebugStats } from "./components/DebugStats";
-import { Leaderboard, LeaderboardBody } from "./components/Leaderboard";
+import { Leaderboard } from "./components/Leaderboard";
 import { InfoBox } from "./components/InfoBox";
 import { useSelector } from "react-redux";
 import { RootState } from "./redux/store";
@@ -41,22 +40,19 @@ const SimScreen = styled.div`
 `;
 
 export function App() {
-    // Display the bodies inside of the leaderboard menu. Sorted by order of mass by universe class.
-    const [leaderboardBodies, setLeaderboardBodies] = useState<Array<LeaderboardBody>>([]);
-
     const showDebug = useSelector((state: RootState) => state.controls.showDebug);
     const menuShown = useSelector((state: RootState) => state.controls.menuShown);
 
     return (
         <>
             <SimScreen>
-                <Sim setLeaderboardBodies={setLeaderboardBodies} />
+                <Sim />
             </SimScreen>
             <Backdrop>
                 <InfoBox />
                 <Header />
                 {showDebug ? <DebugStats /> : null}
-                {menuShown == MenuName.LEADERBOARD ? <Leaderboard leaderboardBodies={leaderboardBodies} /> : null}
+                {menuShown == MenuName.LEADERBOARD ? <Leaderboard /> : null}
                 <Dashboard />
                 {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
             </Backdrop>

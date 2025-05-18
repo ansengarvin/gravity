@@ -1,6 +1,6 @@
 import { getRandomFloat, getRandomInt } from "../../random/random";
 import { vec3, vec4 } from "gl-matrix";
-import { LeaderboardBody } from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../redux/informationSlice";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/conversions";
 import { MassThresholds } from "../defines/physics";

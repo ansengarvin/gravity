@@ -9,26 +9,11 @@ import { ArrowUpwardIcon } from "../assets/icons/ArrowUpwardIcon";
 import { Menu, Tab } from "./Menu";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
+import { LeaderboardBody } from "../redux/informationSlice";
 
 enum LeaderboardTabType {
     BASIC = "basic",
     ORBIT = "orbit",
-}
-
-export interface LeaderboardBody {
-    index: number;
-    mass: number;
-    color: string;
-    dOrigin: number;
-    dTarget: number;
-    orbiting: number;
-    dOrbit: number;
-    orbitColor: string;
-    numSatellites: number;
-}
-
-export interface LeaderboardProps {
-    leaderboardBodies: any[];
 }
 
 const leaderboardTabs: Tab[] = [
@@ -36,9 +21,10 @@ const leaderboardTabs: Tab[] = [
     { label: "Orbit", value: LeaderboardTabType.ORBIT },
 ];
 
-export function Leaderboard(props: LeaderboardProps) {
-    const { leaderboardBodies } = props;
+export function Leaderboard() {
     const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
+    const leaderboardBodies = useSelector((state: RootState) => state.information.leaderboard);
+    console.log(leaderboardBodies);
     const sortedBodies = useMemo(() => {
         const sorted = sortBodies(leaderboardBodies, sortCriteria);
         return sorted;

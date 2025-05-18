@@ -38,7 +38,6 @@ import {
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
-import { LeaderboardBody } from "./Leaderboard";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
@@ -53,14 +52,7 @@ const zNear = 0.1;
 const zFar = 100.0;
 const NUM_CIRCLE_VERTICES = 100;
 
-interface SimProps {
-    // leaderboard information
-    setLeaderboardBodies: React.Dispatch<React.SetStateAction<Array<LeaderboardBody>>>;
-}
-
-export function Sim(props: SimProps) {
-    const { setLeaderboardBodies } = props;
-
+export function Sim() {
     const settings = useSelector((state: RootState) => state.universeSettings);
     const dispatch = useDispatch();
 
@@ -111,7 +103,7 @@ export function Sim(props: SimProps) {
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
     const bodyFollowedRef = useRef(bodyFollowed);
     useEffect(() => {
-        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
+        dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(bodyFollowed) });
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
 
@@ -119,7 +111,7 @@ export function Sim(props: SimProps) {
         universe.current = new Universe(settings);
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
-        setLeaderboardBodies(universe.current.getActiveBodies(-1));
+        dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(-1) });
         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
     }, [settings]);
@@ -128,7 +120,7 @@ export function Sim(props: SimProps) {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
         dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
-        setLeaderboardBodies(universe.current.getActiveBodies(-1));
+        dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(-1) });
         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
     }, [resetSim]);
@@ -161,7 +153,7 @@ export function Sim(props: SimProps) {
 
         const initialize = async () => {
             // Set sorted universe parameters initially
-            setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowed));
+            dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(bodyFollowed) });
 
             // Enable necessary openGL extensions and store results
             const rgba32fSupported = gl.getExtension("EXT_color_buffer_float") != null;
@@ -577,7 +569,10 @@ export function Sim(props: SimProps) {
                 uiAccumulatedTime += deltaTime;
                 if (uiAccumulatedTime >= uiThrottleTime) {
                     if (!pausedRef.current) {
-                        setLeaderboardBodies(universe.current.getActiveBodies(bodyFollowedRef.current));
+                        dispatch({
+                            type: "information/setLeaderboard",
+                            payload: universe.current.getActiveBodies(bodyFollowed),
+                        });
                         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
                         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
                     }
