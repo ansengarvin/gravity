@@ -172,32 +172,32 @@ export function Sim(props: SimProps) {
             // Set unchanging webGL debug text
             dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
             dispatch({
-                type: "information/setMaxVertexUniformVectors",
+                type: "debug/setMaxVertexUniformVectors",
                 payload: gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS),
             });
             dispatch({
-                type: "information/setMaxFragmentUniformVectors",
+                type: "debug/setMaxFragmentUniformVectors",
                 payload: gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS),
             });
             dispatch({
-                type: "information/setMaxUniformBufferBindingPoints",
+                type: "debug/setMaxUniformBufferBindingPoints",
                 payload: gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS),
             });
-            dispatch({ type: "information/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
+            dispatch({ type: "debug/setMaxSamples", payload: gl.getParameter(gl.MAX_SAMPLES) });
             dispatch({
-                type: "information/setRgba32fSupported",
+                type: "debug/setRgba32fSupported",
                 payload: rgba32fSupported,
             });
             dispatch({
-                type: "information/setRgba16fSupported",
+                type: "debug/setRgba16fSupported",
                 payload: rgba16fSupported,
             });
             dispatch({
-                type: "information/setOesFloatLinearSupported",
+                type: "debug/setOesFloatLinearSupported",
                 payload: oesTextureFloatLinearSupported,
             });
             dispatch({
-                type: "information/setOesHalfFloatLinearSupported",
+                type: "debug/setOesHalfFloatLinearSupported",
                 payload: oesTextureHalfFloatLinearSupported,
             });
 
@@ -389,18 +389,18 @@ export function Sim(props: SimProps) {
             if (rgba32fSupported && oesTextureFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA32F;
                 dispatch({
-                    type: "information/setInternalFormatUsed",
+                    type: "debug/setInternalFormatUsed",
                     payload: "RGBA32F",
                 });
             } else if (rgba16fSupported && oesTextureHalfFloatLinearSupported) {
                 renderBufferInternalFormat = gl.RGBA16F;
                 dispatch({
-                    type: "information/setInternalFormatUsed",
+                    type: "debug/setInternalFormatUsed",
                     payload: "RGBA16F",
                 });
             } else {
                 dispatch({
-                    type: "information/setInternalFormatUsed",
+                    type: "debug/setInternalFormatUsed",
                     payload: "RGBA8",
                 });
             }
@@ -567,7 +567,7 @@ export function Sim(props: SimProps) {
                     measuredTPS = tickCount / (now - lastTickMeasure);
                     tickCount = 0;
                     lastTickMeasure = now;
-                    dispatch({ type: "information/setTPS", payload: measuredTPS });
+                    dispatch({ type: "debug/setTPS", payload: measuredTPS });
                 }
 
                 /*
@@ -583,13 +583,13 @@ export function Sim(props: SimProps) {
                     }
 
                     dispatch({
-                        type: "information/setNumActiveUniforms",
+                        type: "debug/setNumActiveUniforms",
                         payload: starLightRef.current
                             ? gl.getProgramParameter(starlightProgramInfo.program, gl.ACTIVE_UNIFORMS)
                             : gl.getProgramParameter(camlightProgramInfo.program, gl.ACTIVE_UNIFORMS),
                     });
                     dispatch({
-                        type: "information/setNumActiveUniformVectors",
+                        type: "debug/setNumActiveUniformVectors",
                         payload: starLightRef.current
                             ? calculateUniformVectors(gl, starlightProgramInfo.program)
                             : calculateUniformVectors(gl, camlightProgramInfo.program),
@@ -609,7 +609,7 @@ export function Sim(props: SimProps) {
 
                     // Performance stuff
                     dispatch({
-                        type: "information/setFPS",
+                        type: "debug/setFPS",
                         payload: Math.round(1 / deltaTime),
                     });
                 }
