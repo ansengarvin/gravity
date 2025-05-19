@@ -406,9 +406,9 @@ function TargetTabContent(props: TabContentProps) {
                                     selected={isFollowedBody}
                                 />
                             </td>
-                            <td>{body.dTarget}</td>
-                            <td>{body.vTarget}</td>
-                            <td>{body.aTarget}</td>
+                            <td>{body.dTarget.toFixed(2)}</td>
+                            <td>{body.vTarget.toFixed(2)}</td>
+                            <td>{body.aTarget.toFixed(2)}</td>
                         </LeaderboardRowStyle>
                     );
                 })}
