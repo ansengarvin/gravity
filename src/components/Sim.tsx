@@ -153,7 +153,10 @@ export function Sim() {
 
         const initialize = async () => {
             // Set sorted universe parameters initially
-            dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(bodyFollowed) });
+            dispatch({
+                type: "information/setLeaderboard",
+                payload: universe.current.getActiveBodies(bodyFollowedRef.current),
+            });
 
             // Enable necessary openGL extensions and store results
             const rgba32fSupported = gl.getExtension("EXT_color_buffer_float") != null;
@@ -571,7 +574,7 @@ export function Sim() {
                     if (!pausedRef.current) {
                         dispatch({
                             type: "information/setLeaderboard",
-                            payload: universe.current.getActiveBodies(bodyFollowed),
+                            payload: universe.current.getActiveBodies(bodyFollowedRef.current),
                         });
                         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
                         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
