@@ -32,22 +32,40 @@ export function Leaderboard() {
 
     const [activeTab, setActiveTab] = useState<string>(LeaderboardTabType.BASIC);
 
+    const rowsToLoad = 10;
+    const rowHeight = 35;
+    const tableGap = 5;
+    const { visibleRange, onScroll, topHeight, bottomHeight } = useVirtualTable(
+        sortedBodies.length,
+        rowsToLoad,
+        rowHeight,
+        tableGap,
+    );
+
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
-            {activeTab == LeaderboardTabType.BASIC && (
-                <BasicTabContent
-                    sortedBodies={sortedBodies}
-                    sortCriteria={sortCriteria}
-                    setSortCriteria={setSortCriteria}
-                />
-            )}
-            {activeTab == LeaderboardTabType.ORBIT && (
-                <OrbitTabContent
-                    sortedBodies={sortedBodies}
-                    sortCriteria={sortCriteria}
-                    setSortCriteria={setSortCriteria}
-                />
-            )}
+            <LeaderboardContent onScroll={onScroll}>
+                {activeTab == LeaderboardTabType.BASIC && (
+                    <BasicTabContent
+                        sortedBodies={sortedBodies}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                        visibleRange={visibleRange}
+                        topHeight={topHeight}
+                        bottomHeight={bottomHeight}
+                    />
+                )}
+                {activeTab == LeaderboardTabType.ORBIT && (
+                    <OrbitTabContent
+                        sortedBodies={sortedBodies}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                        visibleRange={visibleRange}
+                        topHeight={topHeight}
+                        bottomHeight={bottomHeight}
+                    />
+                )}
+            </LeaderboardContent>
         </Menu>
     );
 }
@@ -56,189 +74,168 @@ interface TabContentProps {
     sortedBodies: LeaderboardBody[];
     sortCriteria: SortCriteria;
     setSortCriteria: React.Dispatch<React.SetStateAction<SortCriteria>>;
+    visibleRange: { start: number; end: number };
+    topHeight: number;
+    bottomHeight: number;
 }
 
 function BasicTabContent(props: TabContentProps) {
-    const { sortedBodies, sortCriteria, setSortCriteria } = props;
+    const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
 
-    const rowsToLoad = 10;
-    const rowHeight = 35;
-    const tableGap = 5;
-    const { visibleRange, onScroll, topHeight, bottomHeight } = useVirtualTable(
-        sortedBodies.length,
-        rowsToLoad,
-        rowHeight,
-        tableGap,
-    );
-
     return (
-        <LeaderboardContent onScroll={onScroll}>
-            <table>
-                <thead>
-                    <tr>
-                        <LeaderboardSortHeader
-                            title="Name"
-                            type={SortType.NAME}
-                            defaultSortAscending={true}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="Mass"
-                            type={SortType.MASS}
-                            defaultSortAscending={false}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="dOrig"
-                            type={SortType.D_ORIGIN}
-                            defaultSortAscending={false}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="dTarg"
-                            type={SortType.D_TARGET}
-                            defaultSortAscending={true}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        style={{
-                            height: topHeight,
-                            width: "100%",
-                            backgroundColor: "green",
-                        }}
+        <table>
+            <thead>
+                <tr>
+                    <LeaderboardSortHeader
+                        title="Name"
+                        type={SortType.NAME}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
                     />
-                    {sortedBodies.slice(visibleRange[0], visibleRange[1]).map((body: LeaderboardBody) => {
-                        const isFollowedBody = bodyFollowed == body.index;
-                        return (
-                            <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
-                                <td className="name">
-                                    <BodySelectButton
-                                        bodyIndex={body.index}
-                                        bodyColor={body.color}
-                                        selected={isFollowedBody}
-                                    />
-                                </td>
-                                <td>{body.mass.toFixed(5)}</td>
-                                <td>{body.dOrigin.toFixed(2)}</td>
-                                <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
-                            </LeaderboardRowStyle>
-                        );
-                    })}
-                    <tr
-                        style={{
-                            height: bottomHeight,
-                            width: "100%",
-                            backgroundColor: "green",
-                        }}
+                    <LeaderboardSortHeader
+                        title="Mass"
+                        type={SortType.MASS}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
                     />
-                </tbody>
-            </table>
-        </LeaderboardContent>
+                    <LeaderboardSortHeader
+                        title="dOrig"
+                        type={SortType.D_ORIGIN}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="dTarg"
+                        type={SortType.D_TARGET}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    style={{
+                        height: topHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+                {sortedBodies.slice(visibleRange.start, visibleRange.end).map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
+                    return (
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
+                            <td className="name">
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
+                            </td>
+                            <td>{body.mass.toFixed(5)}</td>
+                            <td>{body.dOrigin.toFixed(2)}</td>
+                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
+                        </LeaderboardRowStyle>
+                    );
+                })}
+                <tr
+                    style={{
+                        height: bottomHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+            </tbody>
+        </table>
     );
 }
 
 function OrbitTabContent(props: TabContentProps) {
-    const { sortedBodies, sortCriteria, setSortCriteria } = props;
+    const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
 
-    const rowsToLoad = 10;
-    const rowHeight = 35;
-    const tableGap = 5;
-    const { visibleRange, onScroll, topHeight, bottomHeight } = useVirtualTable(
-        sortedBodies.length,
-        rowsToLoad,
-        rowHeight,
-        tableGap,
-    );
-
     return (
-        <LeaderboardContent onScroll={onScroll}>
-            <table>
-                <thead>
-                    <tr>
-                        <LeaderboardSortHeader
-                            title="Name"
-                            type={SortType.NAME}
-                            defaultSortAscending={true}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="nSat"
-                            type={SortType.NUM_SAT}
-                            defaultSortAscending={false}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="Orbit"
-                            type={SortType.ORBITING}
-                            defaultSortAscending={true}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                        <LeaderboardSortHeader
-                            title="dOrbit"
-                            type={SortType.D_ORBIT}
-                            defaultSortAscending={true}
-                            sortCriteria={sortCriteria}
-                            setSortCriteria={setSortCriteria}
-                        />
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        style={{
-                            height: topHeight,
-                            width: "100%",
-                            backgroundColor: "green",
-                        }}
+        <table>
+            <thead>
+                <tr>
+                    <LeaderboardSortHeader
+                        title="Name"
+                        type={SortType.NAME}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
                     />
-                    {sortedBodies.slice(visibleRange[0], visibleRange[1]).map((body: LeaderboardBody) => {
-                        const isFollowedBody = bodyFollowed == body.index;
-                        return (
-                            <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
-                                <td className="name">
+                    <LeaderboardSortHeader
+                        title="nSat"
+                        type={SortType.NUM_SAT}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="Orbit"
+                        type={SortType.ORBITING}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="dOrbit"
+                        type={SortType.D_ORBIT}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    style={{
+                        height: topHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+                {sortedBodies.slice(visibleRange.start, visibleRange.end).map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
+                    return (
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
+                            <td className="name">
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
+                            </td>
+                            <td>{body.numSatellites}</td>
+                            <td className={body.orbiting != -1 ? "name" : ""}>
+                                {body.orbiting != -1 ? (
                                     <BodySelectButton
-                                        bodyIndex={body.index}
-                                        bodyColor={body.color}
+                                        bodyIndex={body.orbiting}
+                                        bodyColor={body.orbitColor}
                                         selected={isFollowedBody}
                                     />
-                                </td>
-                                <td>{body.numSatellites}</td>
-                                <td className={body.orbiting != -1 ? "name" : ""}>
-                                    {body.orbiting != -1 ? (
-                                        <BodySelectButton
-                                            bodyIndex={body.orbiting}
-                                            bodyColor={body.orbitColor}
-                                            selected={isFollowedBody}
-                                        />
-                                    ) : (
-                                        <>None</>
-                                    )}
-                                </td>
-                                <td>{body.orbiting != -1 ? body.dOrbit.toFixed(2) : <>--</>}</td>
-                            </LeaderboardRowStyle>
-                        );
-                    })}
-                    <tr
-                        style={{
-                            height: bottomHeight,
-                            width: "100%",
-                            backgroundColor: "green",
-                        }}
-                    />
-                </tbody>
-            </table>
-        </LeaderboardContent>
+                                ) : (
+                                    <>None</>
+                                )}
+                            </td>
+                            <td>{body.orbiting != -1 ? body.dOrbit.toFixed(2) : <>--</>}</td>
+                        </LeaderboardRowStyle>
+                    );
+                })}
+                <tr
+                    style={{
+                        height: bottomHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+            </tbody>
+        </table>
     );
 }
 
