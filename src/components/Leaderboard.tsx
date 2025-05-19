@@ -456,18 +456,21 @@ const LeaderboardContent = styled.div`
 
 const LeaderboardRowStyle = styled.tr<{ bodyColor: string; selected: boolean }>`
     td {
-        background-color: ${(props) => props.bodyColor};
-        color: ${(props) => (props.selected ? props.bodyColor : "white")};
+        //background-color: ${(props) => props.bodyColor};
+        //color: ${(props) => (props.selected ? props.bodyColor : "white")};
+        background-color: black;
+        color: ${(props) => props.bodyColor};
+        border: 1px solid ${(props) => props.bodyColor};
         padding: 0;
         text-align: center;
         height: 35px;
-
-        color: black;
     }
 
     td.name {
         width: 70px;
         background: none;
+        color: black;
+        border: none;
     }
 `;
 
