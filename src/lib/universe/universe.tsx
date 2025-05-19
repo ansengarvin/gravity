@@ -578,16 +578,38 @@ export class Universe {
                 continue;
             }
 
+            const targetVX = target > -1 ? this.velocitiesX[target] : 0;
+            const targetVY = target > -1 ? this.velocitiesY[target] : 0;
+            const targetVZ = target > -1 ? this.velocitiesZ[target] : 0;
+            const dVX = this.velocitiesX[i] - targetVX;
+            const dVY = this.velocitiesY[i] - targetVY;
+            const dVZ = this.velocitiesZ[i] - targetVZ;
+            const vRel = Math.sqrt(dVX ** 2 + dVY ** 2 + dVZ ** 2);
+
+            const targetAX = target > -1 ? this.accelerationsX[target] : 0;
+            const targetAY = target > -1 ? this.accelerationsY[target] : 0;
+            const targetAZ = target > -1 ? this.accelerationsZ[target] : 0;
+            const dAX = this.accelerationsX[i] - targetAX;
+            const dAY = this.accelerationsY[i] - targetAY;
+            const dAZ = this.accelerationsZ[i] - targetAZ;
+            const aRel = Math.sqrt(dAX ** 2 + dAY ** 2 + dAZ ** 2);
+
             massRankings[j] = {
                 index: i,
                 mass: this.masses[i],
                 color: `rgb(${this.colorsR[i] * 255}, ${this.colorsG[i] * 255}, ${this.colorsB[i] * 255})`,
                 dOrigin: Math.sqrt(this.positionsX[i] ** 2 + this.positionsY[i] ** 2 + this.positionsZ[i] ** 2),
+                vOrigin: Math.sqrt(this.velocitiesX[i] ** 2 + this.velocitiesY[i] ** 2 + this.velocitiesZ[i] ** 2),
+                aOrigin: Math.sqrt(
+                    this.accelerationsX[i] ** 2 + this.accelerationsY[i] ** 2 + this.accelerationsZ[i] ** 2,
+                ),
                 dTarget: target > -1 ? this.bodyDistance(target, i) : -1,
+                vTarget: target > -1 ? vRel : -1,
+                aTarget: target > -1 ? aRel : -1,
                 orbiting: this.orbitalIndices[i],
+                numSatellites: this.numSattelites[i],
                 dOrbit: this.orbitalDistances[i],
                 orbitColor: `rgb(${this.colorsR[this.orbitalIndices[i]] * 255}, ${this.colorsG[this.orbitalIndices[i]] * 255}, ${this.colorsB[this.orbitalIndices[i]] * 255})`,
-                numSatellites: this.numSattelites[i],
             };
 
             j++;

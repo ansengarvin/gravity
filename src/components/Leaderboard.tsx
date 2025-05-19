@@ -11,18 +11,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 import { LeaderboardBody } from "../redux/informationSlice";
 import { useVirtualTable } from "../hooks/useVirtualTable";
+import { massSolarToEarth, massSolarToKilograms } from "../lib/conversions";
 
 enum LeaderboardTabType {
     MASS,
+    MOTION,
     ORBIT,
     TARGET,
 }
-
-const leaderboardTabs: Tab[] = [
-    { label: "Mass", value: LeaderboardTabType.MASS },
-    { label: "Orbit", value: LeaderboardTabType.ORBIT },
-    { label: "Target", value: LeaderboardTabType.TARGET },
-];
 
 export function Leaderboard() {
     const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ type: SortType.MASS, ascending: false });
@@ -44,11 +40,26 @@ export function Leaderboard() {
         tableGap,
     );
 
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+    const leaderboardTabs: Tab[] =
+        bodyFollowed > -1
+            ? [
+                  { label: "Mass", value: LeaderboardTabType.MASS },
+                  { label: "Orbit", value: LeaderboardTabType.ORBIT },
+                  { label: "Origin", value: LeaderboardTabType.MOTION },
+                  { label: "Target", value: LeaderboardTabType.TARGET },
+              ]
+            : [
+                  { label: "Mass", value: LeaderboardTabType.MASS },
+                  { label: "Orbit", value: LeaderboardTabType.ORBIT },
+                  { label: "Origin", value: LeaderboardTabType.MOTION },
+              ];
+
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
             <LeaderboardContent onScroll={onScroll}>
                 {activeTab == LeaderboardTabType.MASS && (
-                    <BasicTabContent
+                    <MassTabContent
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
@@ -57,8 +68,8 @@ export function Leaderboard() {
                         bottomHeight={bottomHeight}
                     />
                 )}
-                {activeTab == LeaderboardTabType.ORBIT && (
-                    <OrbitTabContent
+                {activeTab == LeaderboardTabType.MOTION && (
+                    <MotionTabContent
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
@@ -69,6 +80,16 @@ export function Leaderboard() {
                 )}
                 {activeTab == LeaderboardTabType.TARGET && (
                     <TargetTabContent
+                        sortedBodies={sortedBodies}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                        visibleRange={visibleRange}
+                        topHeight={topHeight}
+                        bottomHeight={bottomHeight}
+                    />
+                )}
+                {activeTab == LeaderboardTabType.ORBIT && (
+                    <OrbitTabContent
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
@@ -91,7 +112,7 @@ interface TabContentProps {
     bottomHeight: number;
 }
 
-function BasicTabContent(props: TabContentProps) {
+function MassTabContent(props: TabContentProps) {
     const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
 
@@ -107,23 +128,100 @@ function BasicTabContent(props: TabContentProps) {
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="Mass"
+                        title="Solar"
                         type={SortType.MASS}
                         defaultSortAscending={false}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="dOrig"
+                        title="Earth"
+                        type={SortType.MASS}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="kg"
+                        type={SortType.MASS}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    style={{
+                        height: topHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+                {sortedBodies.slice(visibleRange.start, visibleRange.end).map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
+                    const earthMass = massSolarToEarth(body.mass);
+                    const kgMass = massSolarToKilograms(body.mass);
+                    return (
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
+                            <td className="name">
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
+                            </td>
+                            <td>{body.mass.toFixed(4)}</td>
+                            <td>{earthMass < 100000 ? earthMass.toFixed(2) : earthMass.toExponential(1)}</td>
+                            <td>{kgMass.toExponential(1)}</td>
+                        </LeaderboardRowStyle>
+                    );
+                })}
+                <tr
+                    style={{
+                        height: bottomHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+            </tbody>
+        </table>
+    );
+}
+
+function MotionTabContent(props: TabContentProps) {
+    const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+
+    return (
+        <table>
+            <thead>
+                <tr>
+                    <LeaderboardSortHeader
+                        title="Name"
+                        type={SortType.NAME}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="Dist."
                         type={SortType.D_ORIGIN}
                         defaultSortAscending={false}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="dTarg"
-                        type={SortType.D_TARGET}
-                        defaultSortAscending={true}
+                        title="Vel."
+                        type={SortType.V_ORIGIN}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="Acc."
+                        type={SortType.A_ORIGIN}
+                        defaultSortAscending={false}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
                     />
@@ -148,9 +246,9 @@ function BasicTabContent(props: TabContentProps) {
                                     selected={isFollowedBody}
                                 />
                             </td>
-                            <td>{body.mass.toFixed(5)}</td>
-                            <td>{body.dOrigin.toFixed(2)}</td>
-                            <td>{bodyFollowed != -1 ? body.dTarget.toFixed(2) : "--"}</td>
+                            <td>{body.dOrigin.toFixed(1)}</td>
+                            <td>{body.vOrigin.toFixed(1)}</td>
+                            <td>{body.aOrigin.toFixed(1)}</td>
                         </LeaderboardRowStyle>
                     );
                 })}
@@ -267,22 +365,22 @@ function TargetTabContent(props: TabContentProps) {
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="nSat"
-                        type={SortType.NUM_SAT}
+                        title="Dist."
+                        type={SortType.D_TARGET}
                         defaultSortAscending={false}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="Orbit"
-                        type={SortType.ORBITING}
+                        title="Vel."
+                        type={SortType.V_TARGET}
                         defaultSortAscending={true}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
                     />
                     <LeaderboardSortHeader
-                        title="dOrbit"
-                        type={SortType.D_ORBIT}
+                        title="Acc."
+                        type={SortType.A_TARGET}
                         defaultSortAscending={true}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
@@ -308,19 +406,9 @@ function TargetTabContent(props: TabContentProps) {
                                     selected={isFollowedBody}
                                 />
                             </td>
-                            <td>{body.numSatellites}</td>
-                            <td className={body.orbiting != -1 ? "name" : ""}>
-                                {body.orbiting != -1 ? (
-                                    <BodySelectButton
-                                        bodyIndex={body.orbiting}
-                                        bodyColor={body.orbitColor}
-                                        selected={isFollowedBody}
-                                    />
-                                ) : (
-                                    <>None</>
-                                )}
-                            </td>
-                            <td>{body.orbiting != -1 ? body.dOrbit.toFixed(2) : <>--</>}</td>
+                            <td>{body.dTarget}</td>
+                            <td>{body.vTarget}</td>
+                            <td>{body.aTarget}</td>
                         </LeaderboardRowStyle>
                     );
                 })}
@@ -534,7 +622,11 @@ enum SortType {
     NAME,
     MASS,
     D_ORIGIN,
+    V_ORIGIN,
+    A_ORIGIN,
     D_TARGET,
+    V_TARGET,
+    A_TARGET,
     ORBITING,
     D_ORBIT,
     NUM_SAT,
@@ -551,6 +643,14 @@ function sortBodies(bodies: LeaderboardBody[], criteria: SortCriteria): Leaderbo
             return criteria.ascending ? a.index - b.index : b.index - a.index;
         } else if (criteria.type === SortType.MASS) {
             return criteria.ascending ? a.mass - b.mass || a.index - b.index : b.mass - a.mass || a.index - b.index;
+        } else if (criteria.type === SortType.V_ORIGIN) {
+            return criteria.ascending
+                ? a.vOrigin - b.vOrigin || a.index - b.index
+                : b.vOrigin - a.vOrigin || a.index - b.index;
+        } else if (criteria.type === SortType.A_ORIGIN) {
+            return criteria.ascending
+                ? a.aOrigin - b.aOrigin || a.index - b.index
+                : b.aOrigin - a.aOrigin || a.index - b.index;
         } else if (criteria.type === SortType.D_ORIGIN) {
             return criteria.ascending
                 ? a.dOrigin - b.dOrigin || a.index - b.index
@@ -559,6 +659,14 @@ function sortBodies(bodies: LeaderboardBody[], criteria: SortCriteria): Leaderbo
             return criteria.ascending
                 ? a.dTarget - b.dTarget || a.index - b.index
                 : b.dTarget - a.dTarget || a.index - b.index;
+        } else if (criteria.type === SortType.V_TARGET) {
+            return criteria.ascending
+                ? a.vTarget - b.vTarget || a.index - b.index
+                : b.vTarget - a.vTarget || a.index - b.index;
+        } else if (criteria.type === SortType.A_TARGET) {
+            return criteria.ascending
+                ? a.aTarget - b.aTarget || a.index - b.index
+                : b.aTarget - a.aTarget || a.index - b.index;
         } else if (criteria.type === SortType.ORBITING) {
             if (criteria.ascending) {
                 if (a.orbiting === -1 && b.orbiting === -1) return 0;
