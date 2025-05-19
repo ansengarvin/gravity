@@ -579,18 +579,21 @@ void main()
     }
 `,gu=et.tr`
     td {
-        background-color: ${a=>a.bodyColor};
-        color: ${a=>a.selected?a.bodyColor:"white"};
+        //background-color: ${a=>a.bodyColor};
+        //color: ${a=>a.selected?a.bodyColor:"white"};
+        background-color: black;
+        color: ${a=>a.bodyColor};
+        border: 1px solid ${a=>a.bodyColor};
         padding: 0;
         text-align: center;
         height: 35px;
-
-        color: black;
     }
 
     td.name {
         width: 70px;
         background: none;
+        color: black;
+        border: none;
     }
 `;function bt(a){const{title:i,type:s,defaultSortAscending:l,sortCriteria:o,setSortCriteria:f}=a;return M.jsx(MS,{selected:o.type===s,children:M.jsxs("button",{onClick:()=>{f({type:s,ascending:o.type===s?!o.ascending:l})},children:[i,M.jsx("div",{children:o.type===s?o.ascending?M.jsx(pS,{dim:"100%",filled:!1,color:"white"}):M.jsx(mS,{dim:"100%",filled:!1,color:"white"}):M.jsx(gS,{})})]})})}const MS=et.th`
     position: sticky;
