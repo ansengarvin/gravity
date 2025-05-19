@@ -5,11 +5,15 @@ export interface LeaderboardBody {
     mass: number;
     color: string;
     dOrigin: number;
+    vOrigin: number;
+    aOrigin: number;
     dTarget: number;
+    vTarget: number;
+    aTarget: number;
+    numSatellites: number;
     orbiting: number;
     dOrbit: number;
     orbitColor: string;
-    numSatellites: number;
 }
 
 export interface InformationState {

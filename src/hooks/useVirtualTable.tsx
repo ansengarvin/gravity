@@ -33,7 +33,7 @@ export function useVirtualTable(totalRowCount: number, rowsToLoad: number, rowHe
     }, []);
 
     return {
-        visibleRange: [start, end],
+        visibleRange: { start: start, end: end },
         onScroll,
         topHeight,
         bottomHeight,
