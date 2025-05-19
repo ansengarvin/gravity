@@ -2,7 +2,7 @@ import { getRandomFloat, getRandomInt } from "../../random/random";
 import { vec3, vec4 } from "gl-matrix";
 import { LeaderboardBody } from "../../redux/informationSlice";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
-import { HSLtoRGB } from "../colors/conversions";
+import { HSLtoRGB } from "../colors/colorConversions";
 import { MassThresholds } from "../defines/physics";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant

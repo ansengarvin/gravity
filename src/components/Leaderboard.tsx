@@ -13,13 +13,15 @@ import { LeaderboardBody } from "../redux/informationSlice";
 import { useVirtualTable } from "../hooks/useVirtualTable";
 
 enum LeaderboardTabType {
-    BASIC = "basic",
-    ORBIT = "orbit",
+    MASS,
+    ORBIT,
+    TARGET,
 }
 
 const leaderboardTabs: Tab[] = [
-    { label: "Basic", value: LeaderboardTabType.BASIC },
+    { label: "Mass", value: LeaderboardTabType.MASS },
     { label: "Orbit", value: LeaderboardTabType.ORBIT },
+    { label: "Target", value: LeaderboardTabType.TARGET },
 ];
 
 export function Leaderboard() {
@@ -30,7 +32,7 @@ export function Leaderboard() {
         return sorted;
     }, [sortCriteria, leaderboardBodies]);
 
-    const [activeTab, setActiveTab] = useState<string>(LeaderboardTabType.BASIC);
+    const [activeTab, setActiveTab] = useState<number>(LeaderboardTabType.MASS);
 
     const rowsToLoad = 10;
     const rowHeight = 35;
@@ -45,7 +47,7 @@ export function Leaderboard() {
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
             <LeaderboardContent onScroll={onScroll}>
-                {activeTab == LeaderboardTabType.BASIC && (
+                {activeTab == LeaderboardTabType.MASS && (
                     <BasicTabContent
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
@@ -57,6 +59,16 @@ export function Leaderboard() {
                 )}
                 {activeTab == LeaderboardTabType.ORBIT && (
                     <OrbitTabContent
+                        sortedBodies={sortedBodies}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                        visibleRange={visibleRange}
+                        topHeight={topHeight}
+                        bottomHeight={bottomHeight}
+                    />
+                )}
+                {activeTab == LeaderboardTabType.TARGET && (
+                    <TargetTabContent
                         sortedBodies={sortedBodies}
                         sortCriteria={sortCriteria}
                         setSortCriteria={setSortCriteria}
@@ -155,6 +167,91 @@ function BasicTabContent(props: TabContentProps) {
 }
 
 function OrbitTabContent(props: TabContentProps) {
+    const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
+    const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
+
+    return (
+        <table>
+            <thead>
+                <tr>
+                    <LeaderboardSortHeader
+                        title="Name"
+                        type={SortType.NAME}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="nSat"
+                        type={SortType.NUM_SAT}
+                        defaultSortAscending={false}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="Orbit"
+                        type={SortType.ORBITING}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                    <LeaderboardSortHeader
+                        title="dOrbit"
+                        type={SortType.D_ORBIT}
+                        defaultSortAscending={true}
+                        sortCriteria={sortCriteria}
+                        setSortCriteria={setSortCriteria}
+                    />
+                </tr>
+            </thead>
+            <tbody>
+                <tr
+                    style={{
+                        height: topHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+                {sortedBodies.slice(visibleRange.start, visibleRange.end).map((body: LeaderboardBody) => {
+                    const isFollowedBody = bodyFollowed == body.index;
+                    return (
+                        <LeaderboardRowStyle key={body.index} bodyColor={body.color} selected={isFollowedBody}>
+                            <td className="name">
+                                <BodySelectButton
+                                    bodyIndex={body.index}
+                                    bodyColor={body.color}
+                                    selected={isFollowedBody}
+                                />
+                            </td>
+                            <td>{body.numSatellites}</td>
+                            <td className={body.orbiting != -1 ? "name" : ""}>
+                                {body.orbiting != -1 ? (
+                                    <BodySelectButton
+                                        bodyIndex={body.orbiting}
+                                        bodyColor={body.orbitColor}
+                                        selected={isFollowedBody}
+                                    />
+                                ) : (
+                                    <>None</>
+                                )}
+                            </td>
+                            <td>{body.orbiting != -1 ? body.dOrbit.toFixed(2) : <>--</>}</td>
+                        </LeaderboardRowStyle>
+                    );
+                })}
+                <tr
+                    style={{
+                        height: bottomHeight,
+                        width: "100%",
+                        backgroundColor: "green",
+                    }}
+                />
+            </tbody>
+        </table>
+    );
+}
+
+function TargetTabContent(props: TabContentProps) {
     const { sortedBodies, sortCriteria, setSortCriteria, visibleRange, topHeight, bottomHeight } = props;
     const bodyFollowed = useSelector((state: RootState) => state.controls.bodyFollowed);
 

@@ -3,14 +3,14 @@ import React from "react";
 
 export interface Tab {
     label: string;
-    value: string;
+    value: number;
 }
 
 interface MenuProps {
     children: React.ReactNode;
     tabs: Tab[];
-    activeTab: string;
-    setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+    activeTab: number;
+    setActiveTab: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function Menu(props: MenuProps) {
