@@ -44,6 +44,124 @@ export function SettingsMenu() {
         <Menu tabs={settingsTab} activeTab={activeTab} setActiveTab={setActiveTab}>
             <SettingsStyle>
                 {activeTab == SettingsTabType.SIMULATION && (
+                    <form>
+                        <label>Seed</label>
+                        <input
+                            type="text"
+                            value={seed}
+                            onChange={(e) => {
+                                setSeed(e.target.value);
+                            }}
+                        />
+                        <div>
+                            <input
+                                type="checkbox"
+                                id="setStarInCenter"
+                                checked={starInCenter}
+                                onChange={(e) => {
+                                    setStarInCenter(e.target.checked);
+                                }}
+                            />
+                            <label htmlFor="setStarInCenter">Central Star</label>
+                        </div>
+                        <div>
+                            <label htmlFor="centralStarMass">Mass:</label>
+                            <input
+                                type="number"
+                                value={centerStarMass}
+                                onChange={(e) => {
+                                    const val = e.target.valueAsNumber;
+                                    if (val < MIN_STAR_MASS) {
+                                        setCenterStarMass(MIN_STAR_MASS);
+                                        return;
+                                    }
+                                    if (val > MAX_STAR_MASS) {
+                                        setCenterStarMass(MAX_STAR_MASS);
+                                        return;
+                                    }
+                                    setCenterStarMass(e.target.valueAsNumber);
+                                }}
+                                disabled={!starInCenter}
+                            />
+                        </div>
+
+                        <label>Num. Grav. Bodies</label>
+                        <input
+                            type="number"
+                            value={numBodies}
+                            onChange={(e) => {
+                                const val = e.target.valueAsNumber;
+                                if (val > 5000) {
+                                    setNumBodies(5000);
+                                    return;
+                                }
+                                setNumBodies(e.target.valueAsNumber);
+                            }}
+                            step="1"
+                        />
+                        <label>Max and Min Mass</label>
+                        <div>
+                            <input
+                                className="big"
+                                type="number"
+                                value={minMass}
+                                onChange={(e) => {
+                                    const val = e.target.valueAsNumber;
+                                    if (val > maxMass) {
+                                        setMinMass(maxMass);
+                                        return;
+                                    }
+                                    if (val < MIN_BODY_MASS) {
+                                        setMinMass(MIN_BODY_MASS);
+                                        return;
+                                    }
+                                    setMinMass(e.target.valueAsNumber);
+                                }}
+                                step="1"
+                            />
+                            <input
+                                className="big"
+                                type="number"
+                                value={maxMass}
+                                onChange={(e) => {
+                                    const val = e.target.valueAsNumber;
+                                    if (val < minMass) {
+                                        setMaxMass(minMass);
+                                        return;
+                                    }
+                                    if (val > MAX_BODY_MASS) {
+                                        setMaxMass(MAX_BODY_MASS);
+                                        return;
+                                    }
+                                    setMaxMass(e.target.valueAsNumber);
+                                }}
+                                step="1"
+                            />
+                        </div>
+
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                dispatch({
+                                    type: "universeSettings/setAll",
+                                    payload: {
+                                        seed: seed,
+                                        timeStep: universeSettings.timeStep,
+                                        numBodies: numBodies,
+                                        size: universeSettings.size,
+                                        starInCenter: starInCenter,
+                                        centerStarMass: centerStarMass,
+                                        minMass: minMass,
+                                        maxMass: maxMass,
+                                    },
+                                });
+                            }}
+                        >
+                            Create New Universe
+                        </button>
+                    </form>
+                )}
+                {activeTab == SettingsTabType.GRAPHICS && (
                     <>
                         <label>Circles:</label>
                         <div>
@@ -74,143 +192,27 @@ export function SettingsMenu() {
                             />
                             <label htmlFor="solar">Solar</label>
                         </div>
-                        <form>
-                            <label>Seed</label>
-                            <input
-                                type="text"
-                                value={seed}
-                                onChange={(e) => {
-                                    setSeed(e.target.value);
-                                }}
-                            />
-                            <div>
-                                <input
-                                    type="checkbox"
-                                    id="setStarInCenter"
-                                    checked={starInCenter}
-                                    onChange={(e) => {
-                                        setStarInCenter(e.target.checked);
-                                    }}
-                                />
-                                <label htmlFor="setStarInCenter">Central Star</label>
-                            </div>
-                            <div>
-                                <label htmlFor="centralStarMass">Mass:</label>
-                                <input
-                                    type="number"
-                                    value={centerStarMass}
-                                    onChange={(e) => {
-                                        const val = e.target.valueAsNumber;
-                                        if (val < MIN_STAR_MASS) {
-                                            setCenterStarMass(MIN_STAR_MASS);
-                                            return;
-                                        }
-                                        if (val > MAX_STAR_MASS) {
-                                            setCenterStarMass(MAX_STAR_MASS);
-                                            return;
-                                        }
-                                        setCenterStarMass(e.target.valueAsNumber);
-                                    }}
-                                    disabled={!starInCenter}
-                                />
-                            </div>
-
-                            <label>Num. Grav. Bodies</label>
-                            <input
-                                type="number"
-                                value={numBodies}
-                                onChange={(e) => {
-                                    const val = e.target.valueAsNumber;
-                                    if (val > 5000) {
-                                        setNumBodies(5000);
-                                        return;
-                                    }
-                                    setNumBodies(e.target.valueAsNumber);
-                                }}
-                                step="1"
-                            />
-                            <label>Max and Min Mass</label>
-                            <div>
-                                <input
-                                    className="big"
-                                    type="number"
-                                    value={minMass}
-                                    onChange={(e) => {
-                                        const val = e.target.valueAsNumber;
-                                        if (val > maxMass) {
-                                            setMinMass(maxMass);
-                                            return;
-                                        }
-                                        if (val < MIN_BODY_MASS) {
-                                            setMinMass(MIN_BODY_MASS);
-                                            return;
-                                        }
-                                        setMinMass(e.target.valueAsNumber);
-                                    }}
-                                    step="1"
-                                />
-                                <input
-                                    className="big"
-                                    type="number"
-                                    value={maxMass}
-                                    onChange={(e) => {
-                                        const val = e.target.valueAsNumber;
-                                        if (val < minMass) {
-                                            setMaxMass(minMass);
-                                            return;
-                                        }
-                                        if (val > MAX_BODY_MASS) {
-                                            setMaxMass(MAX_BODY_MASS);
-                                            return;
-                                        }
-                                        setMaxMass(e.target.valueAsNumber);
-                                    }}
-                                    step="1"
-                                />
-                            </div>
-
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    dispatch({
-                                        type: "universeSettings/setAll",
-                                        payload: {
-                                            seed: seed,
-                                            timeStep: universeSettings.timeStep,
-                                            numBodies: numBodies,
-                                            size: universeSettings.size,
-                                            starInCenter: starInCenter,
-                                            centerStarMass: centerStarMass,
-                                            minMass: minMass,
-                                            maxMass: maxMass,
-                                        },
-                                    });
-                                }}
-                            >
-                                Create New Universe
-                            </button>
-                        </form>
+                        <button
+                            onClick={() => {
+                                dispatch({ type: "graphicsSettings/toggleStarLight" });
+                            }}
+                        >
+                            {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
+                        </button>
                     </>
                 )}
                 {activeTab == SettingsTabType.DEBUG && (
-                    <div>
-                        <button
-                            onClick={() => {
-                                dispatch({ type: "controls/toggleDebug" });
-                            }}
-                        >
-                            {showDebug ? "Hide Debug" : "Show Debug"}
-                        </button>
-                    </div>
-                )}
-                {activeTab == SettingsTabType.GRAPHICS && (
-                    <button
-                        onClick={() => {
-                            dispatch({ type: "graphicsSettings/toggleStarLight" });
-                        }}
-                    >
-                        {graphicsSettings.starLight ? "Disable Star Light" : "Enable Star Light"}
-                    </button>
+                    <>
+                        <div>
+                            <button
+                                onClick={() => {
+                                    dispatch({ type: "controls/toggleDebug" });
+                                }}
+                            >
+                                {showDebug ? "Hide Debug" : "Show Debug"}
+                            </button>
+                        </div>
+                    </>
                 )}
             </SettingsStyle>
         </Menu>
