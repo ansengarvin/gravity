@@ -1,6 +1,6 @@
 import { getRandomFloat, getRandomInt } from "../../random/random";
 import { vec3, vec4 } from "gl-matrix";
-import { LeaderboardBody } from "../../components/Leaderboard";
+import { LeaderboardBody } from "../../redux/informationSlice";
 import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/conversions";
 import { MassThresholds } from "../defines/physics";
@@ -232,13 +232,182 @@ export class Universe {
         this.initialize();
     }
 
-    public updateEuler(deltaTime: number) {
+    public updateSmallRandom(deltaTime: number) {
+        const dt = deltaTime * this.settings.timeStep;
+
+        this.timeElapsed += dt;
+
+        const motionScale = 50;
+        const displacement = motionScale * dt;
+
+        let numUpdated = 0;
+        while (numUpdated <= 10) {
+            const i = getRandomInt(0, this.settings.numBodies - 1);
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            numUpdated++;
+            this.positionsX[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsY[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsZ[i] += getRandomFloat(-1, 1) * displacement;
+        }
+    }
+
+    /**
+     *
+     * Updates the universe with brownian motion (e.g. totally random, incremental motion).
+     * Included as a low-computation diagnostic tool for performance comparisons.
+     */
+    public updateBrownian(deltaTime: number) {
+        const dt = deltaTime * this.settings.timeStep;
+
+        this.timeElapsed += dt;
+
+        const motionScale = 10;
+        const displacement = motionScale * dt;
+
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            this.positionsX[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsY[i] += getRandomFloat(-1, 1) * displacement;
+            this.positionsZ[i] += getRandomFloat(-1, 1) * displacement;
+        }
+    }
+
+    /**
+     *
+     * Updates the universe via simple Euler integration by halving the O(n^2) function calls, where possible.
+     * If we were to ever implement multithreading in the future, this would be a bad candidate for parallelization:
+     * If JS parallelization is similar to OpenMP, then it would require that both inner and outer loops have the same dimensions.
+     */
+    public updateEulerHalved(deltaTime: number) {
         const dt = deltaTime * this.settings.timeStep;
 
         this.timeElapsed += dt;
 
         // Zero out all accelerations
-        // Each fill operation, evidently, is done in O(n) time.
+        // Each fill operation is done in O(n) time.
+        this.accelerationsX.fill(0);
+        this.accelerationsY.fill(0);
+        this.accelerationsZ.fill(0);
+
+        // Calculate acceleration
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) continue;
+
+            for (let j = i + 1; j < this.settings.numBodies; j++) {
+                if (i === j || !this.bodiesActive[j]) continue;
+
+                // Calculate displacement
+                const dX = this.positionsX[j] - this.positionsX[i];
+                const dY = this.positionsY[j] - this.positionsY[i];
+                const dZ = this.positionsZ[j] - this.positionsZ[i];
+
+                // Calculates the magnitude of displacement
+                const distSq = dX * dX + dY * dY + dZ * dZ;
+                const dist = Math.sqrt(distSq);
+
+                // Calculates the unit vector of the displacement
+                const unitDisplacementX = dX / dist;
+                const unitDisplacementY = dY / dist;
+                const unitDisplacementZ = dZ / dist;
+
+                // Calculates the accelerations
+                const acceleration = (G * this.masses[j]) / dist;
+
+                this.accelerationsX[i] += acceleration * unitDisplacementX;
+                this.accelerationsY[i] += acceleration * unitDisplacementY;
+                this.accelerationsZ[i] += acceleration * unitDisplacementZ;
+            }
+        }
+
+        // Calculate new velocities and positions
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            this.velocitiesX[i] += this.accelerationsX[i] * dt;
+            this.velocitiesY[i] += this.accelerationsY[i] * dt;
+            this.velocitiesZ[i] += this.accelerationsZ[i] * dt;
+
+            this.positionsX[i] += this.velocitiesX[i] * dt;
+            this.positionsY[i] += this.velocitiesY[i] * dt;
+            this.positionsZ[i] += this.velocitiesZ[i] * dt;
+        }
+
+        // Handle collisions
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (!this.bodiesActive[i]) {
+                continue;
+            }
+            for (let j = 0; j < this.settings.numBodies; j++) {
+                if (i === j || !this.bodiesActive[j]) {
+                    continue;
+                }
+
+                // Calculate displacement
+                const displacementX = this.positionsX[j] - this.positionsX[i];
+                const displacementY = this.positionsY[j] - this.positionsY[i];
+                const displacementZ = this.positionsZ[j] - this.positionsZ[i];
+
+                // Calculates the magnitude of displacement
+                const displacementMagSq =
+                    displacementX * displacementX + displacementY * displacementY + displacementZ * displacementZ;
+                const displacementMag = Math.sqrt(displacementMagSq);
+
+                // Check for collision
+                if (displacementMag < this.radii[i] + this.radii[j]) {
+                    const most_massive = this.masses[i] > this.masses[j] ? i : j;
+                    const less_massive = this.masses[i] > this.masses[j] ? j : i;
+
+                    // Merge the masses
+                    this.masses[most_massive] += this.masses[less_massive];
+                    this.radii[most_massive] = this.radius_from_mass_piecewise(this.masses[most_massive]);
+                    this.velocitiesX[most_massive] =
+                        (this.velocitiesX[most_massive] * this.masses[most_massive] +
+                            this.velocitiesX[less_massive] * this.masses[less_massive]) /
+                        this.masses[most_massive];
+                    this.velocitiesY[most_massive] =
+                        (this.velocitiesY[most_massive] * this.masses[most_massive] +
+                            this.velocitiesY[less_massive] * this.masses[less_massive]) /
+                        this.masses[most_massive];
+                    this.velocitiesZ[most_massive] =
+                        (this.velocitiesZ[most_massive] * this.masses[most_massive] +
+                            this.velocitiesZ[less_massive] * this.masses[less_massive]) /
+                        this.masses[most_massive];
+
+                    /*
+                        Deactivate the less massive body.
+                    */
+                    this.numActive--;
+                    this.bodiesActive[less_massive] = 0;
+                    if (less_massive === i) {
+                        break;
+                    }
+                }
+            }
+        }
+
+        /*
+            Handle specific orbital energy
+        */
+        this.setOrbitalInformation();
+    }
+
+    /**
+     *
+     * Updates the universe via simple Euler integration.
+     * O(n^2) complexity.
+     */
+    public updateEulerOld(deltaTime: number) {
+        const dt = deltaTime * this.settings.timeStep;
+
+        this.timeElapsed += dt;
+
+        // Zero out all accelerations
+        // Each fill operation is done in O(n) time.
         this.accelerationsX.fill(0);
         this.accelerationsY.fill(0);
         this.accelerationsZ.fill(0);

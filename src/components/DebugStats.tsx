@@ -3,7 +3,10 @@ import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
 export function DebugStats() {
-    const debug = useSelector((state: RootState) => state.information);
+    const debug = useSelector((state: RootState) => state.debug);
+    const numActiveBodies = useSelector((state: RootState) => state.information.numActiveBodies);
+    const numStars = useSelector((state: RootState) => state.information.numStars);
+    const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
 
     return (
         <DebugStatsStyle>
@@ -11,9 +14,9 @@ export function DebugStats() {
             <div>TPS: {debug.tps.toFixed(2)}</div>
             <h2>Debug Stats</h2>
             <h3>Simulation</h3>
-            <div>Number of Bodies: {debug.numActiveBodies}</div>
-            <div>Number of Stars: {debug.numStars}</div>
-            <div>Radius of Followed Body: {debug.followedBodyRadius}</div>
+            <div>Number of Bodies: {numActiveBodies}</div>
+            <div>Number of Stars: {numStars}</div>
+            <div>Radius of Followed Body: {followedBodyRadius}</div>
             <h3>OpenGL</h3>
             <div>Max Vertex Uniform Vectors: {debug.maxVertexUniformVectors}</div>
             <div>Max Fragment Uniform Vectors: {debug.maxFragmentUniformVectors}</div>
