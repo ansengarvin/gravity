@@ -46,13 +46,13 @@ export function Leaderboard() {
             ? [
                   { label: "Mass", value: LeaderboardTabType.MASS },
                   { label: "Orbit", value: LeaderboardTabType.ORBIT },
-                  { label: "ΔOrigin", value: LeaderboardTabType.MOTION },
-                  { label: "ΔTarget", value: LeaderboardTabType.TARGET },
+                  { label: "ΔOrig", value: LeaderboardTabType.MOTION },
+                  { label: "ΔTgt", value: LeaderboardTabType.TARGET },
               ]
             : [
                   { label: "Mass", value: LeaderboardTabType.MASS },
                   { label: "Orbit", value: LeaderboardTabType.ORBIT },
-                  { label: "Origin", value: LeaderboardTabType.MOTION },
+                  { label: "ΔOrig", value: LeaderboardTabType.MOTION },
               ];
     useEffect(() => {
         if (activeTab == LeaderboardTabType.TARGET && bodyFollowed == -1) {
@@ -332,7 +332,7 @@ function OrbitTabContent(props: TabContentProps) {
                                     <BodySelectButton
                                         bodyIndex={body.orbiting}
                                         bodyColor={body.orbitColor}
-                                        selected={isFollowedBody}
+                                        selected={bodyFollowed == body.orbiting}
                                     />
                                 ) : (
                                     <>None</>
