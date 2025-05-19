@@ -84,7 +84,7 @@ const ButtonRow = styled.div`
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    gap: 25px;
+    gap: 12px;
 `;
 
 const ControlButton = styled.button`
@@ -97,8 +97,8 @@ const ControlButton = styled.button`
     outline: none;
     cursor: pointer;
 
-    height: 50px;
-    width: 50px;
+    height: 44px;
+    width: 44px;
 
     @media screen and (max-height: 500px) {
         height: 40px;
