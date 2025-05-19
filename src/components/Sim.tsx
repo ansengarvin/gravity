@@ -537,9 +537,9 @@ export function Sim() {
                 let updatesThisFrame = 0;
                 while (accumulatedTime >= secondsPerTick && updatesThisFrame < maxUpdatesAllowedAtOnce) {
                     if (!pausedRef.current) {
-                        //universe.current.updateEulerHalved(secondsPerTick);
+                        universe.current.updateEulerOld(secondsPerTick);
                         //universe.current.updateBrownian(secondsPerTick);
-                        universe.current.updateSmallRandom(secondsPerTick);
+                        //universe.current.updateSmallRandom(secondsPerTick);
                         tickCount++;
                     }
                     accumulatedTime -= secondsPerTick;
