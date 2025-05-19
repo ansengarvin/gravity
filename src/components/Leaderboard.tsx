@@ -46,8 +46,8 @@ export function Leaderboard() {
             ? [
                   { label: "Mass", value: LeaderboardTabType.MASS },
                   { label: "Orbit", value: LeaderboardTabType.ORBIT },
-                  { label: "Origin", value: LeaderboardTabType.MOTION },
-                  { label: "Target", value: LeaderboardTabType.TARGET },
+                  { label: "ΔOrigin", value: LeaderboardTabType.MOTION },
+                  { label: "ΔTarget", value: LeaderboardTabType.TARGET },
               ]
             : [
                   { label: "Mass", value: LeaderboardTabType.MASS },
