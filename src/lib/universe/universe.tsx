@@ -31,6 +31,7 @@ export class Universe {
     public orbitalDistances: Float32Array;
     public numSattelites: Float32Array;
     public timeElapsed: number;
+    public centerStar: number | null;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -61,6 +62,7 @@ export class Universe {
 
         this.numActive = this.settings.numBodies;
         this.timeElapsed = 0;
+        this.centerStar = null;
 
         this.initialize();
     }
@@ -180,6 +182,7 @@ export class Universe {
             this.velocitiesY[centerBody] = 0;
             this.velocitiesZ[centerBody] = 0;
             this.bodiesActive[centerBody] = 1;
+            this.centerStar = centerBody;
         }
 
         // Set colors
@@ -225,6 +228,7 @@ export class Universe {
         this.numActive = 0;
         this.numSattelites.fill(0);
         this.timeElapsed = 0;
+        this.centerStar = null;
     }
 
     public reset(): void {

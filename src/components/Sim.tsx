@@ -110,19 +110,27 @@ export function Sim() {
     useEffect(() => {
         universe.current = new Universe(settings);
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(-1) });
         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
+        if (universe.current.centerStar) {
+            dispatch({ type: "controls/setBodyFollowed", payload: universe.current.centerStar });
+        } else {
+            dispatch({ type: "controls/unsetBodyFollowed" });
+        }
     }, [settings]);
 
     useEffect(() => {
         cameraRef.current.setAll(0, 0, 0, 0, 0, -20);
-        dispatch({ type: "controls/unsetBodyFollowed", payload: 0 });
         universe.current.reset();
         dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(-1) });
         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
+        if (universe.current.centerStar) {
+            dispatch({ type: "controls/setBodyFollowed", payload: universe.current.centerStar });
+        } else {
+            dispatch({ type: "controls/unsetBodyFollowed" });
+        }
     }, [resetSim]);
 
     useEffect(() => {
