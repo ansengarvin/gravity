@@ -1,5 +1,5 @@
 import styled from "@emotion/styled";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { brightenColor } from "../lib/colors/brightenColor";
 import { RadioButtonCheckedIcon } from "../assets/icons/RadioButtonCheckedIcon";
 import { RadioButtonUncheckedIcon } from "../assets/icons/RadioButtonUncheckedIcon";
@@ -54,6 +54,11 @@ export function Leaderboard() {
                   { label: "Orbit", value: LeaderboardTabType.ORBIT },
                   { label: "Origin", value: LeaderboardTabType.MOTION },
               ];
+    useEffect(() => {
+        if (activeTab == LeaderboardTabType.TARGET && bodyFollowed == -1) {
+            setActiveTab(LeaderboardTabType.MASS);
+        }
+    }, [bodyFollowed]);
 
     return (
         <Menu tabs={leaderboardTabs} activeTab={activeTab} setActiveTab={setActiveTab}>
