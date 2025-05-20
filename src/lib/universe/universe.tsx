@@ -144,18 +144,18 @@ export class Universe {
         // const max_velocity = 3;
 
         for (let i = 0; i < this.settings.numBodies; i++) {
-            // this.positionsX[i] = getRandomFloat(min_position, max_position);
-            // this.positionsY[i] = getRandomFloat(-1, 1);
-            // this.positionsZ[i] = getRandomFloat(min_position, max_position);
+            // this.positionsX[i] = getRandomF32(min_position, max_position);
+            // this.positionsY[i] = getRandomF32(-1, 1);
+            // this.positionsZ[i] = getRandomF32(min_position, max_position);
 
             const pos = this.getRandomDiskStartingPosition(min_position, max_position);
             this.positionsX[i] = pos.x;
             this.positionsY[i] = pos.y;
             this.positionsZ[i] = pos.z;
 
-            // this.velocitiesX[i] = getRandomFloat(min_velocity, max_velocity);
-            // this.velocitiesY[i] = getRandomFloat(min_velocity, max_velocity);
-            // this.velocitiesZ[i] = getRandomFloat(min_velocity, max_velocity);
+            // this.velocitiesX[i] = getRandomF32(min_velocity, max_velocity);
+            // this.velocitiesY[i] = getRandomF32(min_velocity, max_velocity);
+            // this.velocitiesZ[i] = getRandomF32(min_velocity, max_velocity);
 
             const initialAngularVelocity = this.getInitialVelocityKepler(
                 this.positionsX[i],
@@ -169,13 +169,13 @@ export class Universe {
 
             this.bodiesActive[i] = 1;
 
-            this.masses[i] = this.rng.getRandomFloat(this.settings.minMass, this.settings.maxMass);
+            this.masses[i] = this.rng.getRandomF32(this.settings.minMass, this.settings.maxMass);
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
         }
 
         // Set star in center if applicable
         if (this.settings.starInCenter) {
-            const centerBody = this.rng.getRandomInt(0, this.settings.numBodies - 1);
+            const centerBody = this.rng.getRandomI32(0, this.settings.numBodies - 1);
             this.masses[centerBody] = this.settings.centerStarMass;
             this.radii[centerBody] = this.radius_from_mass_piecewise(this.masses[centerBody]);
             this.positionsX[centerBody] = 0;
@@ -192,8 +192,8 @@ export class Universe {
         // HSL to RGB conversion: https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
         for (let i = 0; i < this.settings.numBodies; i++) {
             // Generating bright, saturated colors is easier in HSL
-            const H = this.rng.getRandomFloat(0, 360);
-            const S = this.rng.getRandomFloat(0.8, 0.9);
+            const H = this.rng.getRandomF32(0, 360);
+            const S = this.rng.getRandomF32(0.8, 0.9);
             const L = 0.8;
 
             // Convert HSL to RGB
@@ -202,9 +202,9 @@ export class Universe {
             this.colorsG[i] = colorRGB.g;
             this.colorsB[i] = colorRGB.b;
 
-            // this.colorsR[i] = getRandomFloat(0.2, 0.85);
-            // this.colorsG[i] = getRandomFloat(0.2, 0.85);
-            // this.colorsB[i] = getRandomFloat(0.2, 0.85);
+            // this.colorsR[i] = getRandomF32(0.2, 0.85);
+            // this.colorsG[i] = getRandomF32(0.2, 0.85);
+            // this.colorsB[i] = getRandomF32(0.2, 0.85);
         }
 
         this.setOrbitalInformation();
@@ -250,14 +250,14 @@ export class Universe {
 
         let numUpdated = 0;
         while (numUpdated <= 10) {
-            const i = this.rng.getRandomInt(0, this.settings.numBodies - 1);
+            const i = this.rng.getRandomI32(0, this.settings.numBodies - 1);
             if (!this.bodiesActive[i]) {
                 continue;
             }
             numUpdated++;
-            this.positionsX[i] += this.rng.getRandomFloat(-1, 1) * displacement;
-            this.positionsY[i] += this.rng.getRandomFloat(-1, 1) * displacement;
-            this.positionsZ[i] += this.rng.getRandomFloat(-1, 1) * displacement;
+            this.positionsX[i] += this.rng.getRandomF32(-1, 1) * displacement;
+            this.positionsY[i] += this.rng.getRandomF32(-1, 1) * displacement;
+            this.positionsZ[i] += this.rng.getRandomF32(-1, 1) * displacement;
         }
     }
 
@@ -278,9 +278,9 @@ export class Universe {
             if (!this.bodiesActive[i]) {
                 continue;
             }
-            this.positionsX[i] += this.rng.getRandomFloat(-1, 1) * displacement;
-            this.positionsY[i] += this.rng.getRandomFloat(-1, 1) * displacement;
-            this.positionsZ[i] += this.rng.getRandomFloat(-1, 1) * displacement;
+            this.positionsX[i] += this.rng.getRandomF32(-1, 1) * displacement;
+            this.positionsY[i] += this.rng.getRandomF32(-1, 1) * displacement;
+            this.positionsZ[i] += this.rng.getRandomF32(-1, 1) * displacement;
         }
     }
 
@@ -691,9 +691,9 @@ export class Universe {
     }
 
     // private getRandomSphericalStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
-    //     const theta = getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
-    //     const phi = getRandomFloat(0, Math.PI); // Random angle from the z-axis
-    //     const radius = getRandomFloat(min, max); // Random radius
+    //     const theta = getRandomF32(0, Math.PI * 2); // Random angle around the z-axis
+    //     const phi = getRandomF32(0, Math.PI); // Random angle from the z-axis
+    //     const radius = getRandomF32(min, max); // Random radius
 
     //     return {
     //         x: radius * Math.sin(phi) * Math.cos(theta),
@@ -703,13 +703,13 @@ export class Universe {
     // }
 
     private getRandomDiskStartingPosition(min: number, max: number): { x: number; y: number; z: number } {
-        const theta = this.rng.getRandomFloat(0, Math.PI * 2); // Random angle around the z-axis
-        const phi = this.rng.getRandomFloat(0, Math.PI); // Random angle from the z-axis
-        const radius = this.rng.getRandomFloat(min, max); // Random radius
+        const theta = this.rng.getRandomF32(0, Math.PI * 2); // Random angle around the z-axis
+        const phi = this.rng.getRandomF32(0, Math.PI); // Random angle from the z-axis
+        const radius = this.rng.getRandomF32(min, max); // Random radius
 
         return {
             x: radius * Math.sin(phi) * Math.cos(theta),
-            y: this.rng.getRandomFloat(-1, 1), // Random y position
+            y: this.rng.getRandomF32(-1, 1), // Random y position
             z: radius * Math.cos(phi),
         };
     }

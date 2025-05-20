@@ -97,7 +97,7 @@ export class RngState {
      * @param max Maximum value, inclusive
      * @returns A number between [min, max]
      */
-    public getRandomFloat(min: number, max: number): number {
+    public getRandomF32(min: number, max: number): number {
         return (this.next() / 0xffffffff) * (max - min) + min;
     }
 
@@ -107,9 +107,9 @@ export class RngState {
      * @param max Maximum value, inclusive
      * @returns An integer between [min, max]
      */
-    public getRandomInt(min: number, max: number): number {
+    public getRandomI32(min: number, max: number): number {
         max = max + 1;
-        return Math.floor(this.getRandomFloat(min, max));
+        return Math.floor(this.getRandomF32(min, max));
     }
 
     // See: https://prng.di.unimi.it/splitmix64.c
