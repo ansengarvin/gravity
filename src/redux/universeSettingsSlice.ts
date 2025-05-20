@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { SolarSystemMassSolar } from "../lib/defines/solarSystem";
+import { getRandomSeed } from "../random/seed";
 
 export interface UniverseSettings {
     seed: string;
@@ -13,7 +14,7 @@ export interface UniverseSettings {
 }
 
 const initialState: UniverseSettings = {
-    seed: "irrelevant",
+    seed: getRandomSeed(),
     timeStep: 1.0 / 12.0, // time step in years (1 month)
     numBodies: 500,
     size: 20, // The size of the universe in astronomical units
