@@ -6,6 +6,7 @@ import { CircleType } from "../redux/controlsSlice";
 import { SolarSystemMassSolar } from "../lib/defines/solarSystem";
 import { MassThresholds } from "../lib/defines/physics";
 import { Menu, Tab } from "./Menu";
+import { getRandomSeed } from "../random/seed";
 
 export function SettingsMenu() {
     const graphicsSettings = useSelector((state: RootState) => state.graphicsSettings);
@@ -53,6 +54,15 @@ export function SettingsMenu() {
                                 setSeed(e.target.value);
                             }}
                         />
+                        <button
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setSeed(getRandomSeed());
+                            }}
+                        >
+                            Random Seed
+                        </button>
+
                         <div>
                             <input
                                 type="checkbox"
@@ -246,6 +256,11 @@ const SettingsStyle = styled.div`
 
         input[type="number"] {
             width: 3rem;
+        }
+
+        input[type="text"] {
+            width: 280px;
+            text-align: center;
         }
 
         input.big {
