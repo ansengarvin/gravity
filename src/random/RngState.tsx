@@ -9,7 +9,10 @@
 export class RngState {
     private state: Uint32Array;
 
-    constructor(seed: number) {}
+    constructor(seed: string) {
+        this.MD5(seed);
+        this.state = new Uint32Array(4);
+    }
 
     private rotl(x: number, k: number): number {
         return this.toUint32((x << k) | (x >>> (32 - k)));
@@ -111,7 +114,7 @@ export class RngState {
     }
 
     // See: https://en.wikipedia.org/wiki/MD5
-    private MD5(message: string): Uint32Array {
+    public MD5(message: string): Uint32Array {
         const result = new Uint32Array(4);
 
         // All variables are unsigned 32 bit integers and wrap modulo 2^32 when calculating
@@ -130,7 +133,7 @@ export class RngState {
 
         // Use binary integer part of the sines of integers (Radians) as constants
         for (let i = 0; i < 64; i++) {
-            K[i] = Math.floor(Math.pow(2, 32) * Math.abs(Math.sin(i + 1)));
+            K[i] = Math.floor(Math.abs(Math.sin(i + 1)) * 0x100000000) >>> 0;
         }
 
         // Initialize variables
@@ -139,8 +142,100 @@ export class RngState {
         let c0 = 0x98badcfe;
         let d0 = 0x10325476;
 
-        // Append 1 bit to message
+        // Convert string to byte array and append 1 bit
+        const bytes = this.stringToUtf8Bytes(message);
+
+        const initialPadded = new Uint8Array(bytes.length + 1);
+        initialPadded.set(bytes);
+        initialPadded[bytes.length] = 0x80; // Append a single '1' bit (followed by 0 bits)
+
+        // Append 0 bits until length is 448 mod 512 (e.g. 56 bytes)
+        const finalBlockLength = initialPadded.length % 64;
+        const numBytesToAdd = finalBlockLength > 56 ? 120 - finalBlockLength : 56 - finalBlockLength;
+        const zeroesPadded = new Uint8Array(initialPadded.length + numBytesToAdd);
+        zeroesPadded.set(initialPadded);
+
+        for (let i = 0; i < numBytesToAdd; i++) {
+            zeroesPadded[initialPadded.length + i] = 0x00;
+        }
+
+        // Add original length as 8 bytes at the end
+        const finalPadded = new Uint8Array(zeroesPadded.length + 8);
+        finalPadded.set(zeroesPadded);
+        // MDA calls for modulo of 2^64, but my messages will never be anywhere close to that long.
+        // Conversion to bigint is mandatory - JS only uses 32 bytes, but we need 64 to fit neeatly into the remaining 8 bytes.
+        const originalLengthInBits = BigInt(bytes.length * 8);
+
+        for (let i = 0; i < 8; i++) {
+            // MD5 calls for little-endian order
+            finalPadded[zeroesPadded.length + i] = Number(originalLengthInBits >> BigInt(8 * i)) & 0xff;
+        }
+
+        console.log(finalPadded.toString());
+
+        for (let i = 0; i < finalPadded.length / 64; i++) {
+            const M = new Uint32Array(16);
+            for (let j = 0; j < 16; j++) {
+                M[j] = 0;
+                for (let k = 0; k < 4; k++) {
+                    M[j] |= finalPadded[i * 64 + j * 4 + k] << (k * 8);
+                }
+            }
+
+            let A = a0;
+            let B = b0;
+            let C = c0;
+            let D = d0;
+
+            for (let j = 0; j < 64; j++) {
+                let F = 0;
+                let g = 0;
+
+                if (j < 16) {
+                    F = (B & C) | (~B & D);
+                    g = j;
+                } else if (j < 32) {
+                    F = (D & B) | (~D & C);
+                    g = (5 * j + 1) % 16;
+                } else if (j < 48) {
+                    F = B ^ C ^ D;
+                    g = (3 * j + 5) % 16;
+                } else {
+                    F = C ^ (B | ~D);
+                    g = (7 * j) % 16;
+                }
+                F = F + A + K[j] + M[g];
+                A = D;
+                D = C;
+                C = B;
+                B = B + this.rotl(F, s[j]);
+            }
+
+            a0 = (a0 + A) >>> 0;
+            b0 = (b0 + B) >>> 0;
+            c0 = (c0 + C) >>> 0;
+            d0 = (d0 + D) >>> 0;
+        }
+
+        // Output
+        result[0] = a0;
+        result[1] = b0;
+        result[2] = c0;
+        result[3] = d0;
 
         return result;
+
+        // Ordinarily, we might return it as a hex.
+        // However, for our use case, we want to separate it out into 4 values.
+        /*
+        let hex = "";
+        for (let i = 0; i < result.length; i++) {
+            const word = result[i];
+            hex += ((word >> 0) & 0xff).toString(16).padStart(2, "0");
+            hex += ((word >> 8) & 0xff).toString(16).padStart(2, "0");
+            hex += ((word >> 16) & 0xff).toString(16).padStart(2, "0");
+            hex += ((word >> 24) & 0xff).toString(16).padStart(2, "0");
+        }
+        */
     }
 }
