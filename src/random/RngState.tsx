@@ -91,8 +91,25 @@ export class RngState {
         this.state[3] = this.toUint32(s3);
     }
 
-    public getNumber() {
-        return this.next();
+    /**
+     *
+     * @param min Minimum value, inclusive
+     * @param max Maximum value, inclusive
+     * @returns A number between [min, max]
+     */
+    public getRandomFloat(min: number, max: number): number {
+        return (this.next() / 0xffffffff) * (max - min) + min;
+    }
+
+    /**
+     *
+     * @param min Minimum value, inclusive
+     * @param max Maximum value, inclusive
+     * @returns An integer between [min, max]
+     */
+    public getRandomInt(min: number, max: number): number {
+        max = max + 1;
+        return Math.floor(this.getRandomFloat(min, max));
     }
 
     // See: https://prng.di.unimi.it/splitmix64.c
@@ -201,8 +218,6 @@ function MD5(message: string) {
         // MD5 calls for little-endian order
         finalPadded[zeroesPadded.length + i] = Number(originalLengthInBits >> BigInt(8 * i)) & 0xff;
     }
-
-    console.log(finalPadded.toString());
 
     for (let i = 0; i < finalPadded.length / 64; i++) {
         const M = new Uint32Array(16);
