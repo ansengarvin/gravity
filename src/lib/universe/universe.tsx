@@ -4,6 +4,7 @@ import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/colorConversions";
 import { MassThresholds } from "../defines/physics";
 import { RngState } from "../../random/RngState";
+import { removeFromArray } from "../ds/arrays";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -523,12 +524,20 @@ export class Universe {
                     if (less_massive === i) {
                         break;
                     }
+                    /*
+                        If less massive body is a star, remove it from the stars array.
+                    */
+                    if (this.masses[less_massive] >= MassThresholds.STAR) {
+                        this.stars = removeFromArray(less_massive, this.stars);
+                        this.numStars--;
+                    }
 
                     /*
-                        Check if more massive body has passed threshold to become a star
+                        Add to array of stars if more massive body has passed the threshold
                     */
                     if (this.masses[most_massive] >= MassThresholds.STAR && !this.isStar(most_massive)) {
-                        this.stars[this.numSta];
+                        this.stars[this.numStars] = most_massive;
+                        this.numStars++;
                     }
                 }
             }
