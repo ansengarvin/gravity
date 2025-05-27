@@ -665,16 +665,19 @@ export class Universe {
         return this.stars.slice(0, this.numStars);
     }
 
-    public getStarData(): Array<vec4> {
-        const stars = new Array<vec4>();
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            if (this.isStar(i)) {
-                stars.push(vec4.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i], this.masses[i]));
-            }
+    public getStarsData(): Array<vec4> {
+        /**
+         * Returns the data for each star in the universe.
+         * The data is in the form of vec4, where the first three components are the position and the fourth is the mass.
+         */
+        const starData: Array<vec4> = [];
+        for (let i = 0; i < this.numStars; i++) {
+            const idx = this.stars[i];
+            starData.push(
+                vec4.fromValues(this.positionsX[idx], this.positionsY[idx], this.positionsZ[idx], this.masses[idx]),
+            );
         }
-
-        stars.sort((a, b) => b[3] - a[3]); // Sort by mass
-        return stars;
+        return starData;
     }
 
     public getNumStars(): number {
