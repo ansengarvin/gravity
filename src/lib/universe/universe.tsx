@@ -649,8 +649,13 @@ export class Universe {
         return massRankings;
     }
 
-    public isStar(idx: number) {
-        return this.bodiesActive[idx] && this.masses[idx] >= MassThresholds.STAR;
+    public inStarArray(idx: number): boolean {
+        for (let i = 0; i < this.numStars; i++) {
+            if (this.stars[i] === idx) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public getStarData(): Array<vec4> {
