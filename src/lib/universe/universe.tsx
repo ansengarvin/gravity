@@ -31,6 +31,8 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
     public numSattelites: Float32Array;
+    public stars: Float32Array;
+    public numStars: number;
     public temperatures: Float32Array;
     public timeElapsed: number;
     public centerStar: number | null;
@@ -64,6 +66,9 @@ export class Universe {
         this.orbitalIndices = new Float32Array(this.settings.numBodies);
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
         this.numSattelites = new Float32Array(this.settings.numBodies);
+
+        this.stars = new Float32Array(this.settings.numBodies);
+        this.numStars = 0;
 
         this.numActive = this.settings.numBodies;
         this.timeElapsed = 0;
@@ -517,6 +522,13 @@ export class Universe {
                     this.bodiesActive[less_massive] = 0;
                     if (less_massive === i) {
                         break;
+                    }
+
+                    /*
+                        Check if more massive body has passed threshold to become a star
+                    */
+                    if (this.masses[most_massive] >= MassThresholds.STAR && !this.isStar(most_massive)) {
+                        this.stars[this.numSta];
                     }
                 }
             }
