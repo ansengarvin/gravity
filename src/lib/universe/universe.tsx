@@ -31,6 +31,7 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
     public numSattelites: Float32Array;
+    public temperatures: Float32Array;
     public timeElapsed: number;
     public centerStar: number | null;
 
@@ -53,6 +54,7 @@ export class Universe {
 
         this.masses = new Float32Array(this.settings.numBodies);
         this.radii = new Float32Array(this.settings.numBodies);
+        this.temperatures = new Float32Array(this.settings.numBodies);
 
         this.colorsR = new Float32Array(this.settings.numBodies);
         this.colorsG = new Float32Array(this.settings.numBodies);
