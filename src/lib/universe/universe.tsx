@@ -658,6 +658,13 @@ export class Universe {
         return false;
     }
 
+    public getStars(): Float32Array {
+        /**
+         * Returns the array of stars.
+         */
+        return this.stars.slice(0, this.numStars);
+    }
+
     public getStarData(): Array<vec4> {
         const stars = new Array<vec4>();
         for (let i = 0; i < this.settings.numBodies; i++) {
