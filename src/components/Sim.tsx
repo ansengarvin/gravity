@@ -268,6 +268,8 @@ export function Sim() {
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                     uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
+                    uMass: gl.getUniformLocation(starlightShaderProgram, "uMass"),
+                    uTemperature: gl.getUniformLocation(starlightShaderProgram, "uTemperature"),
                 },
             };
 
@@ -818,6 +820,11 @@ export function Sim() {
                                 universe.current.colorsB[i],
                                 1.0,
                             ]);
+                            gl.uniform1f(starlightProgramInfo.uniformLocations.uMass, universe.current.masses[i]);
+                            gl.uniform1f(
+                                starlightProgramInfo.uniformLocations.uTemperature,
+                                universe.current.temperatures[i],
+                            );
                         } else {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelViewMatrix);

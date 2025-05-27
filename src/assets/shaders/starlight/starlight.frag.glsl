@@ -10,6 +10,8 @@ in highp vec3 vFragPosition;
 
 uniform highp int uNumStars;
 uniform highp int uIsStar;
+uniform highp float uMass;
+uniform highp float uTemperature;
 uniform highp vec3 uStarLocations[MAX_STARS];
 uniform highp vec3 uViewPosition;
 
