@@ -681,13 +681,7 @@ export class Universe {
     }
 
     public getNumStars(): number {
-        let numStars = 0;
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            if (this.isStar(i)) {
-                numStars++;
-            }
-        }
-        return numStars;
+        return this.numStars;
     }
 
     public getInitialVelocityOriginal(x: number, y: number, z: number): { x: number; y: number; z: number } {
