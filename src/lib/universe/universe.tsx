@@ -535,7 +535,7 @@ export class Universe {
                     /*
                         Add to array of stars if more massive body has passed the threshold
                     */
-                    if (this.masses[most_massive] >= MassThresholds.STAR && !this.isStar(most_massive)) {
+                    if (this.masses[most_massive] >= MassThresholds.STAR && !this.inStarArray(most_massive)) {
                         this.stars[this.numStars] = most_massive;
                         this.numStars++;
                     }
