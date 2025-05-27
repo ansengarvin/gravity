@@ -215,6 +215,18 @@ export class Universe {
             // this.colorsB[i] = getRandomF32(0.2, 0.85);
         }
 
+        /*
+            Set all stars
+        */
+        this.stars.fill(-1);
+        this.numStars = 0;
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (this.masses[i] >= MassThresholds.STAR) {
+                this.stars[this.numStars] = i;
+                this.numStars++;
+            }
+        }
+
         this.setOrbitalInformation();
     }
 
