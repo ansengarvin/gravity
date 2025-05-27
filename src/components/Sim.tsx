@@ -745,7 +745,7 @@ export function Sim() {
                         );
 
                         // Data for calculating star light
-                        const starData: Array<vec4> = universe.current.getStarData();
+                        const starData: Array<vec4> = universe.current.getStarsData();
                         const numStars = starData.length;
                         gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
 
@@ -812,7 +812,7 @@ export function Sim() {
                                 false,
                                 normalMatrix,
                             );
-                            const isStar = universe.current.isStar(i) ? 1 : 0;
+                            const isStar = universe.current.inStarArray(i) ? 1 : 0;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
                             gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
                                 universe.current.colorsR[i],
