@@ -7,7 +7,7 @@ uniform highp vec4 uFragColor;
 in highp vec3 vNormal;
 
 in highp vec3 vFragPosition;
-in highp vec3 vTexCoords;
+in highp vec2 vTexCoords;
 
 uniform highp int uNumStars;
 uniform highp int uIsStar;
@@ -41,8 +41,26 @@ const highp vec3 MATERIAL_DIFFUSE = vec3(1.0, 1.0, 1.0);
 const highp vec3 MATERIAL_SPECULAR = vec3(0.0, 0.0, 0.0);
 const highp float MATERIAL_SHINNINESS = 32.0;
 
+const highp float PI = 3.14159265358979323846;
+
 highp vec3 gasGiantColor() {
-    return vec3(1.0, 0.0, 0.0);
+    highp vec3 color = uFragColor.rgb;
+    highp float s = vTexCoords.s;
+    highp float t = vTexCoords.t;
+
+    t += (PI / 100.0) * sin(s * 10.0 * PI +  100.0 * t * (uMass / 10.0));
+
+    // Vertical bands
+    highp float band = mod(t * 10.0, 1.0);
+    int numBands = 10;
+    int bandIndex = int(floor(t * float(numBands)));
+
+    if (bandIndex % 2 == 0) {
+        // Even bands are darker
+        color *= 0.5;
+    }
+
+    return color;
 }
 
 highp vec3 calculatePointLight(highp vec3 starLoc, highp vec3 normal, highp vec3 fragPos, highp vec3 viewDir) {
