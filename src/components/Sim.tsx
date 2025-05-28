@@ -735,6 +735,7 @@ export function Sim() {
                     if (starLightRef.current) {
                         setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -760,6 +761,7 @@ export function Sim() {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
 
                         gl.useProgram(camlightProgramInfo.program);
 
