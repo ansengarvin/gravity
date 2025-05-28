@@ -670,11 +670,11 @@ export class Universe {
         return false;
     }
 
-    public getStars(): Float32Array {
+    public getStars(): Array<number> {
         /**
          * Returns the array of stars.
          */
-        return this.stars.slice(0, this.numStars);
+        return [...this.stars.slice(0, this.numStars)];
     }
 
     public getStarsData(): Array<vec4> {
@@ -689,6 +689,8 @@ export class Universe {
                 vec4.fromValues(this.positionsX[idx], this.positionsY[idx], this.positionsZ[idx], this.masses[idx]),
             );
         }
+        // Sort star data by mass
+        starData.sort((a, b) => b[3] - a[3]); // Sort by mass in descending order
         return starData;
     }
 
