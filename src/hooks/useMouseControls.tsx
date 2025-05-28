@@ -10,7 +10,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     */
     // Zoom in and out on mouse wheel
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-        const minZoom = 1;
+        const minZoom = 0.25;
         const maxZoom = 50;
         cameraRef.current!.zoom -= event.deltaY * 0.01;
         cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
