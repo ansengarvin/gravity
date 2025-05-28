@@ -166,7 +166,6 @@ export function SettingsMenu() {
                                 step="0.1"
                             />
                         </div>
-
                         <button
                             onClick={(e) => {
                                 e.preventDefault();

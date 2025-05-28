@@ -152,18 +152,10 @@ export class Universe {
         // const max_velocity = 3;
 
         for (let i = 0; i < this.settings.numBodies; i++) {
-            // this.positionsX[i] = getRandomF32(min_position, max_position);
-            // this.positionsY[i] = getRandomF32(-1, 1);
-            // this.positionsZ[i] = getRandomF32(min_position, max_position);
-
             const pos = this.getRandomDiskStartingPosition(min_position, max_position);
             this.positionsX[i] = pos.x;
             this.positionsY[i] = pos.y;
             this.positionsZ[i] = pos.z;
-
-            // this.velocitiesX[i] = getRandomF32(min_velocity, max_velocity);
-            // this.velocitiesY[i] = getRandomF32(min_velocity, max_velocity);
-            // this.velocitiesZ[i] = getRandomF32(min_velocity, max_velocity);
 
             const initialAngularVelocity = this.getInitialVelocityKepler(
                 this.positionsX[i],
@@ -177,7 +169,13 @@ export class Universe {
 
             this.bodiesActive[i] = 1;
 
-            this.masses[i] = this.rng.getRandomF32(this.settings.minMass, this.settings.maxMass);
+            //this.masses[i] = this.rng.getRandomF32(this.settings.minMass, this.settings.maxMass);
+            this.masses[i] = this.rng.getPowerLawF32(
+                this.settings.minMass,
+                this.settings.maxMass,
+                this.settings.massBiasExponent,
+            );
+            console.log(this.settings.massBiasExponent);
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
         }
 
@@ -209,10 +207,6 @@ export class Universe {
             this.colorsR[i] = colorRGB.r;
             this.colorsG[i] = colorRGB.g;
             this.colorsB[i] = colorRGB.b;
-
-            // this.colorsR[i] = getRandomF32(0.2, 0.85);
-            // this.colorsG[i] = getRandomF32(0.2, 0.85);
-            // this.colorsB[i] = getRandomF32(0.2, 0.85);
         }
 
         /*
