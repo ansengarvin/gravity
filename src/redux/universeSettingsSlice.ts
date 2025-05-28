@@ -11,6 +11,7 @@ export interface UniverseSettings {
     centerStarMass: number;
     minMass: number;
     maxMass: number;
+    massBiasExponent: number;
 }
 
 const initialState: UniverseSettings = {
@@ -22,6 +23,7 @@ const initialState: UniverseSettings = {
     centerStarMass: 1.0,
     minMass: SolarSystemMassSolar.MARS,
     maxMass: SolarSystemMassSolar.JUPITER,
+    massBiasExponent: 2.0, // Bias towards smaller masses, 1.0 is linear, < 1.0 is more biased towards smaller masses
 };
 
 export const universeSettingsSlice = createSlice({
@@ -37,6 +39,7 @@ export const universeSettingsSlice = createSlice({
             state.centerStarMass = action.payload.centerStarMass;
             state.minMass = action.payload.minMass;
             state.maxMass = action.payload.maxMass;
+            state.massBiasExponent = action.payload.massBiasExponent;
         },
     },
 });
