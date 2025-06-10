@@ -281,8 +281,30 @@ export function Sim() {
                     uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
                     uMass: gl.getUniformLocation(starlightShaderProgram, "uMass"),
                     uTemperature: gl.getUniformLocation(starlightShaderProgram, "uTemperature"),
+                    uNoiseTex: gl.getUniformLocation(starlightShaderProgram, "uNoiseTex"),
+                    uNoiseTexSlice: gl.getUniformLocation(starlightShaderProgram, "uNoiseTexSlice"),
                 },
             };
+
+            // Set the noise texture for the starlight shader.
+            const noiseTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D_ARRAY, noiseTexture);
+            gl.texImage3D(
+                gl.TEXTURE_2D_ARRAY,
+                0,
+                gl.RGBA,
+                64, // width
+                64, // height
+                5000, // depth
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                binaryData.noiseTex, // The noise texture data
+            );
+
+            // Bind uniform to starlight program
+            gl.useProgram(starlightProgramInfo.program);
+            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTex, 0); // Texture unit 0
 
             // Initialize texture shader for simple texture quad
             const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
@@ -747,6 +769,7 @@ export function Sim() {
                         setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         setTexCoordAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -838,6 +861,8 @@ export function Sim() {
                                 starlightProgramInfo.uniformLocations.uTemperature,
                                 universe.current.temperatures[i],
                             );
+
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, i); // Texture unit 0
                         } else {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelViewMatrix);

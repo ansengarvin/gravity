@@ -9,12 +9,15 @@ in highp vec3 vNormal;
 in highp vec3 vFragPosition;
 in highp vec2 vTexCoords;
 
-uniform highp int uNumStars;
-uniform highp int uIsStar;
+uniform int uNumStars;
+uniform int uIsStar;
 uniform highp float uMass;
 uniform highp float uTemperature;
 uniform highp vec3 uStarLocations[MAX_STARS];
 uniform highp vec3 uViewPosition;
+
+uniform lowp sampler2DArray uNoiseTex;
+uniform int uNoiseTexSlice;
 
 // layout(std140, binding=0) buffer StarLights {
 //     highp vec3 uboStarLocations[MAX_STARS];
@@ -97,6 +100,9 @@ void main(void) {
     highp vec3 ambient = vec3(0.05, 0.05, 0.05) * uFragColor.rgb;
     highp vec3 result = ambient;
 
+    highp float uNoiseTexSliceFloat = float(uNoiseTexSlice);
+    lowp vec3 texColor = texture(uNoiseTex, vec3(vTexCoords, uNoiseTexSliceFloat)).rgb;
+
     for (int i = 0; i < MAX_STARS; i++) {
         if (i >= uNumStars) {
             break;
@@ -112,6 +118,8 @@ void main(void) {
         planetColor = gasGiantColor();
     }
     fragColor = vec4(result * planetColor, 1.0);
+
+    fragColor = vec4(fragColor.rgb * texColor, fragColor.a);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);
