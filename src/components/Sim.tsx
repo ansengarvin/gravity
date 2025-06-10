@@ -38,11 +38,12 @@ import {
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
 import { CircleType } from "../redux/controlsSlice";
+import { binaryDataDispatch } from "../redux/binaryDataSlice";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -54,7 +55,15 @@ const NUM_CIRCLE_VERTICES = 100;
 
 export function Sim() {
     const settings = useSelector((state: RootState) => state.universeSettings);
-    const dispatch = useDispatch();
+    const binaryData = useSelector((state: RootState) => state.binaryData);
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        // Fetch noiseTex if it's not null and there is no error
+        if (binaryData.noiseTex === null && !binaryData.noiseTexError) {
+            dispatch(binaryDataDispatch.fetchNoiseTex());
+        }
+    }, []);
 
     /*
         The camera and universe classes do not need ot be rerendered ever
@@ -142,6 +151,8 @@ export function Sim() {
     const initializedRef = useRef(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
+        if (!binaryData.noiseTex) return;
+
         if (initializedRef.current) {
             return;
         } else {
@@ -966,7 +977,7 @@ export function Sim() {
         };
 
         initialize();
-    }, []); // Runs once when the component mounts
+    }, [binaryData.noiseTex]); // Runs once when the component mounts
 
     return (
         <SimCanvas

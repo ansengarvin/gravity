@@ -175,7 +175,6 @@ export class Universe {
                 this.settings.maxMass,
                 this.settings.massBiasExponent,
             );
-            console.log(this.settings.massBiasExponent);
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
         }
 
