@@ -288,14 +288,21 @@ export function Sim() {
 
             // Set the noise texture for the starlight shader.
             const noiseTexture = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE0); // Activate texture unit 0
             gl.bindTexture(gl.TEXTURE_2D_ARRAY, noiseTexture);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
+            console.log(maxLayers);
             gl.texImage3D(
                 gl.TEXTURE_2D_ARRAY,
                 0,
                 gl.RGBA,
                 64, // width
                 64, // height
-                5000, // depth
+                256, // depth
                 0,
                 gl.RGBA,
                 gl.UNSIGNED_BYTE,
@@ -862,7 +869,8 @@ export function Sim() {
                                 universe.current.temperatures[i],
                             );
 
-                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, i); // Texture unit 0
+                            const noiseSlice = i % 256;
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
                         } else {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelViewMatrix);
