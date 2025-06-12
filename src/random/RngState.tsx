@@ -101,6 +101,13 @@ export class RngState {
         return (this.next() / 0xffffffff) * (max - min) + min;
     }
 
+    public getGaussianF32(mean: number, stdDev: number): number {
+        let u1 = this.getRandomF32(0, 1);
+        let u2 = this.getRandomF32(0, 1);
+        let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        return mean + z0 * stdDev;
+    }
+
     /**
      *
      * @param min Minimum value, inclusive

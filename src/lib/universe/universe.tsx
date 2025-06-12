@@ -23,6 +23,7 @@ export class Universe {
     public accelerationsX: Float32Array;
     public accelerationsY: Float32Array;
     public accelerationsZ: Float32Array;
+    public axialTilts: Float32Array;
     public masses: Float32Array;
     public radii: Float32Array;
     public colorsR: Float32Array;
@@ -54,6 +55,8 @@ export class Universe {
         this.accelerationsX = new Float32Array(this.settings.numBodies);
         this.accelerationsY = new Float32Array(this.settings.numBodies);
         this.accelerationsZ = new Float32Array(this.settings.numBodies);
+
+        this.axialTilts = new Float32Array(this.settings.numBodies);
 
         this.masses = new Float32Array(this.settings.numBodies);
         this.radii = new Float32Array(this.settings.numBodies);
@@ -176,6 +179,10 @@ export class Universe {
                 this.settings.massBiasExponent,
             );
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
+
+            const meanTilt = this.settings.axialTiltMean;
+            const stdDev = this.settings.axialTiltStdev;
+            this.axialTilts[i] = this.rng.getGaussianF32(meanTilt, stdDev); // Axial tilt in radians
         }
 
         // Set star in center if applicable
