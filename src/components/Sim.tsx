@@ -56,6 +56,7 @@ const NUM_CIRCLE_VERTICES = 100;
 export function Sim() {
     const settings = useSelector((state: RootState) => state.universeSettings);
     const binaryData = useSelector((state: RootState) => state.binaryData);
+    const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
@@ -145,6 +146,12 @@ export function Sim() {
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
+
+    useEffect(() => {
+        // if (followedBodyRadius && cameraRef.current.zoom < followedBodyRadius * 5) {
+        //     cameraRef.current.zoom = -1 * followedBodyRadius * 5;
+        // }
+    }, [followedBodyRadius]);
     /*
         Set up WebGL Renderer
     */

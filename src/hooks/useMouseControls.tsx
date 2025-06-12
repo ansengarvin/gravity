@@ -17,8 +17,13 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
 
         const minZoom = followedBodyRadius ? followedBodyRadius * 5 : 0.0001;
         const maxZoom = 50;
-        const zoomLevel = cameraRef.current!.zoom;
-        const dynamicSensitivity = 0.005 * Math.max(1, zoomLevel / maxZoom);
+        let dynamicSensitivity = 0.005;
+        if (cameraRef.current.zoom > -1) {
+            dynamicSensitivity = 0.0005;
+        } else if (cameraRef.current.zoom > -0.5) {
+            dynamicSensitivity = 0.00005;
+        }
+
         cameraRef.current!.zoom -= event.deltaY * dynamicSensitivity;
         cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
         console.log("zoom", cameraRef.current.zoom);
