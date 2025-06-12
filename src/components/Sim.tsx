@@ -874,6 +874,7 @@ export function Sim() {
 
                         gl.activeTexture(gl.TEXTURE1);
                         gl.bindTexture(gl.TEXTURE_2D, planetaryFeatureTexture);
+                        gl.activeTexture(gl.TEXTURE0);
                     } else {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
@@ -1038,6 +1039,7 @@ export function Sim() {
                         Bloom Blur
                     */
                     if (starLightRef.current) {
+                        // Bind texture and use bloom texture
                         gl.useProgram(gaussianBlurProgramInfo.program);
                         setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
                         setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);

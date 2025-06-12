@@ -129,7 +129,6 @@ vec3 gasGiantColor() {
         // Odd band, use color2
         color = mix(color2, color1, smoothFactor);
     }
-    color=featureTexels[0].rgb;
     return color;
 }
 
@@ -244,11 +243,6 @@ void main(void) {
         planetColor = terrestrialColor(makeNoise(0.5, 0.15));
     }
     fragColor = vec4(result * planetColor, 1.0);
-
-    //fragColor = vec4(texColor, 1.0);
-
-    //fragColor = vec4(texture(uNoiseTex, vec3(vTexCoords, noiseTexSliceFloat)).rgb, 1.0);
-    fragColor = vec4(texture(uFeatureTex, vTexCoords).rgb, 1.0);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);
