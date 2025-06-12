@@ -838,6 +838,7 @@ export function Sim() {
                             universe.current.positionsY[i],
                             universe.current.positionsZ[i],
                         ]);
+                        mat4.rotateZ(modelMatrix, modelMatrix, universe.current.axialTilts[i]);
                         mat4.scale(modelMatrix, modelMatrix, [
                             universe.current.radii[i],
                             universe.current.radii[i],
