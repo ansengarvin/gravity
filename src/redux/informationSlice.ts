@@ -47,6 +47,7 @@ export const informationSlice = createSlice({
         },
         setYearsElapsed: (state, action: PayloadAction<number>) => {
             state.yearsElapsed = action.payload;
+            console.log(state.yearsElapsed);
         },
         setFollowedBodyRadius: (state, action: PayloadAction<number | null>) => {
             state.followedBodyRadius = action.payload;

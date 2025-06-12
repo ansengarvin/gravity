@@ -274,6 +274,7 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
+                    uDeltaTime: gl.getUniformLocation(starlightShaderProgram, "uDeltaTime"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
@@ -798,6 +799,9 @@ export function Sim() {
 
                         const viewPos = cameraRef.current.getPosition();
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
+
+                        // Set delta time in star light shader
+                        gl.uniform1f(starlightProgramInfo.uniformLocations.uDeltaTime, universe.current.timeElapsed);
                     } else {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
