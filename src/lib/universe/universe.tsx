@@ -723,18 +723,19 @@ export class Universe {
     }
 
     private getInitialRotationSpeed(mass: number): number {
-        let basePeriodInMonths: number;
+        let basePeriodInDays: number;
         if (mass >= MassThresholds.STAR) {
             // Stars: 10-30 day rotation period
-            basePeriodInMonths = this.rng.getRandomF32(0.33, 1); // 10-30 days
+            basePeriodInDays = this.rng.getRandomF32(10, 30); // 10-30 days
         } else if (mass >= MassThresholds.GAS_GIANT) {
-            // Gas giants: 9-16 hours = 0.375 - 0.67 months
-            basePeriodInMonths = this.rng.getRandomF32(0.0125, 0.022); // 9-16 hours
+            //basePeriodInDays = this.rng.getRandomF32(0.375, 0.67); // 9-16 hours in days
+            basePeriodInDays = this.rng.getPowerLawF32(1, 10, -1.0);
         } else {
-            // 1-100 hours = 0.0014 - 0.14 months
-            basePeriodInMonths = this.rng.getPowerLawF32(0.0014, 0.14, -0.5);
+            basePeriodInDays = this.rng.getPowerLawF32(1, 10, -1.0);
         }
-        return basePeriodInMonths;
+        const basePeriodInYears = basePeriodInDays / 365.25; // Convert days to years
+        const angularVelocity = (2 * Math.PI) / basePeriodInYears; // Convert period to angular velocity
+        return angularVelocity; // Return angular velocity in radians per month
     }
 
     private getInitialVelocityKepler(

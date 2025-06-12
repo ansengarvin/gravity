@@ -44,6 +44,7 @@ import { getCirclePositions } from "../lib/webGL/shapes";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
 import { CircleType } from "../redux/controlsSlice";
 import { binaryDataDispatch } from "../redux/binaryDataSlice";
+import { MassThresholds } from "../lib/defines/physics";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -839,6 +840,23 @@ export function Sim() {
                             universe.current.positionsZ[i],
                         ]);
                         mat4.rotateZ(modelMatrix, modelMatrix, universe.current.axialTilts[i]);
+
+                        // Gas giant cloud rotations are handled in the Shader level.
+                        if (
+                            universe.current.masses[i] < MassThresholds.GAS_GIANT ||
+                            universe.current.masses[i] >= MassThresholds.STAR
+                        ) {
+                            const rotationAngle =
+                                (universe.current.angularVelocities[i] *
+                                    universe.current.timeElapsed *
+                                    settings.rotationMultiplier) %
+                                (2 * Math.PI);
+                            if (i == 0) {
+                                console.log(rotationAngle);
+                            }
+                            mat4.rotateY(modelMatrix, modelMatrix, rotationAngle);
+                        }
+
                         mat4.scale(modelMatrix, modelMatrix, [
                             universe.current.radii[i],
                             universe.current.radii[i],

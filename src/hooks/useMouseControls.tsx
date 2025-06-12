@@ -13,8 +13,6 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     */
     // Zoom in and out on mouse wheel
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-        console.log("followedBodyRadius", followedBodyRadius);
-
         const minZoom = followedBodyRadius ? followedBodyRadius * 5 : 0.0001;
         const maxZoom = 50;
         let dynamicSensitivity = 0.005;
@@ -26,8 +24,6 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
 
         cameraRef.current!.zoom -= event.deltaY * dynamicSensitivity;
         cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
-        console.log("zoom", cameraRef.current.zoom);
-        console.log("minZoom", minZoom);
     };
 
     const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {

@@ -12,6 +12,7 @@ export interface UniverseSettings {
     minMass: number;
     maxMass: number;
     massBiasExponent: number;
+    rotationMultiplier: number;
     axialTiltMean: number; // Mean axial tilt of the bodies in degrees
     axialTiltStdev: number; // Standard deviation of axial tilt in degrees
 }
@@ -26,6 +27,7 @@ const initialState: UniverseSettings = {
     minMass: SolarSystemMassSolar.MARS,
     maxMass: SolarSystemMassSolar.JUPITER,
     massBiasExponent: 8.0, // Bias towards smaller masses, 1.0 is linear, > 1.0 is more biased towards smaller masses
+    rotationMultiplier: 1, // Multiplier for the rotation speed of bodies, 1.0 means normal speed
     axialTiltMean: Math.PI / 12, // Mean axial tilt of the bodies in degrees
     axialTiltStdev: Math.PI / 9, // Standard deviation of axial tilt in degrees
 };
