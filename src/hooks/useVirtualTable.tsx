@@ -13,7 +13,6 @@ export function useVirtualTable(totalRowCount: number, rowsToLoad: number, rowHe
 
     const end = Math.min(start + rowsToLoad + loadBefore + loadAfter, totalRowCount);
 
-    const totalHeight = totalRowCount * actualRowHeight;
     const topHeight = start * actualRowHeight; // Height of all rows before start index
     const bottomHeight = Math.max(0, (totalRowCount - end) * actualRowHeight); // Height of all rows after end index
 

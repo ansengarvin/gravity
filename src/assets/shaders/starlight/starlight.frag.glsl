@@ -177,6 +177,8 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
     diffuse *= attenuation;
     specular *= attenuation;
 
+    ambient += MATERIAL_DIFFUSE * 0.05; // Add a small ambient component to the material
+
     // c
     return ambient + diffuse + specular;
 }

@@ -309,7 +309,7 @@ export function Sim() {
                 gl.RGBA,
                 64, // width
                 64, // height
-                256, // depth
+                maxLayers, // depth
                 0,
                 gl.RGBA,
                 gl.UNSIGNED_BYTE,
@@ -879,7 +879,7 @@ export function Sim() {
                                 universe.current.temperatures[i],
                             );
 
-                            const noiseSlice = i % 256;
+                            const noiseSlice = i % maxLayers;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
                         } else {
                             const normalMatrix = mat4.create();
