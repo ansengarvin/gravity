@@ -46,6 +46,7 @@ export interface StarlightProgramInfo {
         uNoiseTex: WebGLUniformLocation | null;
         uFeatureTex: WebGLUniformLocation | null;
         uPlanetID: WebGLUniformLocation | null;
+        uNumFeatureSampleTexels: WebGLUniformLocation | null;
     };
 }
 

@@ -125,7 +125,7 @@ export class Universe {
         this.centerStar = null;
 
         // Num bodies times number of texels time 4 (RGBA channels)
-        this.planetFeatureTextureData = new Uint8Array(this.settings.numBodies * 4 * this.settings.numFeatureTexels);
+        this.planetFeatureTextureData = new Uint8Array(64 * 64 * 4);
 
         this.initialize();
     }
@@ -860,13 +860,8 @@ export class Universe {
          * Sets the planetary feature texture data.
          * This is a placeholder for now, but can be used to set the texture data for each planet.
          */
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            for (let j = 0; j < this.settings.numFeatureTexels; j++) {
-                const idx = i * this.settings.numFeatureTexels + j;
-                // Set the data for each planet
-                // For now, we will just set the data to a random value between 0 and 1
-                this.planetFeatureTextureData[idx] = this.rng.getRandomU8();
-            }
+        for (let i = 0; i < 64 * 64 * 4; i++) {
+            this.planetFeatureTextureData[i] = this.rng.getRandomU8();
         }
     }
 

@@ -22,7 +22,9 @@ uniform float uAngularVelocity;
 uniform float uRotationMultiplier;
 
 uniform lowp sampler2DArray uNoiseTex;
+uniform lowp sampler2D uFeatureTex;
 uniform int uPlanetID;
+uniform int uNumFeatureSampleTexels;
 
 // layout(std140, binding=0) buffer StarLights {
 //     vec3 uboStarLocations[MAX_STARS];
@@ -50,8 +52,26 @@ const vec3 MATERIAL_SPECULAR = vec3(0.0, 0.0, 0.0);
 const float MATERIAL_SHINNINESS = 32.0;
 
 const float PI = 3.14159265358979323846;
+const int MAX_FEATURE_TEXELS = 8; // Increase if needed
+const int FEATURE_SIZE = 64;
+
+void getFeatureTexels(out vec4 texels[MAX_FEATURE_TEXELS]) {
+    int startTexel = uPlanetID * uNumFeatureSampleTexels;
+    for (int i = 0; i < uNumFeatureSampleTexels; i++) {
+        int texelIndex = startTexel + i;
+        // Get the s and t coordinate of the texel to sample from
+        int t = texelIndex / FEATURE_SIZE;
+        int s = texelIndex % FEATURE_SIZE;
+        // normalize to center of texel
+        vec2 featureTexelCoords = vec2((float(s) + 0.5) / float(FEATURE_SIZE), (float(t) + 0.5) / float(FEATURE_SIZE));
+        texels[i] = texture(uFeatureTex, featureTexelCoords);
+    }
+}
 
 vec3 gasGiantColor() {
+    vec4 featureTexels[MAX_FEATURE_TEXELS];
+    getFeatureTexels(featureTexels);
+
     int noiseTexSlice = uPlanetID % 256;
 
     // Sphere tex coordinates
@@ -109,6 +129,7 @@ vec3 gasGiantColor() {
         // Odd band, use color2
         color = mix(color2, color1, smoothFactor);
     }
+    color=featureTexels[0].rgb;
     return color;
 }
 
@@ -192,6 +213,8 @@ float makeNoise(float amp, float freq) {
 }
 
 void main(void) {
+    int noiseTexSlice = uPlanetID % 256;
+    float noiseTexSliceFloat = float(noiseTexSlice);
     vec3 norm = vNormal;
     vec3 viewDir = normalize(uViewPosition - vFragPosition);
 
@@ -223,6 +246,9 @@ void main(void) {
     fragColor = vec4(result * planetColor, 1.0);
 
     //fragColor = vec4(texColor, 1.0);
+
+    //fragColor = vec4(texture(uNoiseTex, vec3(vTexCoords, noiseTexSliceFloat)).rgb, 1.0);
+    fragColor = vec4(texture(uFeatureTex, vTexCoords).rgb, 1.0);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);
