@@ -11,13 +11,15 @@ in vec3 vNormal;
 in vec3 vFragPosition;
 in highp vec2 vTexCoords;
 
-uniform float uDeltaTime;
+uniform float uTimeElapsed;
 uniform int uNumStars;
 uniform int uIsStar;
 uniform float uMass;
 uniform float uTemperature;
 uniform vec3 uStarLocations[MAX_STARS];
 uniform vec3 uViewPosition;
+uniform float uAngularVelocity;
+uniform float uRotationMultiplier;
 
 uniform lowp sampler2DArray uNoiseTex;
 uniform int uNoiseTexSlice;
@@ -63,11 +65,14 @@ vec3 gasGiantColor() {
     float rotaryPosition = t * float(numRotaryBands);
     bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
 
-    float rotationSpeed = 1.0;
+    float rotationAmount = uTimeElapsed * uAngularVelocity * uRotationMultiplier;
+    rotationAmount = mod(rotationAmount, 2.0 * PI);
+    rotationAmount = rotationAmount / (2.0 * PI); // Normalize to [0, 1]
+
     if (isClockwise) {
-        nTexCoords.s = fract(vTexCoords.s + uDeltaTime * rotationSpeed);
+        nTexCoords.s = fract(vTexCoords.s + rotationAmount);
     } else {
-        nTexCoords.s = fract(vTexCoords.s - uDeltaTime * rotationSpeed);
+        nTexCoords.s = fract(vTexCoords.s - rotationAmount);
     }
 
     float amp = 0.08;
@@ -87,17 +92,6 @@ vec3 gasGiantColor() {
     int bandIndex = int(bandPosition);
     bool isDarkBand = (bandIndex % 2 == 0);
 
-    
-    // If it's a dark band, rotate the s coordinate based on delta time
-    // if (isDarkBand) {
-    //     float rotationSpeed = 0.1; // Adjust this to control rotation speed
-    //     rotatedTexCoords.s = fract(vTexCoords.s + uDeltaTime * rotationSpeed);
-    // }
-
-    
-    
-
-    
     vec3 color = vec3(0.0, 0.0, 0.0);
     vec3 color1 = uFragColor.rgb;
     vec3 color2 = uFragColor.rgb * 0.5;
@@ -177,7 +171,7 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
     diffuse *= attenuation;
     specular *= attenuation;
 
-    ambient += MATERIAL_DIFFUSE * 0.05; // Add a small ambient component to the material
+    ambient += MATERIAL_DIFFUSE * 0.1; // Add a small ambient component to the material
 
     // c
     return ambient + diffuse + specular;

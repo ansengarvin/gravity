@@ -282,7 +282,7 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
-                    uDeltaTime: gl.getUniformLocation(starlightShaderProgram, "uDeltaTime"),
+                    uTimeElapsed: gl.getUniformLocation(starlightShaderProgram, "uTimeElapsed"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
@@ -290,6 +290,8 @@ export function Sim() {
                     uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
                     uMass: gl.getUniformLocation(starlightShaderProgram, "uMass"),
                     uTemperature: gl.getUniformLocation(starlightShaderProgram, "uTemperature"),
+                    uAngularVelocity: gl.getUniformLocation(starlightShaderProgram, "uAngularVelocity"),
+                    uRotationMultiplier: gl.getUniformLocation(starlightShaderProgram, "uRotationMultiplier"),
                     uNoiseTex: gl.getUniformLocation(starlightShaderProgram, "uNoiseTex"),
                     uNoiseTexSlice: gl.getUniformLocation(starlightShaderProgram, "uNoiseTexSlice"),
                 },
@@ -808,7 +810,13 @@ export function Sim() {
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
 
                         // Set delta time in star light shader
-                        gl.uniform1f(starlightProgramInfo.uniformLocations.uDeltaTime, universe.current.timeElapsed);
+                        gl.uniform1f(starlightProgramInfo.uniformLocations.uTimeElapsed, universe.current.timeElapsed);
+
+                        // Rotation multiplier
+                        gl.uniform1f(
+                            starlightProgramInfo.uniformLocations.uRotationMultiplier,
+                            settings.rotationMultiplier,
+                        );
                     } else {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
@@ -851,9 +859,6 @@ export function Sim() {
                                     universe.current.timeElapsed *
                                     settings.rotationMultiplier) %
                                 (2 * Math.PI);
-                            if (i == 0) {
-                                console.log(rotationAngle);
-                            }
                             mat4.rotateY(modelMatrix, modelMatrix, rotationAngle);
                         }
 
@@ -900,6 +905,11 @@ export function Sim() {
 
                             const noiseSlice = i % maxLayers;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
+
+                            gl.uniform1f(
+                                starlightProgramInfo.uniformLocations.uAngularVelocity,
+                                universe.current.angularVelocities[i],
+                            );
                         } else {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelViewMatrix);
