@@ -49,31 +49,63 @@ const float MATERIAL_SHINNINESS = 32.0;
 
 const float PI = 3.14159265358979323846;
 
-vec3 gasGiantColor(float n) {
-    vec3 color = uFragColor.rgb;
+vec3 gasGiantColor() {
+    // Sphere tex coordinates
+    int numBands = 9;
     float s = vTexCoords.s;
     float t = vTexCoords.t;
 
+    vec2 nTexCoords = vTexCoords;
+    float nBandPosition = t * float(numBands);
+    bool nIsDarkBand = (int(nBandPosition) % 2 == 1);
+
+    int numRotaryBands = 9/2;
+    float rotaryPosition = t * float(numRotaryBands);
+    bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
+
+    float rotationSpeed = 1.0;
+    if (isClockwise) {
+        nTexCoords.s = fract(vTexCoords.s + uDeltaTime * rotationSpeed);
+    } else {
+        nTexCoords.s = fract(vTexCoords.s - uDeltaTime * rotationSpeed);
+    }
+
+    float amp = 0.08;
+    float freq = 0.25;
+    float uNoiseTexSliceFloat = float(uNoiseTexSlice);
+    vec2 rotatedTexCoords = vTexCoords;
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, uNoiseTexSliceFloat));
+    float n = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
+    n = n - 2.0;
+    n *= amp;
     t += n;
 
-    //t += (PI / 100.0) * sin(s * 10.0 * PI +  100.0 * t * (uMass / 10.0));
+    // Get band informaton
+    
+    float bandPosition = t * float(numBands);
+    float bandFraction = fract(bandPosition);
+    int bandIndex = int(bandPosition);
+    bool isDarkBand = (bandIndex % 2 == 0);
 
+    
+    // If it's a dark band, rotate the s coordinate based on delta time
+    // if (isDarkBand) {
+    //     float rotationSpeed = 0.1; // Adjust this to control rotation speed
+    //     rotatedTexCoords.s = fract(vTexCoords.s + uDeltaTime * rotationSpeed);
+    // }
+
+    
+    
+
+    
+    vec3 color = vec3(0.0, 0.0, 0.0);
     vec3 color1 = uFragColor.rgb;
     vec3 color2 = uFragColor.rgb * 0.5;
 
-    // Vertical bands
-    //float band = mod(noisyT * 10.0, 1.0);
-    int numBands = 10;
-    float bandPosition = t * float(numBands);
-    float bandFraction = fract(bandPosition);
-
-    // Create smooth transition
     const float tolerance = 0.4;
     float smoothFactor = smoothstep(1.0 - tolerance, 1.0 + tolerance, bandFraction);
 
-    int bandIndex = int(bandPosition);
-
-    if (bandIndex % 2 == 0) {
+    if (isDarkBand) {
         // Even band, use color1
         color = mix(color1, color2, smoothFactor);
     } else {
@@ -179,8 +211,7 @@ void main(void) {
     vec3 planetColor = uFragColor.rgb;
     if (uMass >= THRESHOLD_GAS_GIANT) {
         // Gas giant
-        float gasAmp = 0.1;
-        planetColor = gasGiantColor(makeNoise(gasAmp, 0.25));
+        planetColor = gasGiantColor();
     } else if (uMass >= THRESHOLD_BROWN_DWARF) {
         // TODO
     } else if (uMass >= THRESHOLD_STAR) {
