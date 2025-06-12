@@ -305,7 +305,8 @@ export function Sim() {
             gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
+            //const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
+            const maxLayers = 256;
             gl.texImage3D(
                 gl.TEXTURE_2D_ARRAY,
                 0,
