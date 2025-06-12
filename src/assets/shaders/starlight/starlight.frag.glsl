@@ -83,18 +83,6 @@ struct gasGiantFeatures {
     float bandRotationRateMultipliers[12];
 };
 
-gasGiantFeatures testGasGiantFeatures(){
-    gasGiantFeatures features;
-    features.hasBands = true;
-    features.noiseAmp = 0.1;
-    features.noiseFreq = 0.25;
-    features.numBands = 8;
-    for (int i = 0; i < 12; i++) {
-        features.bandRotationRateMultipliers[i] = 1.0;
-    }
-    return features;
-}
-
 gasGiantFeatures getGasGiantFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
     gasGiantFeatures features;
 
@@ -212,8 +200,45 @@ vec3 gasGiantColor() {
     return color;
 }
 
-vec3 terrestrialColor(float n) {
+struct terrestrialFeatures {
+    float noiseAmp;
+    float noiseFreq;
+};
+terrestrialFeatures getTerrestrialFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
+    terrestrialFeatures features;
+
+    int value = int(round(featureTexels[0].r * 255.0));
+    // All 8 bits of red0 reserved for noise amplitude
+    int ampBits = value;
+    features.noiseAmp = normalizeIntToFloat(value, 0, 255, 0.25, 1.0);
+
+    value = int(round(featureTexels[0].g * 255.0));
+    // All 8 bits of green0 reserved for noise frequency
+    int freqBits = value;
+    features.noiseFreq = normalizeIntToFloat(value, 0, 255, 0.25, 1.0);
+
+    return features;
+}
+
+vec3 terrestrialColor() {
     int noiseTexSlice = uPlanetID % 256;
+    vec4 featureTexels[MAX_FEATURE_TEXELS];
+    getFeatureTexels(featureTexels);
+    terrestrialFeatures features = getTerrestrialFeatures(featureTexels);
+
+    // float amp = 0.25;
+    // float freq = 0.25;
+    float amp = features.noiseAmp;
+    float freq = features.noiseFreq;
+
+
+    float noiseTexSliceFloat = float(noiseTexSlice);
+    //vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
+    float noise = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
+    noise = noise - 2.0;
+    noise *= amp;
+
     const float diameterA = 0.1;
     const float diameterB = 0.1;
 
@@ -232,7 +257,7 @@ vec3 terrestrialColor(float n) {
     float dt = vTexCoords.t - tCenter;
 
     float dist = sqrt(ds * ds + dt * dt);
-    float newDist = dist + n;
+    float newDist = dist + noise;
     float scale = newDist / dist;
 
     ds = ds * scale;
@@ -281,16 +306,6 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
     return ambient + diffuse + specular;
 }
 
-float makeNoise(float amp, float freq) {
-    int noiseTexSlice = uPlanetID % 256;
-    float noiseTexSliceFloat = float(noiseTexSlice);
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
-    float noise = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
-    noise = noise - 2.0;
-    noise *= amp;
-    return noise;
-}
-
 void main(void) {
     int noiseTexSlice = uPlanetID % 256;
     float noiseTexSliceFloat = float(noiseTexSlice);
@@ -320,7 +335,7 @@ void main(void) {
         // TODO
     } else {
         // Solid body
-        planetColor = terrestrialColor(makeNoise(0.5, 0.15));
+        planetColor = terrestrialColor();
     }
     fragColor = vec4(result * planetColor, 1.0);
 
