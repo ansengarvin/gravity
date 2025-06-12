@@ -22,7 +22,9 @@ uniform float uAngularVelocity;
 uniform float uRotationMultiplier;
 
 uniform lowp sampler2DArray uNoiseTex;
-uniform int uNoiseTexSlice;
+uniform lowp sampler2D uFeatureTex;
+uniform int uPlanetID;
+uniform int uNumFeatureSampleTexels;
 
 // layout(std140, binding=0) buffer StarLights {
 //     vec3 uboStarLocations[MAX_STARS];
@@ -50,22 +52,109 @@ const vec3 MATERIAL_SPECULAR = vec3(0.0, 0.0, 0.0);
 const float MATERIAL_SHINNINESS = 32.0;
 
 const float PI = 3.14159265358979323846;
+const int MAX_FEATURE_TEXELS = 8; // Increase if needed
+const int FEATURE_SIZE = 64;
+
+float normalizeIntToFloat(int value, int minInt, int maxInt, float minFloat, float maxFloat) {
+    // Normalize the integer value to a float in the range [0, 1]
+    float normalized = float(value - minInt) / float(maxInt - minInt);
+    // Scale to the desired float range
+    return minFloat + normalized * (maxFloat - minFloat);
+}
+
+void getFeatureTexels(out vec4 texels[MAX_FEATURE_TEXELS]) {
+    int startTexel = uPlanetID * uNumFeatureSampleTexels;
+    for (int i = 0; i < uNumFeatureSampleTexels; i++) {
+        int texelIndex = startTexel + i;
+        // Get the s and t coordinate of the texel to sample from
+        int t = texelIndex / FEATURE_SIZE;
+        int s = texelIndex % FEATURE_SIZE;
+        // normalize to center of texel
+        vec2 featureTexelCoords = vec2((float(s) + 0.5) / float(FEATURE_SIZE), (float(t) + 0.5) / float(FEATURE_SIZE));
+        texels[i] = texture(uFeatureTex, featureTexelCoords);
+    }
+}
+
+struct gasGiantFeatures {
+    float noiseAmp; // range from 0.01 to 0.15
+    float noiseFreq; // Range from 0.1 to 1.0
+    bool hasBands;
+    int numBands; // Range from 5 to 12
+    float bandRotationRateMultipliers[12];
+};
+
+gasGiantFeatures getGasGiantFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
+    gasGiantFeatures features;
+
+    int value = int(round(featureTexels[0].r * 255.0));
+    // All 8 bits of red0 reserved for noise amplitude
+    int ampBits = value;
+    features.noiseAmp = normalizeIntToFloat(value, 0, 255, 0.01, 0.15);
+
+    value = int(round(featureTexels[0].g * 255.0));
+    // All 8 bits of green0 reserved for noise frequency
+    int freqBits = value;
+    features.noiseFreq = normalizeIntToFloat(value, 0, 255, 0.1, 1.0);
+
+    value = int(round(featureTexels[0].b * 255.0));
+    // Bit 0 of blue0 reserved for hasBands
+    features.hasBands = (value & 0x01) != 0;
+    // Bit 1-4 of blue0 reserved for numBands
+    int numBandsBits = (value >> 1) & 0x07; // Get bits 1-3
+    features.numBands = numBandsBits + 5;
+
+    // All of red1, all of green1, and first two bits from blue1 reserved for band rotation variance multipliers.
+    // For a total of 18 bits.
+    int red1 = int(round(featureTexels[1].r * 255.0));
+    int green1 = int(round(featureTexels[1].g * 255.0));
+    int blue1 = int(round(featureTexels[1].b * 255.0));
+    int rotationBits = red1 | (green1 << 8) | (blue1 << 16);
+    for (int i = 0; i < 6; i++) {
+        // Get the bits for each band rotation multiplier
+        int multiplierBits = (rotationBits >> (i * 3)) & 0x07; // Get 3 bits
+        // Normalize to [0.5, 1.5]
+        features.bandRotationRateMultipliers[i] = normalizeIntToFloat(multiplierBits, 0, 7, 0.5, 1.5);
+    }
+
+    // Bits 3-7 of blue1 are free, all of alpha1 are free
+
+    // All of texel2 and texel3 are free
+
+    value = int(round(featureTexels[0].a * 255.0));
+
+    return features;
+
+}
 
 vec3 gasGiantColor() {
+    vec4 featureTexels[MAX_FEATURE_TEXELS];
+    getFeatureTexels(featureTexels);
+    gasGiantFeatures features = getGasGiantFeatures(featureTexels);
+
+    int noiseTexSlice = uPlanetID % 256;
+
     // Sphere tex coordinates
-    int numBands = 9;
     float s = vTexCoords.s;
     float t = vTexCoords.t;
+    
 
     vec2 nTexCoords = vTexCoords;
-    float nBandPosition = t * float(numBands);
+    float nBandPosition = t * float(features.numBands);
     bool nIsDarkBand = (int(nBandPosition) % 2 == 1);
 
-    int numRotaryBands = 9/2;
+    int numRotaryBands = features.numBands/2;
     float rotaryPosition = t * float(numRotaryBands);
+    int rotaryIndex = int(rotaryPosition);
+    if (features.numBands % 2 == 0) {
+        rotaryPosition -= 0.25;
+    }
     bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
 
-    float rotationAmount = uTimeElapsed * uAngularVelocity * uRotationMultiplier;
+    float rotationAmount =
+        uTimeElapsed *
+        uAngularVelocity *
+        uRotationMultiplier *
+        features.bandRotationRateMultipliers[rotaryIndex];
     rotationAmount = mod(rotationAmount, 2.0 * PI);
     rotationAmount = rotationAmount / (2.0 * PI); // Normalize to [0, 1]
 
@@ -75,11 +164,13 @@ vec3 gasGiantColor() {
         nTexCoords.s = fract(vTexCoords.s - rotationAmount);
     }
 
-    float amp = 0.08;
-    float freq = 0.25;
-    float uNoiseTexSliceFloat = float(uNoiseTexSlice);
+    // float amp = 0.15;
+    // float freq = 1.0;
+    float amp = features.noiseAmp;
+    float freq = features.noiseFreq;
+    float noiseTexSliceFloat = float(noiseTexSlice);
     vec2 rotatedTexCoords = vTexCoords;
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, uNoiseTexSliceFloat));
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, noiseTexSliceFloat));
     float n = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
     n = n - 2.0;
     n *= amp;
@@ -87,7 +178,7 @@ vec3 gasGiantColor() {
 
     // Get band informaton
     
-    float bandPosition = t * float(numBands);
+    float bandPosition = t * float(features.numBands);
     float bandFraction = fract(bandPosition);
     int bandIndex = int(bandPosition);
     bool isDarkBand = (bandIndex % 2 == 0);
@@ -109,7 +200,45 @@ vec3 gasGiantColor() {
     return color;
 }
 
-vec3 terrestrialColor(float n) {
+struct terrestrialFeatures {
+    float noiseAmp;
+    float noiseFreq;
+};
+terrestrialFeatures getTerrestrialFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
+    terrestrialFeatures features;
+
+    int value = int(round(featureTexels[0].r * 255.0));
+    // All 8 bits of red0 reserved for noise amplitude
+    int ampBits = value;
+    features.noiseAmp = normalizeIntToFloat(value, 0, 255, 0.25, 1.0);
+
+    value = int(round(featureTexels[0].g * 255.0));
+    // All 8 bits of green0 reserved for noise frequency
+    int freqBits = value;
+    features.noiseFreq = normalizeIntToFloat(value, 0, 255, 0.25, 1.0);
+
+    return features;
+}
+
+vec3 terrestrialColor() {
+    int noiseTexSlice = uPlanetID % 256;
+    vec4 featureTexels[MAX_FEATURE_TEXELS];
+    getFeatureTexels(featureTexels);
+    terrestrialFeatures features = getTerrestrialFeatures(featureTexels);
+
+    // float amp = 0.25;
+    // float freq = 0.25;
+    float amp = features.noiseAmp;
+    float freq = features.noiseFreq;
+
+
+    float noiseTexSliceFloat = float(noiseTexSlice);
+    //vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
+    float noise = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
+    noise = noise - 2.0;
+    noise *= amp;
+
     const float diameterA = 0.1;
     const float diameterB = 0.1;
 
@@ -128,7 +257,7 @@ vec3 terrestrialColor(float n) {
     float dt = vTexCoords.t - tCenter;
 
     float dist = sqrt(ds * ds + dt * dt);
-    float newDist = dist + n;
+    float newDist = dist + noise;
     float scale = newDist / dist;
 
     ds = ds * scale;
@@ -177,16 +306,9 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
     return ambient + diffuse + specular;
 }
 
-float makeNoise(float amp, float freq) {
-    float uNoiseTexSliceFloat = float(uNoiseTexSlice);
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, uNoiseTexSliceFloat));
-    float noise = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
-    noise = noise - 2.0;
-    noise *= amp;
-    return noise;
-}
-
 void main(void) {
+    int noiseTexSlice = uPlanetID % 256;
+    float noiseTexSliceFloat = float(noiseTexSlice);
     vec3 norm = vNormal;
     vec3 viewDir = normalize(uViewPosition - vFragPosition);
 
@@ -202,7 +324,6 @@ void main(void) {
     }
 
 
-
     // Apply the result to the fragment color
     vec3 planetColor = uFragColor.rgb;
     if (uMass >= THRESHOLD_GAS_GIANT) {
@@ -214,11 +335,9 @@ void main(void) {
         // TODO
     } else {
         // Solid body
-        planetColor = terrestrialColor(makeNoise(0.5, 0.15));
+        planetColor = terrestrialColor();
     }
     fragColor = vec4(result * planetColor, 1.0);
-
-    //fragColor = vec4(texColor, 1.0);
 
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);

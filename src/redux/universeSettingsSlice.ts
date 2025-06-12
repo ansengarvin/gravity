@@ -15,6 +15,7 @@ export interface UniverseSettings {
     rotationMultiplier: number;
     axialTiltMean: number; // Mean axial tilt of the bodies in degrees
     axialTiltStdev: number; // Standard deviation of axial tilt in degrees
+    numFeatureTexels: number; // The number of texels each planet has available to procedurally generate shaders
 }
 
 const initialState: UniverseSettings = {
@@ -30,6 +31,7 @@ const initialState: UniverseSettings = {
     rotationMultiplier: 1, // Multiplier for the rotation speed of bodies, 1.0 means normal speed
     axialTiltMean: Math.PI / 12, // Mean axial tilt of the bodies in degrees
     axialTiltStdev: Math.PI / 9, // Standard deviation of axial tilt in degrees
+    numFeatureTexels: 4,
 };
 
 export const universeSettingsSlice = createSlice({

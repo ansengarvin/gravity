@@ -6,7 +6,7 @@ import { MassThresholds } from "../defines/physics";
 import { RngState } from "../../random/RngState";
 import { removeFromArray } from "../ds/arrays";
 
-const G = 4 * Math.PI * Math.PI; // Gravitational constant
+const G = 4 * Math.PI * Math.PI; // Gravitational constant for 1yr, 1AU, 1 solar mass
 
 export class Universe {
     public settings: UniverseSettings;
@@ -14,31 +14,75 @@ export class Universe {
 
     // Uint8Array and Float32Array are guaranteed to be contiguous in memory, which makes them more performant (cache locality).
     public bodiesActive: Uint8Array;
+
+    /** X positions of all bodies (AU) */
     public positionsX: Float32Array;
+    /** Y positions of all bodies (AU) */
     public positionsY: Float32Array;
+    /** Z positions of all bodies (AU) */
     public positionsZ: Float32Array;
+
+    /** X velocity components of all bodies (AU/year) */
     public velocitiesX: Float32Array;
+    /** Y velocity components of all bodies (AU/year) */
     public velocitiesY: Float32Array;
+    /** Z velocity components of all bodies (AU/year) */
     public velocitiesZ: Float32Array;
+
+    /** X acceleration components of all bodies (AU/year^2) */
     public accelerationsX: Float32Array;
+    /** Y acceleration components of all bodies (AU/year^2) */
     public accelerationsY: Float32Array;
+    /** Z acceleration components of all bodies (AU/year^2) */
     public accelerationsZ: Float32Array;
-    public angularVelocities: Float32Array; // Angular velocities for rotation
+
+    /** Angular velocities (rotation speeds) of all bodies (radians/year) */
+    public angularVelocities: Float32Array;
+    /** Axial tilts of all bodies (radians) */
     public axialTilts: Float32Array;
+
+    /** Masses of all bodies (solar masses) */
     public masses: Float32Array;
+    /** Radii of all bodies (AU) */
     public radii: Float32Array;
+
+    /** Red channels for all bodies' colors (0-1) */
     public colorsR: Float32Array;
+    /** Green channels for all bodies' colors (0-1) */
     public colorsG: Float32Array;
+    /** Blue channels for all bodies' colors (0-1) */
     public colorsB: Float32Array;
+
+    /** The number of bodies that are currently active in the universe. */
     public numActive: number;
+
+    /** Orbital indices of all bodies (index of the body they orbit, -1 if not orbiting) */
     public orbitalIndices: Float32Array;
+    /** Orbital distances of all bodies (distance to the body they orbit, -1 if not orbiting) */
     public orbitalDistances: Float32Array;
+    /** Number of sattelites for each body (number of bodies orbiting this body) */
     public numSattelites: Float32Array;
+
+    /** Array of indices of all stars in the universe */
     public stars: Float32Array;
+    /** The number of stars in the universe */
     public numStars: number;
+
+    /** Temperatures of all bodies (K) */
     public temperatures: Float32Array;
+
+    /** The time elapsed in the universe (years) */
     public timeElapsed: number;
+
+    /** The index of the star in the center of the universe, if applicable */
     public centerStar: number | null;
+
+    /**
+     * The texture data for procedural feature generation.
+     * Each body has a set of texels that can be used to generate features, defined in
+     * the `settings.numFeatureTexels` parameter.
+     * */
+    public planetFeatureTextureData: Uint8Array;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -79,6 +123,9 @@ export class Universe {
         this.numActive = this.settings.numBodies;
         this.timeElapsed = 0;
         this.centerStar = null;
+
+        // Num bodies times number of texels time 4 (RGBA channels)
+        this.planetFeatureTextureData = new Uint8Array(64 * 64 * 4);
 
         this.initialize();
     }
@@ -188,6 +235,8 @@ export class Universe {
             const meanTilt = this.settings.axialTiltMean;
             const stdDev = this.settings.axialTiltStdev;
             this.axialTilts[i] = this.rng.getGaussianF32(meanTilt, stdDev); // Axial tilt in radians
+
+            this.setPlanetaryFeatureData();
         }
 
         // Set star in center if applicable
@@ -260,6 +309,10 @@ export class Universe {
         this.numSattelites.fill(0);
         this.timeElapsed = 0;
         this.centerStar = null;
+        this.stars.fill(-1);
+        this.numStars = 0;
+        this.temperatures.fill(0);
+        this.planetFeatureTextureData.fill(0);
     }
 
     public reset(): void {
@@ -800,6 +853,16 @@ export class Universe {
         const U = G * (this.masses[bodyA] + this.masses[bodyB]);
 
         return 0.5 * v * v - U / r;
+    }
+
+    private setPlanetaryFeatureData() {
+        /**
+         * Sets the planetary feature texture data.
+         * This is a placeholder for now, but can be used to set the texture data for each planet.
+         */
+        for (let i = 0; i < 64 * 64 * 4; i++) {
+            this.planetFeatureTextureData[i] = this.rng.getRandomU8();
+        }
     }
 
     /*

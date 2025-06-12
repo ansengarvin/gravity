@@ -293,7 +293,9 @@ export function Sim() {
                     uAngularVelocity: gl.getUniformLocation(starlightShaderProgram, "uAngularVelocity"),
                     uRotationMultiplier: gl.getUniformLocation(starlightShaderProgram, "uRotationMultiplier"),
                     uNoiseTex: gl.getUniformLocation(starlightShaderProgram, "uNoiseTex"),
-                    uNoiseTexSlice: gl.getUniformLocation(starlightShaderProgram, "uNoiseTexSlice"),
+                    uFeatureTex: gl.getUniformLocation(starlightShaderProgram, "uFeatureTex"),
+                    uPlanetID: gl.getUniformLocation(starlightShaderProgram, "uPlanetID"),
+                    uNumFeatureSampleTexels: gl.getUniformLocation(starlightShaderProgram, "uNumFeatureSampleTexels"),
                 },
             };
 
@@ -323,6 +325,57 @@ export function Sim() {
             // Bind uniform to starlight program
             gl.useProgram(starlightProgramInfo.program);
             gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTex, 0); // Texture unit 0
+
+            /*
+                Each planet will sample from a number of texels of the planetary feature texture
+                They will grab the bits from the r, g, b, a values
+            */
+            const planetaryFeatureTexture = gl.createTexture();
+            if (universe.current.planetFeatureTextureData.length != 64 * 64 * 4) {
+                console.error(
+                    "Planetary feature texture data is not the correct size. Expected 64x64x4, got: ",
+                    universe.current.planetFeatureTextureData.length,
+                );
+            } else {
+                console.log(universe.current.planetFeatureTextureData);
+            }
+            gl.activeTexture(gl.TEXTURE1); // Activate texture unit 1
+            gl.bindTexture(gl.TEXTURE_2D, planetaryFeatureTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                64, // width
+                64, // height
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                universe.current.planetFeatureTextureData, // Placeholder for planetary feature texture
+            );
+            console.log(
+                "First four: ",
+                universe.current.planetFeatureTextureData[0],
+                universe.current.planetFeatureTextureData[1],
+                universe.current.planetFeatureTextureData[2],
+                universe.current.planetFeatureTextureData[3],
+                "Last four: ",
+                universe.current.planetFeatureTextureData[universe.current.planetFeatureTextureData.length - 4],
+                universe.current.planetFeatureTextureData[universe.current.planetFeatureTextureData.length - 3],
+                universe.current.planetFeatureTextureData[universe.current.planetFeatureTextureData.length - 2],
+                universe.current.planetFeatureTextureData[universe.current.planetFeatureTextureData.length - 1],
+            );
+            // Bind uniform to starlight program
+            gl.uniform1i(starlightProgramInfo.uniformLocations.uFeatureTex, 1); // Texture unit 1
+            gl.uniform1i(starlightProgramInfo.uniformLocations.uNumFeatureSampleTexels, settings.numFeatureTexels);
+
+            console.log();
+
+            // Reactivate texture unit 0
+            gl.activeTexture(gl.TEXTURE0);
 
             // Initialize texture shader for simple texture quad
             const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
@@ -818,6 +871,10 @@ export function Sim() {
                             starlightProgramInfo.uniformLocations.uRotationMultiplier,
                             settings.rotationMultiplier,
                         );
+
+                        gl.activeTexture(gl.TEXTURE1);
+                        gl.bindTexture(gl.TEXTURE_2D, planetaryFeatureTexture);
+                        gl.activeTexture(gl.TEXTURE0);
                     } else {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
@@ -905,7 +962,7 @@ export function Sim() {
                             );
 
                             const noiseSlice = i % maxLayers;
-                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uPlanetID, noiseSlice); // Texture unit 0
 
                             gl.uniform1f(
                                 starlightProgramInfo.uniformLocations.uAngularVelocity,
@@ -982,6 +1039,7 @@ export function Sim() {
                         Bloom Blur
                     */
                     if (starLightRef.current) {
+                        // Bind texture and use bloom texture
                         gl.useProgram(gaussianBlurProgramInfo.program);
                         setPositionAttribute2D(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);
                         setTexCoordAttribute(gl, quadBuffers, gaussianBlurProgramInfo.attribLocations);

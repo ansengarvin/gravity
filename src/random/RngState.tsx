@@ -101,6 +101,14 @@ export class RngState {
         return (this.next() / 0xffffffff) * (max - min) + min;
     }
 
+    /**
+     *
+     * @returns A random number between 0 and 255
+     */
+    public getRandomU8(): number {
+        return this.next() / 0xff;
+    }
+
     public getGaussianF32(mean: number, stdDev: number): number {
         let u1 = this.getRandomF32(0, 1);
         let u2 = this.getRandomF32(0, 1);
