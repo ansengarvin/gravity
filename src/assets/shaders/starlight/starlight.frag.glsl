@@ -55,6 +55,13 @@ const float PI = 3.14159265358979323846;
 const int MAX_FEATURE_TEXELS = 8; // Increase if needed
 const int FEATURE_SIZE = 64;
 
+float normalizeIntToFloat(int value, int minInt, int maxInt, float minFloat, float maxFloat) {
+    // Normalize the integer value to a float in the range [0, 1]
+    float normalized = float(value - minInt) / float(maxInt - minInt);
+    // Scale to the desired float range
+    return minFloat + normalized * (maxFloat - minFloat);
+}
+
 void getFeatureTexels(out vec4 texels[MAX_FEATURE_TEXELS]) {
     int startTexel = uPlanetID * uNumFeatureSampleTexels;
     for (int i = 0; i < uNumFeatureSampleTexels; i++) {
@@ -68,27 +75,98 @@ void getFeatureTexels(out vec4 texels[MAX_FEATURE_TEXELS]) {
     }
 }
 
+struct gasGiantFeatures {
+    float noiseAmp; // range from 0.01 to 0.15
+    float noiseFreq; // Range from 0.1 to 1.0
+    bool hasBands;
+    int numBands; // Range from 5 to 12
+    float bandRotationRateMultipliers[12];
+};
+
+gasGiantFeatures testGasGiantFeatures(){
+    gasGiantFeatures features;
+    features.hasBands = true;
+    features.noiseAmp = 0.1;
+    features.noiseFreq = 0.25;
+    features.numBands = 8;
+    for (int i = 0; i < 12; i++) {
+        features.bandRotationRateMultipliers[i] = 1.0;
+    }
+    return features;
+}
+
+gasGiantFeatures getGasGiantFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
+    gasGiantFeatures features;
+
+    int value = int(round(featureTexels[0].r * 255.0));
+    // All 8 bits of red0 reserved for noise amplitude
+    int ampBits = value;
+    features.noiseAmp = normalizeIntToFloat(value, 0, 255, 0.01, 0.15);
+
+    value = int(round(featureTexels[0].g * 255.0));
+    // All 8 bits of green0 reserved for noise frequency
+    int freqBits = value;
+    features.noiseFreq = normalizeIntToFloat(value, 0, 255, 0.1, 1.0);
+
+    value = int(round(featureTexels[0].b * 255.0));
+    // Bit 0 of blue0 reserved for hasBands
+    features.hasBands = (value & 0x01) != 0;
+    // Bit 1-4 of blue0 reserved for numBands
+    int numBandsBits = (value >> 1) & 0x07; // Get bits 1-3
+    features.numBands = numBandsBits + 5;
+
+    // All of red1, all of green1, and first two bits from blue1 reserved for band rotation variance multipliers.
+    // For a total of 18 bits.
+    int red1 = int(round(featureTexels[1].r * 255.0));
+    int green1 = int(round(featureTexels[1].g * 255.0));
+    int blue1 = int(round(featureTexels[1].b * 255.0));
+    int rotationBits = red1 | (green1 << 8) | (blue1 << 16);
+    for (int i = 0; i < 6; i++) {
+        // Get the bits for each band rotation multiplier
+        int multiplierBits = (rotationBits >> (i * 3)) & 0x07; // Get 3 bits
+        // Normalize to [0.5, 1.5]
+        features.bandRotationRateMultipliers[i] = normalizeIntToFloat(multiplierBits, 0, 7, 0.5, 1.5);
+    }
+
+    // Bits 3-7 of blue1 are free, all of alpha1 are free
+
+    // All of texel2 and texel3 are free
+
+    value = int(round(featureTexels[0].a * 255.0));
+
+    return features;
+
+}
+
 vec3 gasGiantColor() {
     vec4 featureTexels[MAX_FEATURE_TEXELS];
     getFeatureTexels(featureTexels);
+    gasGiantFeatures features = getGasGiantFeatures(featureTexels);
 
     int noiseTexSlice = uPlanetID % 256;
 
     // Sphere tex coordinates
-    int numBands = 9;
     float s = vTexCoords.s;
     float t = vTexCoords.t;
     
 
     vec2 nTexCoords = vTexCoords;
-    float nBandPosition = t * float(numBands);
+    float nBandPosition = t * float(features.numBands);
     bool nIsDarkBand = (int(nBandPosition) % 2 == 1);
 
-    int numRotaryBands = 9/2;
+    int numRotaryBands = features.numBands/2;
     float rotaryPosition = t * float(numRotaryBands);
+    int rotaryIndex = int(rotaryPosition);
+    if (features.numBands % 2 == 0) {
+        rotaryPosition -= 0.25;
+    }
     bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
 
-    float rotationAmount = uTimeElapsed * uAngularVelocity * uRotationMultiplier;
+    float rotationAmount =
+        uTimeElapsed *
+        uAngularVelocity *
+        uRotationMultiplier *
+        features.bandRotationRateMultipliers[rotaryIndex];
     rotationAmount = mod(rotationAmount, 2.0 * PI);
     rotationAmount = rotationAmount / (2.0 * PI); // Normalize to [0, 1]
 
@@ -98,8 +176,10 @@ vec3 gasGiantColor() {
         nTexCoords.s = fract(vTexCoords.s - rotationAmount);
     }
 
-    float amp = 0.08;
-    float freq = 0.25;
+    // float amp = 0.15;
+    // float freq = 1.0;
+    float amp = features.noiseAmp;
+    float freq = features.noiseFreq;
     float noiseTexSliceFloat = float(noiseTexSlice);
     vec2 rotatedTexCoords = vTexCoords;
     vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, noiseTexSliceFloat));
@@ -110,7 +190,7 @@ vec3 gasGiantColor() {
 
     // Get band informaton
     
-    float bandPosition = t * float(numBands);
+    float bandPosition = t * float(features.numBands);
     float bandFraction = fract(bandPosition);
     int bandIndex = int(bandPosition);
     bool isDarkBand = (bandIndex % 2 == 0);
