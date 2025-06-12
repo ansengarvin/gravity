@@ -15,33 +15,74 @@ export class Universe {
     // Uint8Array and Float32Array are guaranteed to be contiguous in memory, which makes them more performant (cache locality).
     public bodiesActive: Uint8Array;
 
+    /** X positions of all bodies (AU) */
     public positionsX: Float32Array;
+    /** Y positions of all bodies (AU) */
     public positionsY: Float32Array;
+    /** Z positions of all bodies (AU) */
     public positionsZ: Float32Array;
+
+    /** X velocity components of all bodies (AU/year) */
     public velocitiesX: Float32Array;
+    /** Y velocity components of all bodies (AU/year) */
     public velocitiesY: Float32Array;
+    /** Z velocity components of all bodies (AU/year) */
     public velocitiesZ: Float32Array;
+
+    /** X acceleration components of all bodies (AU/year^2) */
     public accelerationsX: Float32Array;
+    /** Y acceleration components of all bodies (AU/year^2) */
     public accelerationsY: Float32Array;
+    /** Z acceleration components of all bodies (AU/year^2) */
     public accelerationsZ: Float32Array;
-    public angularVelocities: Float32Array; // Angular velocities for rotation
+
+    /** Angular velocities (rotation speeds) of all bodies (radians/year) */
+    public angularVelocities: Float32Array;
+    /** Axial tilts of all bodies (radians) */
     public axialTilts: Float32Array;
+
+    /** Masses of all bodies (solar masses) */
     public masses: Float32Array;
+    /** Radii of all bodies (AU) */
     public radii: Float32Array;
+
+    /** Red channels for all bodies' colors (0-1) */
     public colorsR: Float32Array;
+    /** Green channels for all bodies' colors (0-1) */
     public colorsG: Float32Array;
+    /** Blue channels for all bodies' colors (0-1) */
     public colorsB: Float32Array;
+
+    /** The number of bodies that are currently active in the universe. */
     public numActive: number;
+
+    /** Orbital indices of all bodies (index of the body they orbit, -1 if not orbiting) */
     public orbitalIndices: Float32Array;
+    /** Orbital distances of all bodies (distance to the body they orbit, -1 if not orbiting) */
     public orbitalDistances: Float32Array;
+    /** Number of sattelites for each body (number of bodies orbiting this body) */
     public numSattelites: Float32Array;
+
+    /** Array of indices of all stars in the universe */
     public stars: Float32Array;
+    /** The number of stars in the universe */
     public numStars: number;
+
+    /** Temperatures of all bodies (K) */
     public temperatures: Float32Array;
+
+    /** The time elapsed in the universe (years) */
     public timeElapsed: number;
+
+    /** The index of the star in the center of the universe, if applicable */
     public centerStar: number | null;
-    public numFeatureChannels: number;
-    public planetFeatureTextureData: Uint8Array; // Placeholder for planet feature texture data
+
+    /**
+     * The texture data for procedural feature generation.
+     * Each body has a set of texels that can be used to generate features, defined in
+     * the `settings.numFeatureTexels` parameter.
+     * */
+    public planetFeatureTextureData: Uint8Array;
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -83,8 +124,8 @@ export class Universe {
         this.timeElapsed = 0;
         this.centerStar = null;
 
-        this.numFeatureChannels = 4;
-        this.planetFeatureTextureData = new Uint8Array(this.settings.numBodies * 4 * this.numFeatureChannels);
+        // Num bodies times number of texels time 4 (RGBA channels)
+        this.planetFeatureTextureData = new Uint8Array(this.settings.numBodies * 4 * this.settings.numFeatureTexels);
 
         this.initialize();
     }
@@ -820,8 +861,8 @@ export class Universe {
          * This is a placeholder for now, but can be used to set the texture data for each planet.
          */
         for (let i = 0; i < this.settings.numBodies; i++) {
-            for (let j = 0; j < this.numFeatureChannels; j++) {
-                const idx = i * this.numFeatureChannels + j;
+            for (let j = 0; j < this.settings.numFeatureTexels; j++) {
+                const idx = i * this.settings.numFeatureTexels + j;
                 // Set the data for each planet
                 // For now, we will just set the data to a random value between 0 and 1
                 this.planetFeatureTextureData[idx] = this.rng.getRandomU8();
