@@ -23,6 +23,7 @@ export class Universe {
     public accelerationsX: Float32Array;
     public accelerationsY: Float32Array;
     public accelerationsZ: Float32Array;
+    public angularVelocities: Float32Array; // Angular velocities for rotation
     public axialTilts: Float32Array;
     public masses: Float32Array;
     public radii: Float32Array;
@@ -56,6 +57,7 @@ export class Universe {
         this.accelerationsY = new Float32Array(this.settings.numBodies);
         this.accelerationsZ = new Float32Array(this.settings.numBodies);
 
+        this.angularVelocities = new Float32Array(this.settings.numBodies);
         this.axialTilts = new Float32Array(this.settings.numBodies);
 
         this.masses = new Float32Array(this.settings.numBodies);
@@ -180,6 +182,9 @@ export class Universe {
             );
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
 
+            // Get rotation
+            this.angularVelocities[i] = this.getInitialRotationSpeed(this.masses[i]);
+
             const meanTilt = this.settings.axialTiltMean;
             const stdDev = this.settings.axialTiltStdev;
             this.axialTilts[i] = this.rng.getGaussianF32(meanTilt, stdDev); // Axial tilt in radians
@@ -244,6 +249,8 @@ export class Universe {
         this.accelerationsZ.fill(0);
         this.masses.fill(0);
         this.radii.fill(0);
+        this.angularVelocities.fill(0);
+        this.axialTilts.fill(0);
         this.colorsR.fill(0);
         this.colorsG.fill(0);
         this.colorsB.fill(0);
@@ -713,6 +720,21 @@ export class Universe {
             y: angularVelocityY,
             z: angularVelocityZ,
         };
+    }
+
+    private getInitialRotationSpeed(mass: number): number {
+        let basePeriodInMonths: number;
+        if (mass >= MassThresholds.STAR) {
+            // Stars: 10-30 day rotation period
+            basePeriodInMonths = this.rng.getRandomF32(0.33, 1); // 10-30 days
+        } else if (mass >= MassThresholds.GAS_GIANT) {
+            // Gas giants: 9-16 hours = 0.375 - 0.67 months
+            basePeriodInMonths = this.rng.getRandomF32(0.0125, 0.022); // 9-16 hours
+        } else {
+            // 1-100 hours = 0.0014 - 0.14 months
+            basePeriodInMonths = this.rng.getPowerLawF32(0.0014, 0.14, -0.5);
+        }
+        return basePeriodInMonths;
     }
 
     private getInitialVelocityKepler(
