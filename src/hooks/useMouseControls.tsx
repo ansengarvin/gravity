@@ -1,18 +1,28 @@
 import { useRef } from "react";
 import { Camera } from "../lib/webGL/camera";
+import { useSelector } from "react-redux";
+import { RootState } from "../redux/store";
 
 export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensitivity: number) {
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
+    const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
 
     /*
         Mouse Controls
     */
     // Zoom in and out on mouse wheel
     const handleMouseWheel = (event: React.WheelEvent<HTMLCanvasElement>) => {
-        const minZoom = 1;
+        const minZoom = followedBodyRadius ? followedBodyRadius * 5 : 0.0001;
         const maxZoom = 50;
-        cameraRef.current!.zoom -= event.deltaY * 0.01;
+        let dynamicSensitivity = 0.005;
+        if (cameraRef.current.zoom > -1) {
+            dynamicSensitivity = 0.0005;
+        } else if (cameraRef.current.zoom > -0.5) {
+            dynamicSensitivity = 0.00005;
+        }
+
+        cameraRef.current!.zoom -= event.deltaY * dynamicSensitivity;
         cameraRef.current!.zoom = Math.min(Math.max(cameraRef.current!.zoom, -1 * maxZoom), -1 * minZoom);
     };
 

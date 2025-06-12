@@ -4,6 +4,7 @@ import { UniverseSettings } from "../../redux/universeSettingsSlice";
 import { HSLtoRGB } from "../colors/colorConversions";
 import { MassThresholds } from "../defines/physics";
 import { RngState } from "../../random/RngState";
+import { removeFromArray } from "../ds/arrays";
 
 const G = 4 * Math.PI * Math.PI; // Gravitational constant
 
@@ -22,6 +23,8 @@ export class Universe {
     public accelerationsX: Float32Array;
     public accelerationsY: Float32Array;
     public accelerationsZ: Float32Array;
+    public angularVelocities: Float32Array; // Angular velocities for rotation
+    public axialTilts: Float32Array;
     public masses: Float32Array;
     public radii: Float32Array;
     public colorsR: Float32Array;
@@ -31,6 +34,9 @@ export class Universe {
     public orbitalIndices: Float32Array;
     public orbitalDistances: Float32Array;
     public numSattelites: Float32Array;
+    public stars: Float32Array;
+    public numStars: number;
+    public temperatures: Float32Array;
     public timeElapsed: number;
     public centerStar: number | null;
 
@@ -51,8 +57,12 @@ export class Universe {
         this.accelerationsY = new Float32Array(this.settings.numBodies);
         this.accelerationsZ = new Float32Array(this.settings.numBodies);
 
+        this.angularVelocities = new Float32Array(this.settings.numBodies);
+        this.axialTilts = new Float32Array(this.settings.numBodies);
+
         this.masses = new Float32Array(this.settings.numBodies);
         this.radii = new Float32Array(this.settings.numBodies);
+        this.temperatures = new Float32Array(this.settings.numBodies);
 
         this.colorsR = new Float32Array(this.settings.numBodies);
         this.colorsG = new Float32Array(this.settings.numBodies);
@@ -62,6 +72,9 @@ export class Universe {
         this.orbitalIndices = new Float32Array(this.settings.numBodies);
         this.orbitalDistances = new Float32Array(this.settings.numBodies);
         this.numSattelites = new Float32Array(this.settings.numBodies);
+
+        this.stars = new Float32Array(this.settings.numBodies);
+        this.numStars = 0;
 
         this.numActive = this.settings.numBodies;
         this.timeElapsed = 0;
@@ -144,18 +157,10 @@ export class Universe {
         // const max_velocity = 3;
 
         for (let i = 0; i < this.settings.numBodies; i++) {
-            // this.positionsX[i] = getRandomF32(min_position, max_position);
-            // this.positionsY[i] = getRandomF32(-1, 1);
-            // this.positionsZ[i] = getRandomF32(min_position, max_position);
-
             const pos = this.getRandomDiskStartingPosition(min_position, max_position);
             this.positionsX[i] = pos.x;
             this.positionsY[i] = pos.y;
             this.positionsZ[i] = pos.z;
-
-            // this.velocitiesX[i] = getRandomF32(min_velocity, max_velocity);
-            // this.velocitiesY[i] = getRandomF32(min_velocity, max_velocity);
-            // this.velocitiesZ[i] = getRandomF32(min_velocity, max_velocity);
 
             const initialAngularVelocity = this.getInitialVelocityKepler(
                 this.positionsX[i],
@@ -169,8 +174,20 @@ export class Universe {
 
             this.bodiesActive[i] = 1;
 
-            this.masses[i] = this.rng.getRandomF32(this.settings.minMass, this.settings.maxMass);
+            //this.masses[i] = this.rng.getRandomF32(this.settings.minMass, this.settings.maxMass);
+            this.masses[i] = this.rng.getPowerLawF32(
+                this.settings.minMass,
+                this.settings.maxMass,
+                this.settings.massBiasExponent,
+            );
             this.radii[i] = this.radius_from_mass_piecewise(this.masses[i]);
+
+            // Get rotation
+            this.angularVelocities[i] = this.getInitialRotationSpeed(this.masses[i]);
+
+            const meanTilt = this.settings.axialTiltMean;
+            const stdDev = this.settings.axialTiltStdev;
+            this.axialTilts[i] = this.rng.getGaussianF32(meanTilt, stdDev); // Axial tilt in radians
         }
 
         // Set star in center if applicable
@@ -201,10 +218,18 @@ export class Universe {
             this.colorsR[i] = colorRGB.r;
             this.colorsG[i] = colorRGB.g;
             this.colorsB[i] = colorRGB.b;
+        }
 
-            // this.colorsR[i] = getRandomF32(0.2, 0.85);
-            // this.colorsG[i] = getRandomF32(0.2, 0.85);
-            // this.colorsB[i] = getRandomF32(0.2, 0.85);
+        /*
+            Set all stars
+        */
+        this.stars.fill(-1);
+        this.numStars = 0;
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            if (this.masses[i] >= MassThresholds.STAR) {
+                this.stars[this.numStars] = i;
+                this.numStars++;
+            }
         }
 
         this.setOrbitalInformation();
@@ -224,6 +249,8 @@ export class Universe {
         this.accelerationsZ.fill(0);
         this.masses.fill(0);
         this.radii.fill(0);
+        this.angularVelocities.fill(0);
+        this.axialTilts.fill(0);
         this.colorsR.fill(0);
         this.colorsG.fill(0);
         this.colorsB.fill(0);
@@ -516,6 +543,21 @@ export class Universe {
                     if (less_massive === i) {
                         break;
                     }
+                    /*
+                        If less massive body is a star, remove it from the stars array.
+                    */
+                    if (this.masses[less_massive] >= MassThresholds.STAR) {
+                        this.stars = removeFromArray(less_massive, this.stars);
+                        this.numStars--;
+                    }
+
+                    /*
+                        Add to array of stars if more massive body has passed the threshold
+                    */
+                    if (this.masses[most_massive] >= MassThresholds.STAR && !this.inStarArray(most_massive)) {
+                        this.stars[this.numStars] = most_massive;
+                        this.numStars++;
+                    }
                 }
             }
         }
@@ -626,30 +668,41 @@ export class Universe {
         return massRankings;
     }
 
-    public isStar(idx: number) {
-        return this.bodiesActive[idx] && this.masses[idx] >= MassThresholds.STAR;
-    }
-
-    public getStarData(): Array<vec4> {
-        const stars = new Array<vec4>();
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            if (this.isStar(i)) {
-                stars.push(vec4.fromValues(this.positionsX[i], this.positionsY[i], this.positionsZ[i], this.masses[i]));
+    public inStarArray(idx: number): boolean {
+        for (let i = 0; i < this.numStars; i++) {
+            if (this.stars[i] === idx) {
+                return true;
             }
         }
+        return false;
+    }
 
-        stars.sort((a, b) => b[3] - a[3]); // Sort by mass
-        return stars;
+    public getStars(): Array<number> {
+        /**
+         * Returns the array of stars.
+         */
+        return [...this.stars.slice(0, this.numStars)];
+    }
+
+    public getStarsData(): Array<vec4> {
+        /**
+         * Returns the data for each star in the universe.
+         * The data is in the form of vec4, where the first three components are the position and the fourth is the mass.
+         */
+        const starData: Array<vec4> = [];
+        for (let i = 0; i < this.numStars; i++) {
+            const idx = this.stars[i];
+            starData.push(
+                vec4.fromValues(this.positionsX[idx], this.positionsY[idx], this.positionsZ[idx], this.masses[idx]),
+            );
+        }
+        // Sort star data by mass
+        starData.sort((a, b) => b[3] - a[3]); // Sort by mass in descending order
+        return starData;
     }
 
     public getNumStars(): number {
-        let numStars = 0;
-        for (let i = 0; i < this.settings.numBodies; i++) {
-            if (this.isStar(i)) {
-                numStars++;
-            }
-        }
-        return numStars;
+        return this.numStars;
     }
 
     public getInitialVelocityOriginal(x: number, y: number, z: number): { x: number; y: number; z: number } {
@@ -667,6 +720,22 @@ export class Universe {
             y: angularVelocityY,
             z: angularVelocityZ,
         };
+    }
+
+    private getInitialRotationSpeed(mass: number): number {
+        let basePeriodInDays: number;
+        if (mass >= MassThresholds.STAR) {
+            // Stars: 10-30 day rotation period
+            basePeriodInDays = this.rng.getRandomF32(10, 30); // 10-30 days
+        } else if (mass >= MassThresholds.GAS_GIANT) {
+            //basePeriodInDays = this.rng.getRandomF32(0.375, 0.67); // 9-16 hours in days
+            basePeriodInDays = this.rng.getPowerLawF32(1, 10, -1.0);
+        } else {
+            basePeriodInDays = this.rng.getPowerLawF32(1, 10, -1.0);
+        }
+        const basePeriodInYears = basePeriodInDays / 365.25; // Convert days to years
+        const angularVelocity = (2 * Math.PI) / basePeriodInYears; // Convert period to angular velocity
+        return angularVelocity; // Return angular velocity in radians per month
     }
 
     private getInitialVelocityKepler(

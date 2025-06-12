@@ -19,6 +19,7 @@ export function SettingsMenu() {
     const [numBodies, setNumBodies] = useState(universeSettings.numBodies);
     const [minMass, setMinMass] = useState(universeSettings.minMass);
     const [maxMass, setMaxMass] = useState(universeSettings.maxMass);
+    const [biasExponent, setBiasExponent] = useState(universeSettings.massBiasExponent);
     const [starInCenter, setStarInCenter] = useState(universeSettings.starInCenter);
     const [centerStarMass, setCenterStarMass] = useState(universeSettings.centerStarMass);
 
@@ -148,7 +149,23 @@ export function SettingsMenu() {
                                 step="1"
                             />
                         </div>
-
+                        <div>
+                            <label htmlFor="massBias">Bias Exponent</label>
+                            <input
+                                type="number"
+                                id="massBias"
+                                value={biasExponent}
+                                onChange={(e) => {
+                                    const val = e.target.valueAsNumber;
+                                    if (val < 0.0) {
+                                        setBiasExponent(0.0);
+                                        return;
+                                    }
+                                    setBiasExponent(e.target.valueAsNumber);
+                                }}
+                                step="0.1"
+                            />
+                        </div>
                         <button
                             onClick={(e) => {
                                 e.preventDefault();
@@ -163,6 +180,7 @@ export function SettingsMenu() {
                                         centerStarMass: centerStarMass,
                                         minMass: minMass,
                                         maxMass: maxMass,
+                                        massBiasExponent: biasExponent,
                                     },
                                 });
                             }}

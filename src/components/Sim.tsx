@@ -38,23 +38,34 @@ import {
 import { useMouseControls } from "../hooks/useMouseControls";
 import { useTouchControls } from "../hooks/useTouchControls";
 import { calculateUniformVectors } from "./DebugStats";
-import { useDispatch, useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
 import { CircleType } from "../redux/controlsSlice";
+import { binaryDataDispatch } from "../redux/binaryDataSlice";
+import { MassThresholds } from "../lib/defines/physics";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 const fieldOfView = (45 * Math.PI) / 180; // in radians
-const zNear = 0.1;
+const zNear = 0.005;
 const zFar = 100.0;
 const NUM_CIRCLE_VERTICES = 100;
 
 export function Sim() {
     const settings = useSelector((state: RootState) => state.universeSettings);
-    const dispatch = useDispatch();
+    const binaryData = useSelector((state: RootState) => state.binaryData);
+    const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
+    const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        // Fetch noiseTex if it's not null and there is no error
+        if (binaryData.noiseTex === null && !binaryData.noiseTexError) {
+            dispatch(binaryDataDispatch.fetchNoiseTex());
+        }
+    }, []);
 
     /*
         The camera and universe classes do not need ot be rerendered ever
@@ -136,12 +147,20 @@ export function Sim() {
     useEffect(() => {
         cameraRef.current.setTarget(0, 0, 0);
     }, [resetCam]);
+
+    useEffect(() => {
+        // if (followedBodyRadius && cameraRef.current.zoom < followedBodyRadius * 5) {
+        //     cameraRef.current.zoom = -1 * followedBodyRadius * 5;
+        // }
+    }, [followedBodyRadius]);
     /*
         Set up WebGL Renderer
     */
     const initializedRef = useRef(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     useEffect(() => {
+        if (!binaryData.noiseTex) return;
+
         if (initializedRef.current) {
             return;
         } else {
@@ -263,13 +282,46 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
+                    uTimeElapsed: gl.getUniformLocation(starlightShaderProgram, "uTimeElapsed"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
                     uNumStars: gl.getUniformLocation(starlightShaderProgram, "uNumStars"),
                     uIsStar: gl.getUniformLocation(starlightShaderProgram, "uIsStar"),
                     uViewPosition: gl.getUniformLocation(starlightShaderProgram, "uViewPosition"),
+                    uMass: gl.getUniformLocation(starlightShaderProgram, "uMass"),
+                    uTemperature: gl.getUniformLocation(starlightShaderProgram, "uTemperature"),
+                    uAngularVelocity: gl.getUniformLocation(starlightShaderProgram, "uAngularVelocity"),
+                    uRotationMultiplier: gl.getUniformLocation(starlightShaderProgram, "uRotationMultiplier"),
+                    uNoiseTex: gl.getUniformLocation(starlightShaderProgram, "uNoiseTex"),
+                    uNoiseTexSlice: gl.getUniformLocation(starlightShaderProgram, "uNoiseTexSlice"),
                 },
             };
+
+            // Set the noise texture for the starlight shader.
+            const noiseTexture = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE0); // Activate texture unit 0
+            gl.bindTexture(gl.TEXTURE_2D_ARRAY, noiseTexture);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
+            gl.texImage3D(
+                gl.TEXTURE_2D_ARRAY,
+                0,
+                gl.RGBA,
+                64, // width
+                64, // height
+                maxLayers, // depth
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                binaryData.noiseTex, // The noise texture data
+            );
+
+            // Bind uniform to starlight program
+            gl.useProgram(starlightProgramInfo.program);
+            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTex, 0); // Texture unit 0
 
             // Initialize texture shader for simple texture quad
             const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
@@ -733,6 +785,8 @@ export function Sim() {
                     if (starLightRef.current) {
                         setPositionAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
+
                         gl.useProgram(starlightProgramInfo.program);
 
                         // Bind projection matrix
@@ -743,7 +797,7 @@ export function Sim() {
                         );
 
                         // Data for calculating star light
-                        const starData: Array<vec4> = universe.current.getStarData();
+                        const starData: Array<vec4> = universe.current.getStarsData();
                         const numStars = starData.length;
                         gl.uniform1i(starlightProgramInfo.uniformLocations.uNumStars, numStars);
 
@@ -754,10 +808,20 @@ export function Sim() {
 
                         const viewPos = cameraRef.current.getPosition();
                         gl.uniform3fv(starlightProgramInfo.uniformLocations.uViewPosition, viewPos);
+
+                        // Set delta time in star light shader
+                        gl.uniform1f(starlightProgramInfo.uniformLocations.uTimeElapsed, universe.current.timeElapsed);
+
+                        // Rotation multiplier
+                        gl.uniform1f(
+                            starlightProgramInfo.uniformLocations.uRotationMultiplier,
+                            settings.rotationMultiplier,
+                        );
                     } else {
                         // Bind Buffers
                         setPositionAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
                         setNormalAttribute(gl, sphereBuffers, camlightProgramInfo.attribLocations);
+                        setTexCoordAttribute(gl, sphereBuffers, starlightProgramInfo.attribLocations);
 
                         gl.useProgram(camlightProgramInfo.program);
 
@@ -783,6 +847,21 @@ export function Sim() {
                             universe.current.positionsY[i],
                             universe.current.positionsZ[i],
                         ]);
+                        mat4.rotateZ(modelMatrix, modelMatrix, universe.current.axialTilts[i]);
+
+                        // Gas giant cloud rotations are handled in the Shader level.
+                        if (
+                            universe.current.masses[i] < MassThresholds.GAS_GIANT ||
+                            universe.current.masses[i] >= MassThresholds.STAR
+                        ) {
+                            const rotationAngle =
+                                (universe.current.angularVelocities[i] *
+                                    universe.current.timeElapsed *
+                                    settings.rotationMultiplier) %
+                                (2 * Math.PI);
+                            mat4.rotateY(modelMatrix, modelMatrix, rotationAngle);
+                        }
+
                         mat4.scale(modelMatrix, modelMatrix, [
                             universe.current.radii[i],
                             universe.current.radii[i],
@@ -810,7 +889,7 @@ export function Sim() {
                                 false,
                                 normalMatrix,
                             );
-                            const isStar = universe.current.isStar(i) ? 1 : 0;
+                            const isStar = universe.current.inStarArray(i) ? 1 : 0;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
                             gl.uniform4fv(starlightProgramInfo.uniformLocations.uFragColor, [
                                 universe.current.colorsR[i],
@@ -818,6 +897,19 @@ export function Sim() {
                                 universe.current.colorsB[i],
                                 1.0,
                             ]);
+                            gl.uniform1f(starlightProgramInfo.uniformLocations.uMass, universe.current.masses[i]);
+                            gl.uniform1f(
+                                starlightProgramInfo.uniformLocations.uTemperature,
+                                universe.current.temperatures[i],
+                            );
+
+                            const noiseSlice = i % maxLayers;
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
+
+                            gl.uniform1f(
+                                starlightProgramInfo.uniformLocations.uAngularVelocity,
+                                universe.current.angularVelocities[i],
+                            );
                         } else {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelViewMatrix);
@@ -957,7 +1049,7 @@ export function Sim() {
         };
 
         initialize();
-    }, []); // Runs once when the component mounts
+    }, [binaryData.noiseTex]); // Runs once when the component mounts
 
     return (
         <SimCanvas

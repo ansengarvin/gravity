@@ -101,6 +101,26 @@ export class RngState {
         return (this.next() / 0xffffffff) * (max - min) + min;
     }
 
+    public getGaussianF32(mean: number, stdDev: number): number {
+        let u1 = this.getRandomF32(0, 1);
+        let u2 = this.getRandomF32(0, 1);
+        let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        return mean + z0 * stdDev;
+    }
+
+    /**
+     *
+     * @param min Minimum value, inclusive
+     * @param max Maximim value, inclusive
+     * @param exponent Exponent to be used in the power law bias function
+     * @returns A number between [min, max]
+     * @description Returns a random number between min and max, biased by the power law
+     */
+    public getPowerLawF32(min: number, max: number, exponent: number): number {
+        const u = this.getRandomF32(0, 1);
+        return min + (max - min) * Math.pow(u, exponent);
+    }
+
     /**
      *
      * @param min Minimum value, inclusive
