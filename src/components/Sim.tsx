@@ -49,7 +49,7 @@ const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
 const cameraSensititivy = 0.01;
 const fieldOfView = (45 * Math.PI) / 180; // in radians
-const zNear = 0.1;
+const zNear = 0.005;
 const zFar = 100.0;
 const NUM_CIRCLE_VERTICES = 100;
 
@@ -296,7 +296,6 @@ export function Sim() {
             gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
-            console.log(maxLayers);
             gl.texImage3D(
                 gl.TEXTURE_2D_ARRAY,
                 0,
