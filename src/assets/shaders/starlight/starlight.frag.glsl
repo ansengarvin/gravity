@@ -22,7 +22,7 @@ uniform float uAngularVelocity;
 uniform float uRotationMultiplier;
 
 uniform lowp sampler2DArray uNoiseTex;
-uniform int uNoiseTexSlice;
+uniform int uPlanetID;
 
 // layout(std140, binding=0) buffer StarLights {
 //     vec3 uboStarLocations[MAX_STARS];
@@ -52,10 +52,13 @@ const float MATERIAL_SHINNINESS = 32.0;
 const float PI = 3.14159265358979323846;
 
 vec3 gasGiantColor() {
+    int noiseTexSlice = uPlanetID % 256;
+
     // Sphere tex coordinates
     int numBands = 9;
     float s = vTexCoords.s;
     float t = vTexCoords.t;
+    
 
     vec2 nTexCoords = vTexCoords;
     float nBandPosition = t * float(numBands);
@@ -77,9 +80,9 @@ vec3 gasGiantColor() {
 
     float amp = 0.08;
     float freq = 0.25;
-    float uNoiseTexSliceFloat = float(uNoiseTexSlice);
+    float noiseTexSliceFloat = float(noiseTexSlice);
     vec2 rotatedTexCoords = vTexCoords;
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, uNoiseTexSliceFloat));
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, noiseTexSliceFloat));
     float n = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
     n = n - 2.0;
     n *= amp;
@@ -110,6 +113,7 @@ vec3 gasGiantColor() {
 }
 
 vec3 terrestrialColor(float n) {
+    int noiseTexSlice = uPlanetID % 256;
     const float diameterA = 0.1;
     const float diameterB = 0.1;
 
@@ -178,8 +182,9 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
 }
 
 float makeNoise(float amp, float freq) {
-    float uNoiseTexSliceFloat = float(uNoiseTexSlice);
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, uNoiseTexSliceFloat));
+    int noiseTexSlice = uPlanetID % 256;
+    float noiseTexSliceFloat = float(noiseTexSlice);
+    vec4 noiseTex = texture(uNoiseTex, freq*vec3(vTexCoords, noiseTexSliceFloat));
     float noise = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
     noise = noise - 2.0;
     noise *= amp;
@@ -200,7 +205,6 @@ void main(void) {
         }
         result += calculatePointLight(uStarLocations[i], norm, vFragPosition, viewDir);
     }
-
 
 
     // Apply the result to the fragment color

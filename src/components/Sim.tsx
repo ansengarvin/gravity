@@ -293,7 +293,8 @@ export function Sim() {
                     uAngularVelocity: gl.getUniformLocation(starlightShaderProgram, "uAngularVelocity"),
                     uRotationMultiplier: gl.getUniformLocation(starlightShaderProgram, "uRotationMultiplier"),
                     uNoiseTex: gl.getUniformLocation(starlightShaderProgram, "uNoiseTex"),
-                    uNoiseTexSlice: gl.getUniformLocation(starlightShaderProgram, "uNoiseTexSlice"),
+                    uFeatureTex: gl.getUniformLocation(starlightShaderProgram, "uFeatureTex"),
+                    uPlanetID: gl.getUniformLocation(starlightShaderProgram, "uPlanetID"),
                 },
             };
 
@@ -323,6 +324,29 @@ export function Sim() {
             // Bind uniform to starlight program
             gl.useProgram(starlightProgramInfo.program);
             gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTex, 0); // Texture unit 0
+
+            /*
+                Each planet will sample from a number of texels of the planetary feature texture
+                They will grab the bits from the r, g, b, a values
+            */
+            const planetaryFeatureTexture = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE1); // Activate texture unit 1
+            gl.bindTexture(gl.TEXTURE_2D, planetaryFeatureTexture);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texImage2D(
+                gl.TEXTURE_2D,
+                0,
+                gl.RGBA,
+                64, // width
+                64, // height
+                0,
+                gl.RGBA,
+                gl.UNSIGNED_BYTE,
+                null, // Placeholder for planetary feature texture
+            );
 
             // Initialize texture shader for simple texture quad
             const texQuadShaderProgram = initShaderProgram(gl, vertTexQuad, fragTexQuad);
@@ -905,7 +929,7 @@ export function Sim() {
                             );
 
                             const noiseSlice = i % maxLayers;
-                            gl.uniform1i(starlightProgramInfo.uniformLocations.uNoiseTexSlice, noiseSlice); // Texture unit 0
+                            gl.uniform1i(starlightProgramInfo.uniformLocations.uPlanetID, noiseSlice); // Texture unit 0
 
                             gl.uniform1f(
                                 starlightProgramInfo.uniformLocations.uAngularVelocity,

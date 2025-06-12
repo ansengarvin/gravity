@@ -44,7 +44,8 @@ export interface StarlightProgramInfo {
         uAngularVelocity: WebGLUniformLocation | null;
         uRotationMultiplier: WebGLUniformLocation | null;
         uNoiseTex: WebGLUniformLocation | null;
-        uNoiseTexSlice: WebGLUniformLocation | null;
+        uFeatureTex: WebGLUniformLocation | null;
+        uPlanetID: WebGLUniformLocation | null;
     };
 }
 

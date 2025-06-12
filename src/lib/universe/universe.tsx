@@ -6,7 +6,7 @@ import { MassThresholds } from "../defines/physics";
 import { RngState } from "../../random/RngState";
 import { removeFromArray } from "../ds/arrays";
 
-const G = 4 * Math.PI * Math.PI; // Gravitational constant
+const G = 4 * Math.PI * Math.PI; // Gravitational constant for 1yr, 1AU, 1 solar mass
 
 export class Universe {
     public settings: UniverseSettings;
@@ -14,6 +14,7 @@ export class Universe {
 
     // Uint8Array and Float32Array are guaranteed to be contiguous in memory, which makes them more performant (cache locality).
     public bodiesActive: Uint8Array;
+
     public positionsX: Float32Array;
     public positionsY: Float32Array;
     public positionsZ: Float32Array;
@@ -39,6 +40,8 @@ export class Universe {
     public temperatures: Float32Array;
     public timeElapsed: number;
     public centerStar: number | null;
+    public numFeatureChannels: number;
+    public planetFeatureTextureData: Uint8Array; // Placeholder for planet feature texture data
 
     constructor(settings: UniverseSettings) {
         this.settings = settings;
@@ -79,6 +82,9 @@ export class Universe {
         this.numActive = this.settings.numBodies;
         this.timeElapsed = 0;
         this.centerStar = null;
+
+        this.numFeatureChannels = 4;
+        this.planetFeatureTextureData = new Uint8Array(this.settings.numBodies * 4 * this.numFeatureChannels);
 
         this.initialize();
     }
@@ -188,6 +194,8 @@ export class Universe {
             const meanTilt = this.settings.axialTiltMean;
             const stdDev = this.settings.axialTiltStdev;
             this.axialTilts[i] = this.rng.getGaussianF32(meanTilt, stdDev); // Axial tilt in radians
+
+            this.setPlanetaryFeatureData();
         }
 
         // Set star in center if applicable
@@ -260,6 +268,10 @@ export class Universe {
         this.numSattelites.fill(0);
         this.timeElapsed = 0;
         this.centerStar = null;
+        this.stars.fill(-1);
+        this.numStars = 0;
+        this.temperatures.fill(0);
+        this.planetFeatureTextureData.fill(0);
     }
 
     public reset(): void {
@@ -800,6 +812,21 @@ export class Universe {
         const U = G * (this.masses[bodyA] + this.masses[bodyB]);
 
         return 0.5 * v * v - U / r;
+    }
+
+    private setPlanetaryFeatureData() {
+        /**
+         * Sets the planetary feature texture data.
+         * This is a placeholder for now, but can be used to set the texture data for each planet.
+         */
+        for (let i = 0; i < this.settings.numBodies; i++) {
+            for (let j = 0; j < this.numFeatureChannels; j++) {
+                const idx = i * this.numFeatureChannels + j;
+                // Set the data for each planet
+                // For now, we will just set the data to a random value between 0 and 1
+                this.planetFeatureTextureData[idx] = this.rng.getRandomU8();
+            }
+        }
     }
 
     /*
