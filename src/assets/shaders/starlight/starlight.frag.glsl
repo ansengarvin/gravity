@@ -210,8 +210,8 @@ vec3 gasGiantColor() {
     getFeatureTexels(featureTexels);
     gasGiantFeatures features = getGasGiantFeatures(featureTexels);
 
-    float noiseAmp = features.noiseAmp;
-    float noiseFreq = features.noiseFreq;
+    float noiseAmp = 0.25;
+    float noiseFreq = 0.3;
 
     // Sphere tex coordinates
     float s = vTexCoords.s;
