@@ -11,6 +11,7 @@ in vec3 vNormal;
 in vec3 vFragPosition;
 in highp vec2 vTexCoords;
 
+uniform vec3 uBodyPosition;
 uniform float uTimeElapsed;
 uniform int uNumStars;
 uniform int uIsStar;
@@ -21,7 +22,7 @@ uniform vec3 uViewPosition;
 uniform float uAngularVelocity;
 uniform float uRotationMultiplier;
 
-uniform lowp sampler2DArray uNoiseTex;
+uniform lowp sampler3D uNoiseTex;
 uniform lowp sampler2D uFeatureTex;
 uniform int uPlanetID;
 uniform int uNumFeatureSampleTexels;
@@ -127,75 +128,128 @@ gasGiantFeatures getGasGiantFeatures(vec4 featureTexels[MAX_FEATURE_TEXELS]) {
 }
 
 vec3 gasGiantColor() {
+
+    /***********************************************************************************************/
+
+    // vec4 featureTexels[MAX_FEATURE_TEXELS];
+    // getFeatureTexels(featureTexels);
+    // gasGiantFeatures features = getGasGiantFeatures(featureTexels);
+
+    // // Sphere tex coordinates
+    // float s = vTexCoords.s;
+    // float t = vTexCoords.t;
+
+    // vec2 nTexCoords = vTexCoords;
+    // float nBandPosition = t * float(features.numBands);
+    // bool nIsDarkBand = (int(nBandPosition) % 2 == 1);
+
+    // int numRotaryBands = features.numBands/2;
+    // float rotaryPosition = t * float(numRotaryBands);
+    // int rotaryIndex = int(rotaryPosition);
+    // if (features.numBands % 2 == 0) {
+    //     rotaryPosition -= 0.25;
+    // }
+    // bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
+
+    // float rotationAmount =
+    //     uTimeElapsed *
+    //     uAngularVelocity *
+    //     uRotationMultiplier *
+    //     features.bandRotationRateMultipliers[rotaryIndex];
+    // rotationAmount = mod(rotationAmount, 2.0 * PI);
+    // rotationAmount = rotationAmount / (2.0 * PI); // Normalize to [0, 1]
+
+    // if (isClockwise) {
+    //     nTexCoords.s = fract(vTexCoords.s + rotationAmount);
+    // } else {
+    //     nTexCoords.s = fract(vTexCoords.s - rotationAmount);
+    // }
+
+    // // float amp = 0.15;
+    // // float freq = 1.0;
+    // int noiseTexSlice = uPlanetID % 32;
+
+    // float amp = features.noiseAmp;
+    // float freq = features.noiseFreq;
+
+    // float noiseTexSliceFloat = float(noiseTexSlice);
+    // vec2 rotatedTexCoords = vTexCoords;
+    // vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, noiseTexSliceFloat));
+    // float n = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
+    // n = n - 2.0;
+    // n *= amp;
+    // t += n;
+
+    // // Get band informaton
+    
+    // float bandPosition = t * float(features.numBands);
+    // float bandFraction = fract(bandPosition);
+    // int bandIndex = int(bandPosition);
+    // bool isDarkBand = (bandIndex % 2 == 0);
+
+    // vec3 color = vec3(0.0, 0.0, 0.0);
+    // vec3 color1 = uFragColor.rgb;
+    // vec3 color2 = uFragColor.rgb * 0.5;
+
+    // const float tolerance = 0.4;
+    // float smoothFactor = smoothstep(1.0 - tolerance, 1.0 + tolerance, bandFraction);
+
+    // if (isDarkBand) {
+    //     // Even band, use color1
+    //     color = mix(color1, color2, smoothFactor);
+    // } else {
+    //     // Odd band, use color2
+    //     color = mix(color2, color1, smoothFactor);
+    // }
+    // return color;
+
+
+    /**************************************************************************************************************/
+
     vec4 featureTexels[MAX_FEATURE_TEXELS];
     getFeatureTexels(featureTexels);
     gasGiantFeatures features = getGasGiantFeatures(featureTexels);
 
-    int noiseTexSlice = uPlanetID % 256;
+    float noiseAmp = features.noiseAmp;
+    float noiseFreq = features.noiseFreq;
 
     // Sphere tex coordinates
     float s = vTexCoords.s;
     float t = vTexCoords.t;
-    
 
-    vec2 nTexCoords = vTexCoords;
-    float nBandPosition = t * float(features.numBands);
-    bool nIsDarkBand = (int(nBandPosition) % 2 == 1);
+    vec3 textureWorldSize = vec3(1.0, 1.0, 1.0);
+    vec3 fragLocalPosition = vFragPosition - uBodyPosition;
+    vec3 normalizedPosition = (fragLocalPosition / textureWorldSize) + 0.5;
 
-    int numRotaryBands = features.numBands/2;
-    float rotaryPosition = t * float(numRotaryBands);
-    int rotaryIndex = int(rotaryPosition);
-    if (features.numBands % 2 == 0) {
-        rotaryPosition -= 0.25;
-    }
-    bool isClockwise = ((int(rotaryPosition)) % 2 == 0);
-
-    float rotationAmount =
-        uTimeElapsed *
-        uAngularVelocity *
-        uRotationMultiplier *
-        features.bandRotationRateMultipliers[rotaryIndex];
-    rotationAmount = mod(rotationAmount, 2.0 * PI);
-    rotationAmount = rotationAmount / (2.0 * PI); // Normalize to [0, 1]
-
-    if (isClockwise) {
-        nTexCoords.s = fract(vTexCoords.s + rotationAmount);
-    } else {
-        nTexCoords.s = fract(vTexCoords.s - rotationAmount);
-    }
-
-    // float amp = 0.15;
-    // float freq = 1.0;
-    float amp = features.noiseAmp;
-    float freq = features.noiseFreq;
-    float noiseTexSliceFloat = float(noiseTexSlice);
-    vec2 rotatedTexCoords = vTexCoords;
-    vec4 noiseTex = texture(uNoiseTex, freq*vec3(nTexCoords, noiseTexSliceFloat));
+    // Set noise
+    vec4 noiseTex = texture(uNoiseTex, noiseFreq*vec3(normalizedPosition));
+    //vec4 noiseTex = texture(uNoiseTex, noiseFreq*vec3(vTexCoords, noiseTexSliceFloat));
     float n = noiseTex.r + noiseTex.g + noiseTex.b + noiseTex.a;
     n = n - 2.0;
-    n *= amp;
+    n *= noiseAmp;
     t += n;
-
-    // Get band informaton
     
+
+    // Set bands
     float bandPosition = t * float(features.numBands);
     float bandFraction = fract(bandPosition);
+
     int bandIndex = int(bandPosition);
     bool isDarkBand = (bandIndex % 2 == 0);
 
     vec3 color = vec3(0.0, 0.0, 0.0);
-    vec3 color1 = uFragColor.rgb;
-    vec3 color2 = uFragColor.rgb * 0.5;
+    vec3 lightColor = uFragColor.rgb;
+    vec3 darkColor = uFragColor.rgb * 0.5;
 
     const float tolerance = 0.4;
     float smoothFactor = smoothstep(1.0 - tolerance, 1.0 + tolerance, bandFraction);
 
     if (isDarkBand) {
         // Even band, use color1
-        color = mix(color1, color2, smoothFactor);
+        color = mix(lightColor, darkColor, smoothFactor);
     } else {
         // Odd band, use color2
-        color = mix(color2, color1, smoothFactor);
+        color = mix(darkColor, lightColor, smoothFactor);
     }
     return color;
 }

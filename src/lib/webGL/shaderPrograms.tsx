@@ -33,6 +33,7 @@ export interface StarlightProgramInfo {
         modelMatrix: WebGLUniformLocation | null;
         modelViewMatrix: WebGLUniformLocation | null;
         normalMatrix: WebGLUniformLocation | null;
+        uBodyPosition: WebGLUniformLocation | null;
         uTimeElapsed: WebGLUniformLocation | null;
         uFragColor: WebGLUniformLocation | null;
         uStarLocations: WebGLUniformLocation | null;

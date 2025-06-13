@@ -282,6 +282,7 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
+                    uBodyPosition: gl.getUniformLocation(starlightShaderProgram, "uBodyPosition"),
                     uTimeElapsed: gl.getUniformLocation(starlightShaderProgram, "uTimeElapsed"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
@@ -302,20 +303,21 @@ export function Sim() {
             // Set the noise texture for the starlight shader.
             const noiseTexture = gl.createTexture();
             gl.activeTexture(gl.TEXTURE0); // Activate texture unit 0
-            gl.bindTexture(gl.TEXTURE_2D_ARRAY, noiseTexture);
-            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D_ARRAY, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.bindTexture(gl.TEXTURE_3D, noiseTexture);
+            gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             //const maxLayers = gl.getParameter(gl.MAX_ARRAY_TEXTURE_LAYERS);
-            const maxLayers = 256;
+            const maxLayers = 32;
+            console.log("noiseTex:", binaryData.noiseTex);
             gl.texImage3D(
-                gl.TEXTURE_2D_ARRAY,
+                gl.TEXTURE_3D,
                 0,
                 gl.RGBA,
                 64, // width
                 64, // height
-                maxLayers, // depth
+                64, // depth
                 0,
                 gl.RGBA,
                 gl.UNSIGNED_BYTE,
@@ -935,6 +937,13 @@ export function Sim() {
                             const normalMatrix = mat4.create();
                             mat4.invert(normalMatrix, modelMatrix);
                             mat4.transpose(normalMatrix, normalMatrix);
+
+                            // body position
+                            gl.uniform3fv(starlightProgramInfo.uniformLocations.uBodyPosition, [
+                                universe.current.positionsX[i],
+                                universe.current.positionsY[i],
+                                universe.current.positionsZ[i],
+                            ]);
 
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
