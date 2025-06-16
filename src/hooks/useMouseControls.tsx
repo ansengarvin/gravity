@@ -7,6 +7,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     const isDragging = useRef(false);
     const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
     const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
+    const currentMousePosition = useRef<{ x: number; y: number } | null>(null);
 
     /*
         Mouse Controls
@@ -36,16 +37,16 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     };
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDragging.current || !lastMousePosition.current) return;
-
         const rect = event.currentTarget.getBoundingClientRect();
-        const currentMousePosition = {
+        currentMousePosition.current = {
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
         };
 
-        const deltaX = currentMousePosition.x - lastMousePosition.current.x;
-        const deltaY = currentMousePosition.y - lastMousePosition.current.y;
+        if (!isDragging.current || !lastMousePosition.current) return;
+
+        const deltaX = currentMousePosition.current.x - lastMousePosition.current.x;
+        const deltaY = currentMousePosition.current.y - lastMousePosition.current.y;
 
         cameraRef.current!.yaw -= deltaX * cameraSensitivity;
         cameraRef.current!.pitch -= deltaY * cameraSensitivity;
@@ -56,7 +57,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
             -Math.PI / 2 + 0.001,
         );
 
-        lastMousePosition.current = currentMousePosition;
+        lastMousePosition.current = currentMousePosition.current;
     };
 
     const handleMouseUp = () => {
@@ -64,5 +65,5 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         lastMousePosition.current = null;
     };
 
-    return { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp };
+    return { currentMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp };
 }

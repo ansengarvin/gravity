@@ -71,10 +71,8 @@ export function Sim() {
         The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
-        cameraRef,
-        cameraSensititivy,
-    );
+    const { currentMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
+        useMouseControls(cameraRef, cameraSensititivy);
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
     const universe = useRef<Universe>(new Universe(settings));
 
@@ -755,6 +753,8 @@ export function Sim() {
                     gl.enable(gl.DEPTH_TEST); // Enable depth testing
                     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
                     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+                    console.log(currentMousePosition.current);
 
                     /*
                         Draw debug circles
