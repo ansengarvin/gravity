@@ -306,6 +306,7 @@ export function Sim() {
                     uPlanetID: gl.getUniformLocation(starlightShaderProgram, "uPlanetID"),
                     uNumFeatureSampleTexels: gl.getUniformLocation(starlightShaderProgram, "uNumFeatureSampleTexels"),
                     uIsHovered: gl.getUniformLocation(starlightShaderProgram, "uIsHovered"),
+                    uIsFollowed: gl.getUniformLocation(starlightShaderProgram, "uIsFollowed"),
                 },
             };
 
@@ -1020,6 +1021,12 @@ export function Sim() {
                             gl.uniform1i(
                                 starlightProgramInfo.uniformLocations.uIsHovered,
                                 bodyHovered.current === i ? 1 : 0,
+                            );
+
+                            // Shader body followed
+                            gl.uniform1i(
+                                starlightProgramInfo.uniformLocations.uIsFollowed,
+                                bodyFollowedRef.current === i ? 1 : 0,
                             );
                         } else {
                             const normalMatrix = mat4.create();

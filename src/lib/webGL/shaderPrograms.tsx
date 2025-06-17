@@ -49,6 +49,7 @@ export interface StarlightProgramInfo {
         uPlanetID: WebGLUniformLocation | null;
         uNumFeatureSampleTexels: WebGLUniformLocation | null;
         uIsHovered: WebGLUniformLocation | null;
+        uIsFollowed: WebGLUniformLocation | null;
     };
 }
 
