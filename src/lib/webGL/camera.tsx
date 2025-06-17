@@ -1,4 +1,10 @@
-import { mat4, vec3 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
+import { MousePosition } from "../../hooks/useMouseControls";
+
+export interface Ray {
+    origin: vec3;
+    direction: vec3;
+}
 
 export class Camera {
     // X, Y, and Z represent the central point the camera orbits around
@@ -63,5 +69,31 @@ export class Camera {
         this.pitch = pitch;
         this.yaw = yaw;
         this.zoom = zoom;
+    }
+
+    public getRayFromMouse(normalizedMousePosition: MousePosition | null, projectionMatrix: mat4): Ray | null {
+        if (!normalizedMousePosition) {
+            return null;
+        }
+        const clipCoords = vec4.fromValues(normalizedMousePosition.x, normalizedMousePosition.y, -1.0, 1.0);
+
+        const inverseProjection = mat4.invert(mat4.create(), projectionMatrix);
+        const eyeCoords = vec4.transformMat4(vec4.create(), clipCoords, inverseProjection);
+        // Point forward
+        eyeCoords[2] = -1.0;
+        // Direction vector
+        eyeCoords[3] = 0.0;
+
+        // Convert to world space
+        const inverseView = mat4.invert(mat4.create(), this.getViewMatrix());
+        const worldCoords = vec4.transformMat4(vec4.create(), eyeCoords, inverseView);
+
+        // Create ray
+        const ray: Ray = {
+            origin: this.getPosition(),
+            direction: vec3.normalize(vec3.create(), vec3.fromValues(worldCoords[0], worldCoords[1], worldCoords[2])),
+        };
+
+        return ray;
     }
 }

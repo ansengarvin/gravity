@@ -11,7 +11,7 @@ import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
 import { Universe } from "../lib/universe/universe";
-import { Camera } from "../lib/webGL/camera";
+import { Camera, Ray } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
@@ -28,7 +28,7 @@ import vertGaussianBlur from "../assets/shaders/gaussianBlur/gaussianBlur.vert.g
 import fragBloom from "../assets/shaders/bloom/bloom.frag.glsl?raw";
 import vertBloom from "../assets/shaders/bloom/bloom.vert.glsl?raw";
 
-import { mat4, vec4 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
 import {
     setNormalAttribute,
     setPositionAttribute,
@@ -45,6 +45,7 @@ import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
 import { CircleType } from "../redux/controlsSlice";
 import { binaryDataDispatch } from "../redux/binaryDataSlice";
 import { MassThresholds } from "../lib/defines/physics";
+import { testRaySphereIntersection } from "../lib/webGL/testRaySphereIntersection";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -71,7 +72,7 @@ export function Sim() {
         The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const { currentMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
+    const { normalizedMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
         useMouseControls(cameraRef, cameraSensititivy);
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
     const universe = useRef<Universe>(new Universe(settings));
@@ -115,6 +116,12 @@ export function Sim() {
         dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(bodyFollowed) });
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
+
+    const bodyHovered = useSelector((state: RootState) => state.controls.bodyHovered);
+    const bodyHoveredRef = useRef(bodyHovered);
+    useEffect(() => {
+        bodyHoveredRef.current = bodyHovered;
+    }, [bodyHovered]);
 
     useEffect(() => {
         universe.current = new Universe(settings);
@@ -746,6 +753,12 @@ export function Sim() {
                     }
                     const viewMatrix = cameraRef.current.getViewMatrix();
 
+                    // TODO: Ray From Mouse
+                    let mouseRay: Ray | null = cameraRef.current.getRayFromMouse(
+                        normalizedMousePosition.current,
+                        projectionMatrix,
+                    );
+
                     // Bind scene framebuffer and clear
                     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
                     gl.clearColor(0.0, 0.0, 0.0, 1.0); // Clear to black, fully opaque
@@ -753,8 +766,6 @@ export function Sim() {
                     gl.enable(gl.DEPTH_TEST); // Enable depth testing
                     gl.depthFunc(gl.LEQUAL); // Near things obscure far things
                     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-                    console.log(currentMousePosition.current);
 
                     /*
                         Draw debug circles
@@ -894,9 +905,32 @@ export function Sim() {
                     /*
                         Draw Scene
                     */
+                    let nearestIntersectionDistance: number | null = null;
+                    let nearestIntersectedBody: number | null = null;
                     for (let i = 0; i < universe.current.settings.numBodies; i++) {
                         if (!universe.current.bodiesActive[i]) {
                             continue;
+                        }
+
+                        // Get ray from mouse to sphere
+                        if (mouseRay) {
+                            const spherePosition = vec3.fromValues(
+                                universe.current.positionsX[i],
+                                universe.current.positionsY[i],
+                                universe.current.positionsZ[i],
+                            );
+                            const sphereRadius = universe.current.radii[i];
+                            const intersection = testRaySphereIntersection(mouseRay, spherePosition, sphereRadius);
+                            if (intersection !== null) {
+                                // If this is the first intersection or the closest one so far, update it
+                                if (
+                                    nearestIntersectionDistance === null ||
+                                    intersection < nearestIntersectionDistance
+                                ) {
+                                    nearestIntersectionDistance = intersection;
+                                    nearestIntersectedBody = i;
+                                }
+                            }
                         }
 
                         const modelMatrix = mat4.create();
@@ -994,6 +1028,16 @@ export function Sim() {
                             const offset = 0;
                             gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
                         }
+                    }
+
+                    // Dispatch body hovered
+                    let sphereHovered = nearestIntersectedBody !== null ? nearestIntersectedBody : -1;
+                    if (bodyHoveredRef.current !== sphereHovered) {
+                        bodyHoveredRef.current = sphereHovered;
+                        dispatch({
+                            type: "controls/setBodyHovered",
+                            payload: sphereHovered,
+                        });
                     }
 
                     /*

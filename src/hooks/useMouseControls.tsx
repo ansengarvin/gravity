@@ -3,11 +3,17 @@ import { Camera } from "../lib/webGL/camera";
 import { useSelector } from "react-redux";
 import { RootState } from "../redux/store";
 
+export interface MousePosition {
+    x: number;
+    y: number;
+}
+
 export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensitivity: number) {
     const isDragging = useRef(false);
-    const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
+    const lastMousePosition = useRef<MousePosition | null>(null);
     const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
-    const currentMousePosition = useRef<{ x: number; y: number } | null>(null);
+    const currentMousePosition = useRef<MousePosition | null>(null);
+    const normalizedMousePosition = useRef<MousePosition | null>(null);
 
     /*
         Mouse Controls
@@ -43,6 +49,11 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
             y: event.clientY - rect.top,
         };
 
+        normalizedMousePosition.current = {
+            x: (currentMousePosition.current.x / rect.width) * 2 - 1,
+            y: -(currentMousePosition.current.y / rect.height) * 2 + 1,
+        };
+
         if (!isDragging.current || !lastMousePosition.current) return;
 
         const deltaX = currentMousePosition.current.x - lastMousePosition.current.x;
@@ -65,5 +76,11 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
         lastMousePosition.current = null;
     };
 
-    return { currentMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp };
+    return {
+        normalizedMousePosition,
+        handleMouseWheel,
+        handleMouseDown,
+        handleMouseMove,
+        handleMouseUp,
+    };
 }
