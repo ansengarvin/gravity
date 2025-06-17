@@ -11,7 +11,7 @@ import { initShaderProgram } from "../lib/webGL/shaders";
 import { initBuffers } from "../lib/webGL/buffers";
 import { getModel, Model } from "../lib/gltf/model";
 import { Universe } from "../lib/universe/universe";
-import { Camera } from "../lib/webGL/camera";
+import { Camera, Ray } from "../lib/webGL/camera";
 import styled from "@emotion/styled";
 
 // Note: Vite allows us to import a raw file. This is okay in this instance, since glsl files are just text.
@@ -28,7 +28,7 @@ import vertGaussianBlur from "../assets/shaders/gaussianBlur/gaussianBlur.vert.g
 import fragBloom from "../assets/shaders/bloom/bloom.frag.glsl?raw";
 import vertBloom from "../assets/shaders/bloom/bloom.vert.glsl?raw";
 
-import { mat4, vec4 } from "gl-matrix";
+import { mat4, vec3, vec4 } from "gl-matrix";
 import {
     setNormalAttribute,
     setPositionAttribute,
@@ -42,9 +42,10 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
-import { CircleType } from "../redux/controlsSlice";
+import { CircleType, controlsDispatch } from "../redux/controlsSlice";
 import { binaryDataDispatch } from "../redux/binaryDataSlice";
 import { MassThresholds } from "../lib/defines/physics";
+import { testRaySphereIntersection } from "../lib/webGL/testRaySphereIntersection";
 
 const ticksPerSecond = 60;
 const secondsPerTick = 1 / ticksPerSecond;
@@ -71,10 +72,8 @@ export function Sim() {
         The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } = useMouseControls(
-        cameraRef,
-        cameraSensititivy,
-    );
+    const { bodyHovered, normalizedMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
+        useMouseControls(cameraRef, cameraSensititivy);
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
     const universe = useRef<Universe>(new Universe(settings));
 
@@ -117,6 +116,15 @@ export function Sim() {
         dispatch({ type: "information/setLeaderboard", payload: universe.current.getActiveBodies(bodyFollowed) });
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
+
+    /*
+        For performance reasons, we don't want to dispatch this every time here.
+    */
+    // const bodyHovered = useSelector((state: RootState) => state.controls.bodyHovered);
+    // const bodyHoveredRef = useRef(bodyHovered);
+    // useEffect(() => {
+    //     bodyHoveredRef.current = bodyHovered;
+    // }, [bodyHovered]);
 
     useEffect(() => {
         universe.current = new Universe(settings);
@@ -282,6 +290,7 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
+                    viewNormalMatrix: gl.getUniformLocation(starlightShaderProgram, "uViewNormalMatrix"),
                     uTimeElapsed: gl.getUniformLocation(starlightShaderProgram, "uTimeElapsed"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
@@ -296,6 +305,8 @@ export function Sim() {
                     uFeatureTex: gl.getUniformLocation(starlightShaderProgram, "uFeatureTex"),
                     uPlanetID: gl.getUniformLocation(starlightShaderProgram, "uPlanetID"),
                     uNumFeatureSampleTexels: gl.getUniformLocation(starlightShaderProgram, "uNumFeatureSampleTexels"),
+                    uIsHovered: gl.getUniformLocation(starlightShaderProgram, "uIsHovered"),
+                    uIsFollowed: gl.getUniformLocation(starlightShaderProgram, "uIsFollowed"),
                 },
             };
 
@@ -693,7 +704,7 @@ export function Sim() {
                         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
                         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
                     }
-
+                    dispatch(controlsDispatch.setBodyHovered(bodyHovered.current));
                     dispatch({
                         type: "debug/setNumActiveUniforms",
                         payload: starLightRef.current
@@ -747,6 +758,11 @@ export function Sim() {
                         );
                     }
                     const viewMatrix = cameraRef.current.getViewMatrix();
+
+                    let mouseRay: Ray | null = cameraRef.current.getRayFromMouse(
+                        normalizedMousePosition.current,
+                        projectionMatrix,
+                    );
 
                     // Bind scene framebuffer and clear
                     gl.bindFramebuffer(gl.FRAMEBUFFER, sceneFrameBuffer);
@@ -894,9 +910,32 @@ export function Sim() {
                     /*
                         Draw Scene
                     */
+                    let nearestIntersectionDistance: number | null = null;
+                    let nearestIntersectedBody: number | null = null;
                     for (let i = 0; i < universe.current.settings.numBodies; i++) {
                         if (!universe.current.bodiesActive[i]) {
                             continue;
+                        }
+
+                        // Get ray from mouse to sphere
+                        if (mouseRay) {
+                            const spherePosition = vec3.fromValues(
+                                universe.current.positionsX[i],
+                                universe.current.positionsY[i],
+                                universe.current.positionsZ[i],
+                            );
+                            const sphereRadius = universe.current.radii[i];
+                            const intersection = testRaySphereIntersection(mouseRay, spherePosition, sphereRadius);
+                            if (intersection !== null) {
+                                // If this is the first intersection or the closest one so far, update it
+                                if (
+                                    nearestIntersectionDistance === null ||
+                                    intersection < nearestIntersectionDistance
+                                ) {
+                                    nearestIntersectionDistance = intersection;
+                                    nearestIntersectedBody = i;
+                                }
+                            }
                         }
 
                         const modelMatrix = mat4.create();
@@ -936,6 +975,10 @@ export function Sim() {
                             mat4.invert(normalMatrix, modelMatrix);
                             mat4.transpose(normalMatrix, normalMatrix);
 
+                            const viewNormalMatrix = mat4.create();
+                            mat4.invert(viewNormalMatrix, modelViewMatrix);
+                            mat4.transpose(viewNormalMatrix, viewNormalMatrix);
+
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
@@ -946,6 +989,11 @@ export function Sim() {
                                 starlightProgramInfo.uniformLocations.normalMatrix,
                                 false,
                                 normalMatrix,
+                            );
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.viewNormalMatrix,
+                                false,
+                                viewNormalMatrix,
                             );
                             const isStar = universe.current.inStarArray(i) ? 1 : 0;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
@@ -967,6 +1015,18 @@ export function Sim() {
                             gl.uniform1f(
                                 starlightProgramInfo.uniformLocations.uAngularVelocity,
                                 universe.current.angularVelocities[i],
+                            );
+
+                            // Shader body hovered
+                            gl.uniform1i(
+                                starlightProgramInfo.uniformLocations.uIsHovered,
+                                bodyHovered.current === i ? 1 : 0,
+                            );
+
+                            // Shader body followed
+                            gl.uniform1i(
+                                starlightProgramInfo.uniformLocations.uIsFollowed,
+                                bodyFollowedRef.current === i ? 1 : 0,
                             );
                         } else {
                             const normalMatrix = mat4.create();
@@ -994,6 +1054,12 @@ export function Sim() {
                             const offset = 0;
                             gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
                         }
+                    }
+
+                    // Dispatch body hovered
+                    let sphereHovered = nearestIntersectedBody !== null ? nearestIntersectedBody : -1;
+                    if (bodyHovered.current !== sphereHovered) {
+                        bodyHovered.current = sphereHovered;
                     }
 
                     /*

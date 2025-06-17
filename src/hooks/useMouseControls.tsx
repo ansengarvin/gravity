@@ -1,12 +1,25 @@
 import { useRef } from "react";
 import { Camera } from "../lib/webGL/camera";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState, useAppDispatch } from "../redux/store";
+import { controlsDispatch } from "../redux/controlsSlice";
+
+export interface MousePosition {
+    x: number;
+    y: number;
+}
 
 export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensitivity: number) {
     const isDragging = useRef(false);
-    const lastMousePosition = useRef<{ x: number; y: number } | null>(null);
+    const lastMousePosition = useRef<MousePosition | null>(null);
     const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
+    const currentMousePosition = useRef<MousePosition | null>(null);
+    const normalizedMousePosition = useRef<MousePosition | null>(null);
+    const bodyHovered = useRef<number>(-1);
+    const bodyHoveredMouseDown = useRef<number | null>(null);
+
+    //const controls = useSelector((state: RootState) => state.controls);
+    const dispatch = useAppDispatch();
 
     /*
         Mouse Controls
@@ -33,19 +46,25 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
         };
+        bodyHoveredMouseDown.current = bodyHovered.current;
     };
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!isDragging.current || !lastMousePosition.current) return;
-
         const rect = event.currentTarget.getBoundingClientRect();
-        const currentMousePosition = {
+        currentMousePosition.current = {
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
         };
 
-        const deltaX = currentMousePosition.x - lastMousePosition.current.x;
-        const deltaY = currentMousePosition.y - lastMousePosition.current.y;
+        normalizedMousePosition.current = {
+            x: (currentMousePosition.current.x / rect.width) * 2 - 1,
+            y: -(currentMousePosition.current.y / rect.height) * 2 + 1,
+        };
+
+        if (!isDragging.current || !lastMousePosition.current) return;
+
+        const deltaX = currentMousePosition.current.x - lastMousePosition.current.x;
+        const deltaY = currentMousePosition.current.y - lastMousePosition.current.y;
 
         cameraRef.current!.yaw -= deltaX * cameraSensitivity;
         cameraRef.current!.pitch -= deltaY * cameraSensitivity;
@@ -56,13 +75,27 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
             -Math.PI / 2 + 0.001,
         );
 
-        lastMousePosition.current = currentMousePosition;
+        lastMousePosition.current = currentMousePosition.current;
     };
 
     const handleMouseUp = () => {
         isDragging.current = false;
         lastMousePosition.current = null;
+        console.log("md", bodyHoveredMouseDown.current);
+        console.log("h", bodyHovered.current);
+        if (bodyHoveredMouseDown.current !== -1 && bodyHoveredMouseDown.current === bodyHovered.current) {
+            // Set body followed
+            dispatch(controlsDispatch.setBodyFollowed(bodyHoveredMouseDown.current));
+            bodyHoveredMouseDown.current = null;
+        }
     };
 
-    return { handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp };
+    return {
+        bodyHovered,
+        normalizedMousePosition,
+        handleMouseWheel,
+        handleMouseDown,
+        handleMouseMove,
+        handleMouseUp,
+    };
 }

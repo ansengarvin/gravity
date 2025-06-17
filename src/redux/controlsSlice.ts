@@ -18,6 +18,7 @@ export interface ControlsState {
     resetCam: number;
     menuShown: MenuName;
     bodyFollowed: number;
+    bodyHovered: number;
     showDebug: boolean;
     circleType: CircleType;
 }
@@ -27,6 +28,7 @@ const initialState: ControlsState = {
     resetSim: 0,
     resetCam: 0,
     bodyFollowed: -1,
+    bodyHovered: -1,
     menuShown: MenuName.NONE,
     showDebug: false,
     circleType: CircleType.NONE,
@@ -49,6 +51,9 @@ export const controlSlice = createSlice({
         setBodyFollowed: (state, action: PayloadAction<number>) => {
             state.bodyFollowed = action.payload;
         },
+        setBodyHovered: (state, action: PayloadAction<number>) => {
+            state.bodyHovered = action.payload;
+        },
         unsetBodyFollowed: (state) => {
             state.bodyFollowed = -1;
         },
@@ -69,5 +74,18 @@ export const controlSlice = createSlice({
 
 export const { togglePaused, resetSim, resetCam, setBodyFollowed, unsetBodyFollowed, setMenuShown, hideMenu } =
     controlSlice.actions;
+
+export const controlsDispatch = {
+    togglePaused: controlSlice.actions.togglePaused,
+    resetSim: controlSlice.actions.resetSim,
+    resetCam: controlSlice.actions.resetCam,
+    setBodyFollowed: controlSlice.actions.setBodyFollowed,
+    unsetBodyFollowed: controlSlice.actions.unsetBodyFollowed,
+    setBodyHovered: controlSlice.actions.setBodyHovered,
+    setMenuShown: controlSlice.actions.setMenuShown,
+    hideMenu: controlSlice.actions.hideMenu,
+    toggleDebug: controlSlice.actions.toggleDebug,
+    setCircleType: controlSlice.actions.setCircleType,
+};
 
 export default controlSlice.reducer;
