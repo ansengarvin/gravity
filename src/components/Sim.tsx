@@ -290,6 +290,7 @@ export function Sim() {
                     modelMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelMatrix"),
                     modelViewMatrix: gl.getUniformLocation(starlightShaderProgram, "uModelViewMatrix"),
                     normalMatrix: gl.getUniformLocation(starlightShaderProgram, "uNormalMatrix"),
+                    viewNormalMatrix: gl.getUniformLocation(starlightShaderProgram, "uViewNormalMatrix"),
                     uTimeElapsed: gl.getUniformLocation(starlightShaderProgram, "uTimeElapsed"),
                     uFragColor: gl.getUniformLocation(starlightShaderProgram, "uFragColor"),
                     uStarLocations: gl.getUniformLocation(starlightShaderProgram, "uStarLocations"),
@@ -304,6 +305,7 @@ export function Sim() {
                     uFeatureTex: gl.getUniformLocation(starlightShaderProgram, "uFeatureTex"),
                     uPlanetID: gl.getUniformLocation(starlightShaderProgram, "uPlanetID"),
                     uNumFeatureSampleTexels: gl.getUniformLocation(starlightShaderProgram, "uNumFeatureSampleTexels"),
+                    uIsHovered: gl.getUniformLocation(starlightShaderProgram, "uIsHovered"),
                 },
             };
 
@@ -972,6 +974,10 @@ export function Sim() {
                             mat4.invert(normalMatrix, modelMatrix);
                             mat4.transpose(normalMatrix, normalMatrix);
 
+                            const viewNormalMatrix = mat4.create();
+                            mat4.invert(viewNormalMatrix, modelViewMatrix);
+                            mat4.transpose(viewNormalMatrix, viewNormalMatrix);
+
                             gl.uniformMatrix4fv(starlightProgramInfo.uniformLocations.modelMatrix, false, modelMatrix);
                             gl.uniformMatrix4fv(
                                 starlightProgramInfo.uniformLocations.modelViewMatrix,
@@ -982,6 +988,11 @@ export function Sim() {
                                 starlightProgramInfo.uniformLocations.normalMatrix,
                                 false,
                                 normalMatrix,
+                            );
+                            gl.uniformMatrix4fv(
+                                starlightProgramInfo.uniformLocations.viewNormalMatrix,
+                                false,
+                                viewNormalMatrix,
                             );
                             const isStar = universe.current.inStarArray(i) ? 1 : 0;
                             gl.uniform1i(starlightProgramInfo.uniformLocations.uIsStar, isStar);
@@ -1003,6 +1014,12 @@ export function Sim() {
                             gl.uniform1f(
                                 starlightProgramInfo.uniformLocations.uAngularVelocity,
                                 universe.current.angularVelocities[i],
+                            );
+
+                            // Shader body hovered
+                            gl.uniform1i(
+                                starlightProgramInfo.uniformLocations.uIsHovered,
+                                bodyHovered.current === i ? 1 : 0,
                             );
                         } else {
                             const normalMatrix = mat4.create();

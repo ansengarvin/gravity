@@ -10,6 +10,8 @@ in vec3 vNormal;
 
 in vec3 vFragPosition;
 in highp vec2 vTexCoords;
+in vec3 vViewPosition;
+in vec3 vViewNormal;
 
 uniform float uTimeElapsed;
 uniform int uNumStars;
@@ -25,6 +27,7 @@ uniform lowp sampler2DArray uNoiseTex;
 uniform lowp sampler2D uFeatureTex;
 uniform int uPlanetID;
 uniform int uNumFeatureSampleTexels;
+uniform int uIsHovered;
 
 // layout(std140, binding=0) buffer StarLights {
 //     vec3 uboStarLocations[MAX_STARS];
@@ -294,6 +297,11 @@ vec3 calculatePointLight(vec3 starLoc, vec3 normal, vec3 fragPos, vec3 viewDir) 
     // results
     vec3 ambient = STAR_AMBIENT * MATERIAL_DIFFUSE;
     vec3 diffuse = STAR_DIFFUSE * diff * MATERIAL_DIFFUSE;
+
+    if (uIsHovered > 0) {
+        ambient = vec3(1, 0.812, 0.435) * MATERIAL_DIFFUSE;
+        diffuse = vec3(1, 0.812, 0.435) * diff * MATERIAL_DIFFUSE;
+    }
     vec3 specular = STAR_SPECULAR * spec * MATERIAL_SPECULAR;
 
     ambient *= attenuation;
@@ -323,7 +331,6 @@ void main(void) {
         result += calculatePointLight(uStarLocations[i], norm, vFragPosition, viewDir);
     }
 
-
     // Apply the result to the fragment color
     vec3 planetColor = uFragColor.rgb;
     if (uMass >= THRESHOLD_GAS_GIANT) {
@@ -339,10 +346,22 @@ void main(void) {
     }
     fragColor = vec4(result * planetColor, 1.0);
 
+    // Test cel shading
     if (uIsStar > 0) {
         ambient = vec3(1.5, 1.5, 1.5);
         fragColor = vec4(ambient * uFragColor.rgb, 1.0);
         brightColor = fragColor;
+    } else if (uIsHovered > 0) {
+        // If the planet is hovered, set the color to white
+        // Make fragcolor slightly yellow
+        //brightColor = fragColor;
+        vec3 celViewDir = normalize(-vViewPosition);
+        float rimFactor = 1.0 - dot(vViewNormal, celViewDir);
+        float rimThreshold = 0.6;
+        float rimMask = step(rimThreshold, rimFactor);
+        
+        vec3 finalBloom = mix(vec3(0.0, 0.0, 0.0), vec3(1, 0.773, 0), rimMask);
+        brightColor = vec4(finalBloom, 1.0);
     } else {
         brightColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
