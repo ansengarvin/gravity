@@ -3,6 +3,7 @@ import { Ray } from "./camera";
 
 export function testRaySphereIntersection(ray: Ray, sphereCenter: vec3, sphereRadius: number): number | null {
     // Origin to center of sphere
+
     let oc = vec3.subtract(vec3.create(), ray.origin, sphereCenter);
     let a = vec3.dot(ray.direction, ray.direction);
     let b = 2 * vec3.dot(oc, ray.direction);

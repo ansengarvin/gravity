@@ -925,7 +925,11 @@ export function Sim() {
                                 universe.current.positionsZ[i],
                             );
                             const sphereRadius = universe.current.radii[i];
-                            const intersection = testRaySphereIntersection(mouseRay, spherePosition, sphereRadius);
+                            const intersection = testRaySphereIntersection(
+                                mouseRay,
+                                spherePosition,
+                                sphereRadius + sphereRadius,
+                            );
                             if (intersection !== null) {
                                 // If this is the first intersection or the closest one so far, update it
                                 if (
