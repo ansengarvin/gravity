@@ -42,7 +42,7 @@ import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../redux/store";
 import { getCirclePositions } from "../lib/webGL/shapes";
 import { SolarSystemDistanceAU } from "../lib/defines/solarSystem";
-import { CircleType } from "../redux/controlsSlice";
+import { CircleType, controlsDispatch } from "../redux/controlsSlice";
 import { binaryDataDispatch } from "../redux/binaryDataSlice";
 import { MassThresholds } from "../lib/defines/physics";
 import { testRaySphereIntersection } from "../lib/webGL/testRaySphereIntersection";
@@ -72,7 +72,7 @@ export function Sim() {
         The camera and universe classes do not need ot be rerendered ever
     */
     const cameraRef = useRef<Camera>(new Camera(0, 0, 0, 0, 0, -20));
-    const { normalizedMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
+    const { bodyHovered, normalizedMousePosition, handleMouseWheel, handleMouseDown, handleMouseMove, handleMouseUp } =
         useMouseControls(cameraRef, cameraSensititivy);
     const { handleTouchStart, handleTouchMove, handleTouchEnd } = useTouchControls(cameraRef, cameraSensititivy);
     const universe = useRef<Universe>(new Universe(settings));
@@ -117,11 +117,14 @@ export function Sim() {
         bodyFollowedRef.current = bodyFollowed;
     }, [bodyFollowed]);
 
-    const bodyHovered = useSelector((state: RootState) => state.controls.bodyHovered);
-    const bodyHoveredRef = useRef(bodyHovered);
-    useEffect(() => {
-        bodyHoveredRef.current = bodyHovered;
-    }, [bodyHovered]);
+    /*
+        For performance reasons, we don't want to dispatch this every time here.
+    */
+    // const bodyHovered = useSelector((state: RootState) => state.controls.bodyHovered);
+    // const bodyHoveredRef = useRef(bodyHovered);
+    // useEffect(() => {
+    //     bodyHoveredRef.current = bodyHovered;
+    // }, [bodyHovered]);
 
     useEffect(() => {
         universe.current = new Universe(settings);
@@ -698,7 +701,7 @@ export function Sim() {
                         dispatch({ type: "information/setNumActiveBodies", payload: universe.current.numActive });
                         dispatch({ type: "information/setNumStars", payload: universe.current.getNumStars() });
                     }
-
+                    dispatch(controlsDispatch.setBodyHovered(bodyHovered.current));
                     dispatch({
                         type: "debug/setNumActiveUniforms",
                         payload: starLightRef.current
@@ -753,7 +756,6 @@ export function Sim() {
                     }
                     const viewMatrix = cameraRef.current.getViewMatrix();
 
-                    // TODO: Ray From Mouse
                     let mouseRay: Ray | null = cameraRef.current.getRayFromMouse(
                         normalizedMousePosition.current,
                         projectionMatrix,
@@ -1032,12 +1034,8 @@ export function Sim() {
 
                     // Dispatch body hovered
                     let sphereHovered = nearestIntersectedBody !== null ? nearestIntersectedBody : -1;
-                    if (bodyHoveredRef.current !== sphereHovered) {
-                        bodyHoveredRef.current = sphereHovered;
-                        dispatch({
-                            type: "controls/setBodyHovered",
-                            payload: sphereHovered,
-                        });
+                    if (bodyHovered.current !== sphereHovered) {
+                        bodyHovered.current = sphereHovered;
                     }
 
                     /*

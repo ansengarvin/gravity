@@ -53,7 +53,6 @@ export const controlSlice = createSlice({
         },
         setBodyHovered: (state, action: PayloadAction<number>) => {
             state.bodyHovered = action.payload;
-            console.log("setBodyHovered", action.payload);
         },
         unsetBodyFollowed: (state) => {
             state.bodyFollowed = -1;
@@ -75,5 +74,18 @@ export const controlSlice = createSlice({
 
 export const { togglePaused, resetSim, resetCam, setBodyFollowed, unsetBodyFollowed, setMenuShown, hideMenu } =
     controlSlice.actions;
+
+export const controlsDispatch = {
+    togglePaused: controlSlice.actions.togglePaused,
+    resetSim: controlSlice.actions.resetSim,
+    resetCam: controlSlice.actions.resetCam,
+    setBodyFollowed: controlSlice.actions.setBodyFollowed,
+    unsetBodyFollowed: controlSlice.actions.unsetBodyFollowed,
+    setBodyHovered: controlSlice.actions.setBodyHovered,
+    setMenuShown: controlSlice.actions.setMenuShown,
+    hideMenu: controlSlice.actions.hideMenu,
+    toggleDebug: controlSlice.actions.toggleDebug,
+    setCircleType: controlSlice.actions.setCircleType,
+};
 
 export default controlSlice.reducer;

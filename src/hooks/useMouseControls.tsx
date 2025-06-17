@@ -1,7 +1,8 @@
 import { useRef } from "react";
 import { Camera } from "../lib/webGL/camera";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState, useAppDispatch } from "../redux/store";
+import { controlsDispatch } from "../redux/controlsSlice";
 
 export interface MousePosition {
     x: number;
@@ -14,6 +15,11 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     const followedBodyRadius = useSelector((state: RootState) => state.information.followedBodyRadius);
     const currentMousePosition = useRef<MousePosition | null>(null);
     const normalizedMousePosition = useRef<MousePosition | null>(null);
+    const bodyHovered = useRef<number>(-1);
+    const bodyHoveredMouseDown = useRef<number | null>(null);
+
+    //const controls = useSelector((state: RootState) => state.controls);
+    const dispatch = useAppDispatch();
 
     /*
         Mouse Controls
@@ -40,6 +46,7 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
             x: event.clientX - rect.left,
             y: event.clientY - rect.top,
         };
+        bodyHoveredMouseDown.current = bodyHovered.current;
     };
 
     const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
@@ -74,9 +81,17 @@ export function useMouseControls(cameraRef: React.RefObject<Camera>, cameraSensi
     const handleMouseUp = () => {
         isDragging.current = false;
         lastMousePosition.current = null;
+        console.log("md", bodyHoveredMouseDown.current);
+        console.log("h", bodyHovered.current);
+        if (bodyHoveredMouseDown.current !== -1 && bodyHoveredMouseDown.current === bodyHovered.current) {
+            // Set body followed
+            dispatch(controlsDispatch.setBodyFollowed(bodyHoveredMouseDown.current));
+            bodyHoveredMouseDown.current = null;
+        }
     };
 
     return {
+        bodyHovered,
         normalizedMousePosition,
         handleMouseWheel,
         handleMouseDown,
