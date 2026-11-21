@@ -10,27 +10,27 @@ import binaryDataReducer from "./binaryDataSlice";
 import { useDispatch } from "react-redux";
 
 export const store = configureStore({
-    reducer: {
-        controls: controlsReducer,
-        debug: debugReducer,
-        information: informationReducer,
-        graphicsSettings: graphicsSettingsReducer,
-        universeSettings: universeSettingsReducer,
-        binaryData: binaryDataReducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredPaths: [
-                    "binaryData.noiseTex", // Ignore the noise texture as it is not serializable
-                ],
-                ignoredActions: [
-                    "binaryData/fetchNoiseTex/pending", // Ignore pending action for noise texture fetch
-                    "binaryData/fetchNoiseTex/fulfilled", // Ignore fulfilled action for noise texture fetch
-                    "binaryData/fetchNoiseTex/rejected", // Ignore rejected action for noise texture fetch
-                ],
-            },
-        }),
+  reducer: {
+    controls: controlsReducer,
+    debug: debugReducer,
+    information: informationReducer,
+    graphicsSettings: graphicsSettingsReducer,
+    universeSettings: universeSettingsReducer,
+    binaryData: binaryDataReducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredPaths: [
+          "binaryData.noiseTex", // Ignore the noise texture as it is not serializable
+        ],
+        ignoredActions: [
+          "binaryData/fetchNoiseTex/pending", // Ignore pending action for noise texture fetch
+          "binaryData/fetchNoiseTex/fulfilled", // Ignore fulfilled action for noise texture fetch
+          "binaryData/fetchNoiseTex/rejected", // Ignore rejected action for noise texture fetch
+        ],
+      },
+    }),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

@@ -4,89 +4,89 @@ import { color_offwhite } from "../lib/defines/colors.tsx";
 import { tablet, phone } from "../lib/defines/screenWidths.tsx";
 
 export function Header() {
-    return (
-        <Headerbar>
-            <Left>
-                <a href="https://ansengarvin.com/projects">See Other Projects</a>
-            </Left>
-            <Center>
-                <h1>Gravity</h1>
-            </Center>
-        </Headerbar>
-    );
+  return (
+    <Headerbar>
+      <Left>
+        <a href="https://ansengarvin.com/projects">See Other Projects</a>
+      </Left>
+      <Center>
+        <h1>Gravity</h1>
+      </Center>
+    </Headerbar>
+  );
 }
 
 const Headerbar = styled.div`
-    grid-area: top;
-    height: 50px;
-    margin-bottom: 5px;
+  grid-area: top;
+  height: 50px;
+  margin-bottom: 5px;
 
-    display: grid;
-    grid-template-areas: "left center right";
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 1fr;
+  display: grid;
+  grid-template-areas: "left center right";
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
 
-    border-bottom: 0.25rem solid ${color_offwhite};
-    background-color: black;
+  border-bottom: 0.25rem solid ${color_offwhite};
+  background-color: black;
+
+  @media (max-width: ${phone}) {
+    height: 45px;
+  }
+
+  a {
+    //Remove default styling
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    outline: none;
+
+    // My styling
+    color: ${color_offwhite};
+    font-size: 1rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+    margin-left: 10px;
+    @media (max-width: ${tablet}) {
+      margin-left: 5px;
+    }
 
     @media (max-width: ${phone}) {
-        height: 45px;
+      margin-left: 0px;
+      font-size: 0.75rem;
     }
-
-    a {
-        //Remove default styling
-        text-decoration: none;
-        color: inherit;
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        font: inherit;
-        outline: none;
-
-        // My styling
-        color: ${color_offwhite};
-        font-size: 1rem;
-
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 2rem;
-        margin-left: 10px;
-        @media (max-width: ${tablet}) {
-            margin-left: 5px;
-        }
-
-        @media (max-width: ${phone}) {
-            margin-left: 0px;
-            font-size: 0.75rem;
-        }
-    }
+  }
 `;
 
 const Left = styled.div`
-    grid-area: left;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
+  grid-area: left;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 `;
 
 const Center = styled.div`
-    grid-area: center;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  grid-area: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-    h1 {
-        // Remove all formatting
-        text-decoration: none;
-        color: inherit;
-        background: none;
-        border: none;
-        padding: 0;
-        margin: 0;
-        @media (max-width: ${tablet}) {
-            font-size: 1.25rem;
-        }
+  h1 {
+    // Remove all formatting
+    text-decoration: none;
+    color: inherit;
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    @media (max-width: ${tablet}) {
+      font-size: 1.25rem;
     }
+  }
 `;
