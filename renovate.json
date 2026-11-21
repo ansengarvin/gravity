@@ -26,9 +26,10 @@
       "groupName": "typescript and eslint"
     },
     {
-      "description": "typescript-eslint doesn't support TypeScript 7 yet (peer <6.1.0 as of 8.73.0). Lift once it does.",
+      "description": "TypeScript majors get their own PR, so one typescript-eslint doesn't support yet stays open as a reminder without holding up the eslint majors. Must stay after the group above to override it.",
       "matchPackageNames": ["typescript"],
-      "allowedVersions": "<7"
+      "matchUpdateTypes": ["major"],
+      "groupName": "typescript major"
     },
     { "matchManagers": ["renovate-config"], "matchDepNames": ["npm"], "enabled": false }
   ]
