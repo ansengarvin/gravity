@@ -11,6 +11,6 @@ uniform mat4 uNormalMatrix;
 out highp vec3 vTransformedNormal;
 
 void main(void) {
-    gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
-    vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal; 
+  gl_Position = uProjectionMatrix * uModelViewMatrix * aVertexPosition;
+  vTransformedNormal = mat3(uNormalMatrix) * aVertexNormal; 
 }
