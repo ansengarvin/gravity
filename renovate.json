@@ -12,6 +12,19 @@
   "lockFileMaintenance": { "enabled": true, "schedule": ["at any time"] },
   "packageRules": [
     { "matchManagers": ["github-actions"], "groupName": "github actions" },
+    { "matchPackageNames": ["vite", "@vitejs/**"], "groupName": "vite" },
+    { "matchPackageNames": ["react", "react-dom", "@types/react", "@types/react-dom"], "groupName": "react" },
+    {
+      "matchPackageNames": [
+        "typescript",
+        "eslint",
+        "@eslint/**",
+        "eslint-plugin-*",
+        "typescript-eslint",
+        "@typescript-eslint/**"
+      ],
+      "groupName": "typescript and eslint"
+    },
     { "matchManagers": ["renovate-config"], "matchDepNames": ["npm"], "enabled": false }
   ]
 }
