@@ -1,12 +1,10 @@
 name: deploy
 
+# Manual only, so a run of dependency merges ships as one deploy: Actions tab > deploy > Run workflow
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
-# One deploy at a time; a newer push cancels a queued one but never an in-progress deploy
+# One deploy at a time; a newer run cancels a queued one but never an in-progress deploy
 concurrency:
   group: pages
   cancel-in-progress: false
@@ -16,10 +14,11 @@ permissions: {}
 jobs:
   test:
     name: smoke tests
+    # Run workflow lets you pick any branch; only main ships. Build and deploy are skipped with this.
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/playwright.yaml
     permissions:
       contents: read
-      pull-requests: read
 
   build:
     name: build
