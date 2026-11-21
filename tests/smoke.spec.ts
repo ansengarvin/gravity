@@ -28,7 +28,10 @@ async function nonBackgroundShare(page: Page, png: Buffer): Promise<number> {
         const img = new Image();
         img.src = `data:image/png;base64,${base64}`;
         await img.decode();
-        const ctx = new OffscreenCanvas(img.width, img.height).getContext("2d")!;
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d")!;
         ctx.drawImage(img, 0, 0);
         const pixels = new Uint32Array(ctx.getImageData(0, 0, img.width, img.height).data.buffer);
         const counts = new Map<number, number>();

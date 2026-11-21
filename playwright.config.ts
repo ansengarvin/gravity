@@ -5,10 +5,13 @@ const full = Boolean(process.env.CI);
 
 const firefox = { name: "firefox", use: { ...devices["Desktop Firefox"] } };
 
-// CI runners have no GPU, so WebGL runs on software renderers. Chromium only allows its own (SwiftShader) with this flag.
+// CI runners have no GPU, so WebGL runs on software renderers. Chromium only allows its own (SwiftShader) with this flag,
+// and SwiftShader takes about 10s a frame here, so every wait on the canvas needs far longer than the defaults.
 const chromium = {
     name: "chromium",
     use: { ...devices["Desktop Chrome"], launchOptions: { args: ["--enable-unsafe-swiftshader"] } },
+    timeout: 180_000,
+    expect: { timeout: 60_000 },
 };
 
 const webkit = { name: "webkit", use: { ...devices["Desktop Safari"] } };
