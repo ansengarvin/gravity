@@ -110,9 +110,9 @@ export class RngState {
     }
 
     public getGaussianF32(mean: number, stdDev: number): number {
-        let u1 = this.getRandomF32(0, 1);
-        let u2 = this.getRandomF32(0, 1);
-        let z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        const u1 = this.getRandomF32(0, 1);
+        const u2 = this.getRandomF32(0, 1);
+        const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
         return mean + z0 * stdDev;
     }
 

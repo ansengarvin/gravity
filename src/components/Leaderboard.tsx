@@ -488,7 +488,6 @@ interface LeaderboardSortHeaderProps {
 
 function LeaderboardSortHeader(props: LeaderboardSortHeaderProps) {
     const { title, type, defaultSortAscending, sortCriteria, setSortCriteria } = props;
-    props;
     return (
         <LeaderboardSortHeaderStyle selected={sortCriteria.type === type}>
             <button

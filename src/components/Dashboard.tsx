@@ -18,9 +18,11 @@ export function Dashboard() {
                 <ControlButton
                     aria-label="Settings"
                     onClick={() => {
-                        controls.menuShown == MenuName.SETTINGS
-                            ? dispatch({ type: "controls/hideMenu" })
-                            : dispatch({ type: "controls/setMenuShown", payload: MenuName.SETTINGS });
+                        if (controls.menuShown == MenuName.SETTINGS) {
+                            dispatch({ type: "controls/hideMenu" });
+                        } else {
+                            dispatch({ type: "controls/setMenuShown", payload: MenuName.SETTINGS });
+                        }
                     }}
                 >
                     <SettingsIcon color={"white"} dim={"50px"} filled={controls.menuShown != MenuName.SETTINGS} />
@@ -50,9 +52,11 @@ export function Dashboard() {
                 <ControlButton
                     aria-label="Leaderboard"
                     onClick={() => {
-                        controls.menuShown == MenuName.LEADERBOARD
-                            ? dispatch({ type: "controls/hideMenu" })
-                            : dispatch({ type: "controls/setMenuShown", payload: MenuName.LEADERBOARD });
+                        if (controls.menuShown == MenuName.LEADERBOARD) {
+                            dispatch({ type: "controls/hideMenu" });
+                        } else {
+                            dispatch({ type: "controls/setMenuShown", payload: MenuName.LEADERBOARD });
+                        }
                     }}
                 >
                     <ViewListIcon color={"white"} dim={"50px"} filled={controls.menuShown != MenuName.LEADERBOARD} />
