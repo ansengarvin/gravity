@@ -11,51 +11,51 @@ import { RootState } from "./redux/store";
 import { MenuName } from "./redux/controlsSlice";
 
 const Backdrop = styled.div`
-    display: grid;
-    grid-template-areas:
-        "top"
-        "info"
-        "empty"
-        "menus"
-        "buttons";
-    grid-template-rows: 50px 50px 1fr min-content min-content;
-    grid-template-columns: 1fr;
+  display: grid;
+  grid-template-areas:
+    "top"
+    "info"
+    "empty"
+    "menus"
+    "buttons";
+  grid-template-rows: 50px 50px 1fr min-content min-content;
+  grid-template-columns: 1fr;
 
-    height: 100%;
-    width: 100%;
-    z-index: 1;
-    position: absolute;
-    pointer-events: none;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  position: absolute;
+  pointer-events: none;
 
-    & * {
-        pointer-events: auto;
-    }
+  & * {
+    pointer-events: auto;
+  }
 `;
 
 const SimScreen = styled.div`
-    position: absolute;
-    height: 100%;
-    width: 100%;
-    z-index: 0;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: 0;
 `;
 
 export function App() {
-    const showDebug = useSelector((state: RootState) => state.controls.showDebug);
-    const menuShown = useSelector((state: RootState) => state.controls.menuShown);
+  const showDebug = useSelector((state: RootState) => state.controls.showDebug);
+  const menuShown = useSelector((state: RootState) => state.controls.menuShown);
 
-    return (
-        <>
-            <SimScreen>
-                <Sim />
-            </SimScreen>
-            <Backdrop>
-                <InfoBox />
-                <Header />
-                {showDebug ? <DebugStats /> : null}
-                {menuShown == MenuName.LEADERBOARD ? <Leaderboard /> : null}
-                <Dashboard />
-                {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
-            </Backdrop>
-        </>
-    );
+  return (
+    <>
+      <SimScreen>
+        <Sim />
+      </SimScreen>
+      <Backdrop>
+        <InfoBox />
+        <Header />
+        {showDebug ? <DebugStats /> : null}
+        {menuShown == MenuName.LEADERBOARD ? <Leaderboard /> : null}
+        <Dashboard />
+        {menuShown == MenuName.SETTINGS ? <SettingsMenu /> : null}
+      </Backdrop>
+    </>
+  );
 }
