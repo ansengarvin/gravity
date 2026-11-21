@@ -1,0 +1,101 @@
+name: playwright
+
+on:
+    pull_request:
+    push:
+        branches: [main]
+
+permissions: {}
+
+jobs:
+    changes:
+        name: detect changes
+        runs-on: ubuntu-latest
+        permissions:
+            pull-requests: read
+        outputs:
+            app: ${{ github.event_name == 'push' || steps.filter.outputs.app == 'true' }}
+        steps:
+            - id: filter
+              if: github.event_name == 'pull_request'
+              uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
+              with:
+                  filters: |
+                      app:
+                          - src/**
+                          - public/**
+                          - tests/**
+                          - index.html
+                          - package.json
+                          - package-lock.json
+                          - vite.config.ts
+                          - tsconfig*.json
+                          - playwright.config.ts
+                          - .github/workflows/playwright.yaml
+
+    version:
+        name: read playwright version
+        needs: changes
+        if: needs.changes.outputs.app == 'true'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        outputs:
+            version: ${{ steps.read.outputs.version }}
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - id: read
+              name: Read version from the lockfile
+              run: echo "version=$(node -p "require('./package-lock.json').packages['node_modules/@playwright/test'].version")" >> "$GITHUB_OUTPUT"
+
+    playwright:
+        name: smoke tests (${{ matrix.browser }})
+        needs: version
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                browser: [chromium, firefox, webkit]
+        container:
+            image: mcr.microsoft.com/playwright:v${{ needs.version.outputs.version }}-noble
+            options: --ipc=host
+        env:
+            # Firefox won't start as root unless HOME is root's own
+            HOME: /root
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - name: Set up Node.js
+              uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+              with:
+                  node-version: 26
+                  cache: npm
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Build
+              run: npm run build
+
+            - name: Run smoke tests
+              run: npx playwright test --project=${{ matrix.browser }}
+
+    result:
+        name: smoke test results
+        needs: [changes, version, playwright]
+        if: always()
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check results
+              env:
+                  RESULTS: ${{ needs.changes.result }} ${{ needs.version.result }} ${{ needs.playwright.result }}
+              run: |
+                  echo "changes, version, playwright: $RESULTS"
+                  for r in $RESULTS; do
+                    case "$r" in success|skipped) ;; *) exit 1 ;; esac
+                  done

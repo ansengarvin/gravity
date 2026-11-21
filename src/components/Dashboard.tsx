@@ -16,6 +16,7 @@ export function Dashboard() {
         <ButtonContainer>
             <ButtonRow>
                 <ControlButton
+                    aria-label="Settings"
                     onClick={() => {
                         controls.menuShown == MenuName.SETTINGS
                             ? dispatch({ type: "controls/hideMenu" })
@@ -26,6 +27,7 @@ export function Dashboard() {
                 </ControlButton>
                 {controls.paused ? (
                     <ControlButton
+                        aria-label="Play"
                         onClick={() => {
                             dispatch({ type: "controls/togglePaused" });
                         }}
@@ -34,6 +36,7 @@ export function Dashboard() {
                     </ControlButton>
                 ) : (
                     <ControlButton
+                        aria-label="Pause"
                         onClick={() => {
                             dispatch({ type: "controls/togglePaused" });
                         }}
@@ -41,10 +44,11 @@ export function Dashboard() {
                         <PauseIcon color={"white"} dim={"50px"} filled={true} />
                     </ControlButton>
                 )}
-                <ControlButton onClick={() => dispatch({ type: "controls/resetSim" })}>
+                <ControlButton aria-label="Restart" onClick={() => dispatch({ type: "controls/resetSim" })}>
                     <RestartIcon color={"white"} dim={"50px"} filled={true} />
                 </ControlButton>
                 <ControlButton
+                    aria-label="Leaderboard"
                     onClick={() => {
                         controls.menuShown == MenuName.LEADERBOARD
                             ? dispatch({ type: "controls/hideMenu" })
