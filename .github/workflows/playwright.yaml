@@ -1,49 +1,16 @@
 name: playwright
 
+# Not on PRs: smoke tests gate deploys, and can be run by hand on any branch from the Actions tab
 on:
-  pull_request:
-  # deploy.yaml calls this on pushes to main and holds the deploy until it passes
+  # deploy.yaml calls this before every deploy and holds the deploy until it passes
   workflow_call:
-
-# A new push to a PR cancels the run for the commit it replaced. Named outright rather than with
-# github.workflow, which is "deploy" when deploy.yaml calls this. Those runs are never cancelled:
-# deploy's own concurrency already queues them, and a deploy should finish its tests.
-concurrency:
-  group: playwright-${{ github.event_name }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  workflow_dispatch:
 
 permissions: {}
 
 jobs:
-  changes:
-    name: detect changes
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    outputs:
-      app: ${{ github.event_name != 'pull_request' || steps.filter.outputs.app == 'true' }}
-    steps:
-      - id: filter
-        if: github.event_name == 'pull_request'
-        uses: dorny/paths-filter@ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d # v4.0.3
-        with:
-          filters: |
-            app:
-                - src/**
-                - public/**
-                - tests/**
-                - index.html
-                - package.json
-                - package-lock.json
-                - vite.config.ts
-                - tsconfig*.json
-                - playwright.config.ts
-                - .github/workflows/playwright.yaml
-
   version:
     name: read playwright version
-    needs: changes
-    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -91,18 +58,3 @@ jobs:
 
       - name: Run smoke tests
         run: xvfb-run -a npx playwright test --project=${{ matrix.browser }}
-
-  result:
-    name: smoke test results
-    needs: [changes, version, playwright]
-    if: always()
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check results
-        env:
-          RESULTS: ${{ needs.changes.result }} ${{ needs.version.result }} ${{ needs.playwright.result }}
-        run: |
-          echo "changes, version, playwright: $RESULTS"
-          for r in $RESULTS; do
-            case "$r" in success|skipped) ;; *) exit 1 ;; esac
-          done
