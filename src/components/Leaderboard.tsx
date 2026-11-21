@@ -56,6 +56,9 @@ export function Leaderboard() {
         ];
   useEffect(() => {
     if (activeTab == LeaderboardTabType.TARGET && bodyFollowed == -1) {
+      // TODO: setState in an effect renders the removed ΔTgt tab for one pass before switching to Mass. Adjust the
+      // state during render instead (an if that calls setActiveTab, without the effect), then remove this disable.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveTab(LeaderboardTabType.MASS);
     }
   }, [bodyFollowed]);

@@ -262,8 +262,8 @@ function MD5(message: string) {
     let D = d0;
 
     for (let j = 0; j < 64; j++) {
-      let F = 0;
-      let g = 0;
+      let F: number;
+      let g: number;
 
       if (j < 16) {
         F = (B & C) | (~B & D);
