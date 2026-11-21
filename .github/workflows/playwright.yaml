@@ -83,7 +83,7 @@ jobs:
               run: npm run build
 
             - name: Run smoke tests
-              run: npx playwright test --project=${{ matrix.browser }}
+              run: xvfb-run -a npx playwright test --project=${{ matrix.browser }}
 
     result:
         name: smoke test results

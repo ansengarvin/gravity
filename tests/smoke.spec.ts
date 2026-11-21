@@ -18,8 +18,11 @@ const test = base.extend<{ errors: string[] }>({
     ],
 });
 
+// The canvas alone: the UI drawn over it is hidden, so a blank canvas can't pass for a rendered one
 async function canvasShot(page: Page): Promise<Buffer> {
-    return page.locator("canvas").screenshot();
+    return page.locator("canvas").screenshot({
+        style: "* { visibility: hidden !important; } canvas { visibility: visible !important; }",
+    });
 }
 
 // The share of the screenshot's pixels that differ from its most common colour
