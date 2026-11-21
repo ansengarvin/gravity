@@ -759,7 +759,7 @@ export function Sim() {
                     }
                     const viewMatrix = cameraRef.current.getViewMatrix();
 
-                    let mouseRay: Ray | null = cameraRef.current.getRayFromMouse(
+                    const mouseRay: Ray | null = cameraRef.current.getRayFromMouse(
                         normalizedMousePosition.current,
                         projectionMatrix,
                     );
@@ -1050,14 +1050,13 @@ export function Sim() {
                         // Draw each sphere
                         {
                             const type = gl.UNSIGNED_SHORT;
-                            2;
                             const offset = 0;
                             gl.drawElements(gl.TRIANGLES, sphere.indexCount, type, offset);
                         }
                     }
 
                     // Dispatch body hovered
-                    let sphereHovered = nearestIntersectedBody !== null ? nearestIntersectedBody : -1;
+                    const sphereHovered = nearestIntersectedBody !== null ? nearestIntersectedBody : -1;
                     if (bodyHovered.current !== sphereHovered) {
                         bodyHovered.current = sphereHovered;
                     }

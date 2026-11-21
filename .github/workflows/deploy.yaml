@@ -14,8 +14,16 @@ concurrency:
 permissions: {}
 
 jobs:
+    test:
+        name: smoke tests
+        uses: ./.github/workflows/playwright.yaml
+        permissions:
+            contents: read
+            pull-requests: read
+
     build:
         name: build
+        needs: test
         runs-on: ubuntu-latest
         permissions:
             contents: read
