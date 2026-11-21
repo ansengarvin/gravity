@@ -1,0 +1,17 @@
+{
+    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "extends": [
+        "config:recommended",
+        "helpers:pinGitHubActionDigests",
+        ":disableVulnerabilityAlerts",
+        ":disableDependencyDashboard"
+    ],
+    "gitAuthor": "agar-helper[bot] <359351858+agar-helper[bot]@users.noreply.github.com>",
+    "prHourlyLimit": 0,
+    "constraints": { "npm": "^11" },
+    "lockFileMaintenance": { "enabled": true, "schedule": ["at any time"] },
+    "packageRules": [
+        { "matchManagers": ["github-actions"], "groupName": "github actions" },
+        { "matchManagers": ["renovate-config"], "matchDepNames": ["npm"], "enabled": false }
+    ]
+}
