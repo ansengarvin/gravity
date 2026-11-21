@@ -77,7 +77,11 @@ export class Camera {
     }
     const clipCoords = vec4.fromValues(normalizedMousePosition.x, normalizedMousePosition.y, -1.0, 1.0);
 
+    // invert returns null for a singular matrix, e.g. a degenerate projection; no ray can be cast then
     const inverseProjection = mat4.invert(mat4.create(), projectionMatrix);
+    if (!inverseProjection) {
+      return null;
+    }
     const eyeCoords = vec4.transformMat4(vec4.create(), clipCoords, inverseProjection);
     // Point forward
     eyeCoords[2] = -1.0;
@@ -86,6 +90,9 @@ export class Camera {
 
     // Convert to world space
     const inverseView = mat4.invert(mat4.create(), this.getViewMatrix());
+    if (!inverseView) {
+      return null;
+    }
     const worldCoords = vec4.transformMat4(vec4.create(), eyeCoords, inverseView);
 
     // Create ray
