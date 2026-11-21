@@ -19,11 +19,3 @@ test: lint playwright
 .PHONY: playwright
 playwright: build
 	cd $(SRC_ROOT) && npx playwright test
-
-# Every browser inside the same image CI uses, to reproduce a CI failure exactly. node_modules gets a volume of its own,
-# so the container's Linux packages don't overwrite the ones installed here.
-.PHONY: playwright-docker
-playwright-docker:
-	cd $(SRC_ROOT) && version=$$(node -p "require('@playwright/test/package.json').version") && \
-		MSYS_NO_PATHCONV=1 docker run --rm --ipc=host -e CI=1 -v "$(SRC_ROOT)":/work -v /work/node_modules -w /work \
-		mcr.microsoft.com/playwright:v$$version-noble sh -c "npm ci && npm run build && xvfb-run -a npx playwright test"
