@@ -25,6 +25,11 @@
       ],
       "groupName": "typescript and eslint"
     },
+    {
+      "description": "typescript-eslint doesn't support TypeScript 7 yet (peer <6.1.0 as of 8.73.0). Lift once it does.",
+      "matchPackageNames": ["typescript"],
+      "allowedVersions": "<7"
+    },
     { "matchManagers": ["renovate-config"], "matchDepNames": ["npm"], "enabled": false }
   ]
 }
